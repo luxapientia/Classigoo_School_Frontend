@@ -1,25 +1,98 @@
 "use client";
 
 import * as React from "react";
-import { Icon } from "@iconify/react";
 import { cn } from "@nextui-org/react";
 import countrylist from "./country.json";
-import { Avatar } from "@nextui-org/avatar";
-import { Card, CardBody } from "@nextui-org/card";
-import {
-  Button,
-  Badge,
-  Input,
-  Spacer,
-  Textarea,
-  DatePicker,
-  Select,
-  SelectSection,
-  SelectItem,
-} from "@nextui-org/react";
+import { Button, Input, Spacer, Select, SelectItem, Alert } from "@nextui-org/react";
 
-const AddressSetting = React.forwardRef(({ className, ...props }, ref) => {
-  const [selected, setSelected] = React.useState(new Set(["Select a country"]));
+// Apollo
+import { useMutation } from "@apollo/client";
+import { UPDATE_ADDRESS } from "@graphql/mutations";
+
+const AddressSetting = React.forwardRef(({ className, id, address, ...props }, ref) => {
+  // Graphql
+  //-> mutations
+  const [updateAddress] = useMutation(UPDATE_ADDRESS);
+
+  // States
+  // -> Database values
+  const [address1, setAddress1] = React.useState(address?.address1 || "");
+  const [address2, setAddress2] = React.useState(address?.address2 || "");
+  const [city, setCity] = React.useState(address?.city || "");
+  const [zip, setZip] = React.useState(address?.zip || "");
+  const [country, setCountry] = React.useState(address?.country || new Set(["Select a country"]));
+
+  // -> State Reminders
+  const [error, setError] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
+  const [updating, setUpdating] = React.useState(false);
+
+  // State update handlers
+  const handleAddress1Change = (e) => setAddress1(e.target.value);
+  const handleAddress2Change = (e) => setAddress2(e.target.value);
+  const handleCityChange = (e) => setCity(e.target.value);
+  const handleZipChange = (e) => setZip(e.target.value);
+  const handleCountryChange = (e) => setCountry(e.target.value);
+
+  // validator function
+  const validate = () => {
+    let isValid = true;
+    if (address1.trim() === "") {
+      setError("Address Line 1 is required.");
+      isValid = false;
+    } else if (city.trim() === "") {
+      setError("City is required.");
+      isValid = false;
+    } else if (zip.trim() === "") {
+      setError("Zip Code is required.");
+      isValid = false;
+    } else if (!countrylist.includes(country)) {
+      setError("Country is required.");
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setTimeout(() => setError(false), 3000);
+    }
+
+    return isValid;
+  };
+
+  // action handlers
+  const handleUpdateAddress = React.useCallback(async () => {
+    console.log("Updating Address");
+    setUpdating(true);
+
+    if (!validate()) {
+      setUpdating(false);
+      return;
+    }
+
+    const data = await updateAddress({
+      variables: {
+        id: id,
+        address: {
+          address1,
+          address2,
+          city,
+          zip,
+          country,
+        },
+      },
+    });
+
+    setUpdating(false);
+
+    if (data.data.update_users.affected_rows > 0) {
+      setSuccess("Profile updated successfully.");
+      setTimeout(() => setSuccess(false), 3000);
+    } else {
+      setError("Something went wrong. Please try again.");
+      setTimeout(() => setError(false), 3000);
+    }
+
+    console.log("ProfileSetting", data);
+  }, [address1, address2, city, zip, country]);
 
   return (
     <div ref={ref} className={cn("p-2", className)} {...props}>
@@ -29,35 +102,88 @@ const AddressSetting = React.forwardRef(({ className, ...props }, ref) => {
       </div>
       <Spacer y={4} />
       <div className="flex-1 mr-1">
-        <Input className="mt-2" label="Address Line 1" placeholder="e.g 1234 Main St" required />
+        <Input
+          className="mt-2"
+          label="Address Line 1"
+          placeholder="e.g 1234 Main St"
+          value={address1}
+          onChange={handleAddress1Change}
+          required
+        />
       </div>
       <Spacer y={2} />
       <div className="flex-1 mr-1">
-        <Input className="mt-2" label="Address Line 2" placeholder="e.g Apartment, studio, or floor" />
+        <Input
+          className="mt-2"
+          label="Address Line 2"
+          placeholder="e.g Apartment, studio, or floor"
+          value={address2}
+          onChange={handleAddress2Change}
+        />
       </div>
       <Spacer y={2} />
       <div className="flex">
         <div className="flex-1 mr-1">
-          <Input className="mt-2" label="City" placeholder="e.g New York" required />
+          <Input
+            className="mt-2"
+            label="City"
+            placeholder="e.g New York"
+            value={city}
+            onChange={handleCityChange}
+            required
+          />
         </div>
         <div className="flex-1 ml-1">
-          <Input className="mt-2" label="Zip Code" placeholder="e.g 10001" required />
+          <Input
+            className="mt-2"
+            label="Zip Code"
+            placeholder="e.g 10001"
+            value={zip}
+            onChange={handleZipChange}
+            required
+          />
         </div>
       </div>
       <Spacer y={2} />
       <div>
-        <Select className="mt-2" label="Country" placeholder="Select a country" value={selected} onChange={setSelected}>
+        <Select
+          className="mt-2"
+          label="Country"
+          placeholder="Select a country"
+          selectedKeys={[country]}
+          onChange={handleCountryChange}
+          value={country}
+        >
           {countrylist.map((country) => (
-            <SelectItem key={country} value={country}>
-              {country}
-            </SelectItem>
+            <SelectItem key={country}>{country}</SelectItem>
           ))}
         </Select>
       </div>
-      <Spacer y={2} />
-
+      {success && (
+        <>
+          <Spacer y={4} />
+          <div className="flex items-center justify-center w-full">
+            <Alert hideIconWrapper color="success" title={success} variant="bordered" />
+          </div>
+        </>
+      )}
+      {error && (
+        <>
+          <Spacer y={4} />
+          <div className="flex items-center justify-center w-full">
+            <Alert hideIconWrapper color="danger" title={error} variant="bordered" />
+          </div>
+        </>
+      )}
+      <Spacer y={4} />
       <div className="flex justify-end">
-        <Button className="mt-4 bg-default-foreground text-background" size="sm">
+        <Button
+          className="mt-4 bg-default-foreground text-background rounded-sm "
+          size="md"
+          radius="none"
+          onClick={handleUpdateAddress}
+          isLoading={updating}
+        >
           Update Profile
         </Button>
       </div>
