@@ -8,15 +8,20 @@ import { Avatar } from "@nextui-org/avatar";
 import { I18nProvider } from "@react-aria/i18n";
 import { Card, CardBody } from "@nextui-org/card";
 import { parseDate } from "@internationalized/date";
+import { FileUploader } from "react-drag-drop-files";
 import { Button, Badge, Input, Spacer, Textarea, DatePicker, Alert } from "@nextui-org/react";
 
 import { useMutation } from "@apollo/client";
 import { UPDATE_PROFILE } from "@graphql/mutations";
 import isEmail from "validator/lib/isEmail";
 import { isMobilePhone } from "validator";
+import axios from "axios";
 
 const ProfileSetting = React.forwardRef(
   ({ className, id, avatar, name, email, phone, birthday, bio, institution, is_plus, ...props }, ref) => {
+    // constans
+    const fileTypes = ["JPG", "JPEG", "PNG", "GIF"];
+
     // Graphql
     //-> mutations
     const [updateProfile] = useMutation(UPDATE_PROFILE);
@@ -35,6 +40,9 @@ const ProfileSetting = React.forwardRef(
     const [error, setError] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
     const [updating, setUpdating] = React.useState(false);
+    const [filePicker, setFilePicker] = React.useState(false);
+    const [profileFile, setProfileFile] = React.useState(null);
+    const [profileFilePreview, setProfileFilePreview] = React.useState(null);
 
     // State update handlers
     const handleNameChange = React.useCallback((e) => setNameValue(e.target.value), [nameValue]);
@@ -104,9 +112,52 @@ const ProfileSetting = React.forwardRef(
         setError("Something went wrong. Please try again.");
         setTimeout(() => setError(false), 3000);
       }
-
-      console.log("ProfileSetting", data);
     }, [nameValue, bioValue, birthdayValue, avatarUrl, institutionValue, phoneValue]);
+
+    // handle file change
+    const handleFileChange = React.useCallback(
+      (file) => {
+        setProfileFile(file);
+      },
+      [profileFile]
+    );
+
+    // handle file upload
+    React.useEffect(() => {
+      if (profileFile) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setProfileFilePreview(reader.result);
+        };
+        reader.readAsDataURL(profileFile);
+      }
+    }, [profileFile]);
+
+    const handleFileUpload = React.useCallback(async () => {
+      setUpdating(true);
+      let formData = new FormData();
+      formData.append("profile_picture", profileFile);
+
+      // post form data image
+      const data = await axios.post("/api/proxy/update-profile", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (data.data.status === "success") {
+        setAvatarUrl(data.data.avatar);
+        setSuccess("Profile picture updated successfully.");
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError("Something went wrong. Please try again.");
+        setTimeout(() => setError(false), 3000);
+      }
+
+      setProfileFile(null);
+      setFilePicker(false);
+      setUpdating(false);
+    }, [profileFile, profileFilePreview]);
 
     return (
       <div ref={ref} className={cn("p-2", className)} {...props}>
@@ -136,6 +187,7 @@ const ProfileSetting = React.forwardRef(
                         radius="full"
                         size="sm"
                         variant="bordered"
+                        onClick={() => setFilePicker(true)}
                       >
                         <Icon className="h-[9px] w-[9px]" icon="solar:pen-linear" />
                       </Button>
@@ -248,7 +300,7 @@ const ProfileSetting = React.forwardRef(
         <Spacer y={4} />
         <div className="flex justify-end">
           <Button
-            className="mt-4 bg-default-foreground text-background rounded-sm "
+            className="mt-4 bg-default-foreground text-background rounded-sm"
             size="md"
             radius="none"
             onClick={handleUpdateProfile}
@@ -257,6 +309,57 @@ const ProfileSetting = React.forwardRef(
             Update Profile
           </Button>
         </div>
+        {filePicker && (
+          <div className="bg-black/5 fixed inset-0 z-50 flex items-center justify-center top-0 left-0 right-0 bottom-0 backdrop-blur-[5px]">
+            <div className="bg-white dark:bg-black p-5 rounded-xl max-w-[90%] w-[512px]">
+              {profileFile ? (
+                <div className="flex justify-center content-center">
+                  <img src={profileFilePreview} alt="Profile" className="h-48 w-auto object-cover rounded-lg" />
+                </div>
+              ) : (
+                <FileUploader fileTypes={fileTypes} handleChange={handleFileChange} maxSize={2}>
+                  <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8">
+                    <Icon icon="akar-icons:upload" className="h-8 w-8 text-default-400" />
+                    <p className="text-sm text-default-400">
+                      Drag and drop your profile picture here or click to upload.
+                    </p>
+                  </div>
+                  <p className="mt-2 text-xs text-default-400">
+                    <span className="text-danger-500">*</span>
+                    Allowed File types: {fileTypes.join(", ")}
+                  </p>
+                  <p className="text-xs text-default-400">
+                    <span className="text-danger-500">*</span>
+                    Max file size: 2MB
+                  </p>
+                </FileUploader>
+              )}
+              <div className="flex justify-end w-full">
+                <Button
+                  className="mt-4 bg-danger text-background rounded-sm mr-2"
+                  size="sm"
+                  variant="text"
+                  onClick={() => {
+                    setProfileFile(null);
+                    setFilePicker(false);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="mt-4 bg-default-foreground text-background rounded-sm"
+                  size="sm"
+                  variant="text"
+                  onClick={handleFileUpload}
+                  disabled={!profileFile}
+                  isLoading={updating}
+                >
+                  Confirm
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
