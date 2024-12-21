@@ -1,2 +1,4 @@
 import GET_PROFILE from "./getProfile";
-export { GET_PROFILE };
+import GET_CHILDREN from "./getChildren";
+
+export { GET_PROFILE, GET_CHILDREN };
