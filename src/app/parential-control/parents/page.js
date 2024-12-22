@@ -1,17 +1,27 @@
-"use client";
-import { Table, TableHeader, TableColumn, TableBody } from "@nextui-org/react";
+import React from "react";
+import { auth0 } from "@lib/auth0";
+import { redirect } from "next/navigation";
+import { GET_PARENT } from "@graphql/queries";
+import { getClient } from "@lib/apolloServer";
+import MainParentComponent from "@components/pages/parential-control/parent/main";
 
-export default function ParentsPage() {
+export default async function ChildrenPage() {
+  const session = await auth0.getSession();
+
+  if (!session) {
+    redirect("/auth/login");
+  }
+
+  const { data, loading, error } = await getClient().query({
+    query: GET_PARENT,
+    variables: {
+      id: session.user.sub,
+    },
+  });
+
   return (
-    <Table aria-label="Example empty table">
-      <TableHeader>
-        <TableColumn>Avatar</TableColumn>
-        <TableColumn>Name</TableColumn>
-        <TableColumn>Email</TableColumn>
-        <TableColumn>Status</TableColumn>
-        <TableColumn>Actions</TableColumn>
-      </TableHeader>
-      <TableBody emptyContent={"No rows to display."}>{[]}</TableBody>
-    </Table>
+    <>
+      <MainParentComponent qparent={data.child_parent} qloading={loading} qerror={error} />
+    </>
   );
 }

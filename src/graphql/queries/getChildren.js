@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 const GET_CHILDREN = gql`
-  query getChildrens($id: String!) {
+  query getChildren($id: String!) {
     child_parent(where: { parent_id: { _eq: $id } }) {
       id
       status

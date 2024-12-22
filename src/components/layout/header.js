@@ -3,10 +3,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
+import { useQuery } from "@apollo/client";
 import { useUser } from "@auth0/nextjs-auth0";
 import { ThemeSwitcher } from "./theme-switcher";
 import { Avatar, Badge } from "@nextui-org/react";
 import { useContext, createContext, useState, useEffect, useMemo, useCallback } from "react";
+
+// queries
+import { GET_AVATAR } from "@graphql/queries";
+import { useSuspenseQuery } from "@apollo/client";
+import { client } from "@lib/apolloClient";
 
 const HeaderSlotContext = createContext();
 
@@ -52,32 +58,32 @@ export function HeaderSlot({ children }) {
   return null;
 }
 
-export default function Header({ avatar }) {
+export default function Header() {
   const { user } = useUser();
   const { slots } = useSlot();
+  const [userAvatar, setUserAvatar] = useState(user?.picture);
+
+  // fetch user avatar
+  const fetchUserAvatar = useCallback(async () => {
+    if (user) {
+      const { data } = await client.query({
+        query: GET_AVATAR,
+        variables: {
+          id: user.sub,
+        },
+      });
+
+      setUserAvatar(data.users_by_pk.avatar);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchUserAvatar();
+  }, [user, userAvatar]);
+
   return (
-    // <header className="border-b-1.5 dark:border-gray-800">
     <header>
       <div className="flex items-center">
-        {/* <div className="flex-initial px-4">
-          <Link href="/" className="py-1.5">
-            <Image
-              src="/images/brand/logo-t-b.png"
-              alt="logo"
-              width={187}
-              height={35}
-              className="dark:hidden block"
-            />
-
-            <Image
-              src="/images/brand/logo-t-w.png"
-              alt="logo"
-              width={187}
-              height={35}
-              className="dark:block hidden"
-            />
-          </Link>
-        </div> */}
         {slots.specificHeader && <div className="flex-initial pl-5">{slots.specificHeader}</div>}
         <div className="flex-auto"></div>
         <div className="flex-initial px-4">
@@ -106,7 +112,7 @@ export default function Header({ avatar }) {
                   className="cursor-pointer"
                   isBordered
                   radius="full"
-                  {...(avatar ? { src: avatar } : { name: user?.name })}
+                  {...(userAvatar ? { src: userAvatar } : { name: user?.name })}
                 />
               </Link>
             </div>

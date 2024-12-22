@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
-import ActionCard from "./action";
 import { Icon } from "@iconify/react";
-import InvitationCard from "./invite";
 import { useRouter } from "next/navigation";
 import isEmail from "validator/lib/isEmail";
 import { HeaderSlot } from "@components/layout/header";
@@ -19,16 +17,16 @@ import {
 } from "@nextui-org/react";
 
 // queries & mutations
-import { DELETE_CHILD_CLAIM, INVITE_CHILD } from "@graphql/mutations";
+import { ACCEPT_CHILD_CLAIM } from "@graphql/mutations";
 
 //graphql client
 import { useMutation } from "@apollo/client";
+import ActionCard from "./action";
 
-export default function MainChildComponent({ qchildren = [], qloading, qerror }) {
+export default function MainParentComponent({ qparent = [], qloading, qerror }) {
   // graphql
   // -> mutations
-  const [inviteChild] = useMutation(INVITE_CHILD);
-  const [deleteChild] = useMutation(DELETE_CHILD_CLAIM);
+  const [acceptChildClaim] = useMutation(ACCEPT_CHILD_CLAIM);
 
   // router
   const route = useRouter();
@@ -39,70 +37,25 @@ export default function MainChildComponent({ qchildren = [], qloading, qerror })
   const [error, setError] = React.useState(qerror ? qerror.message : "");
   const [success, setSuccess] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  const [showinvite, setShowInvite] = React.useState(false);
-  const [inviteEmail, setInviteEmail] = React.useState("");
-
-  const [actionId, setActionId] = React.useState();
+  const [action, setAction] = React.useState({});
   const [showAction, setShowAction] = React.useState(false);
 
-  const [children, setChildren] = React.useState(qchildren.length > 0 ? qchildren : []);
+  const [parent, setParent] = React.useState(qparent.length > 0 ? qparent : []);
 
   const handleClose = React.useCallback(() => {
     setError("");
+    setSuccess("");
     setLoading(false);
-    setInviteEmail("");
-    setShowInvite(false);
-  }, [inviteEmail]);
+    setAction({});
+    setShowAction(false);
+  }, [action]);
 
-  const handleSubmit = React.useCallback(
-    async (e) => {
-      e.preventDefault();
-      console.log("submitting form");
-      setLoading(true);
-      setError("");
-      setSuccess("");
-
-      if (!inviteEmail) {
-        setError("Email is required");
-        setLoading(false);
-        return;
-      }
-
-      if (isEmail(inviteEmail) === false) {
-        setError("Please enter a valid email address");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        // send the invite
-        const data = await inviteChild({ variables: { email: inviteEmail } });
-        if (data.data.inviteChild.status === "error") {
-          setLoading(false);
-          setError(data.data.inviteChild.message);
-          return;
-        } else {
-          setLoading(false);
-          setInviteEmail("");
-          setShowInvite(false);
-          setSuccess(data.data.inviteChild.message);
-        }
-      } catch (error) {
-        console.log(error);
-        setError(error.message);
-        setLoading(false);
-        return;
-      }
-    },
-    [inviteEmail]
-  );
-
-  const handleDelete = React.useCallback(async () => {
+  const handleSubmit = React.useCallback(async () => {
     setLoading(true);
     setError("");
     setSuccess("");
 
-    if (actionId === "") {
+    if (action?.id === "") {
       setLoading(false);
       setError("No action selected.");
       return;
@@ -110,19 +63,24 @@ export default function MainChildComponent({ qchildren = [], qloading, qerror })
 
     try {
       // send the invite
-      const data = await deleteChild({ variables: { id: actionId } });
+      const data = await acceptChildClaim({
+        variables: {
+          id: action.id,
+          accept: action.accept,
+        },
+      });
 
-      if (data.data.removeChildInvite.status === "error") {
+      if (data.data.acceptChildInvite.status === "error") {
         setLoading(false);
         setSuccess("");
-        setError(data.data.removeChildInvite.message);
+        setError(data.data.acceptChildInvite.message);
         return;
       } else {
         setLoading(false);
-        setActionId("");
+        setAction({});
         setShowAction(false);
         setError("");
-        setSuccess(data.data.removeChildInvite.message);
+        setSuccess(data.data.acceptChildInvite.message);
       }
     } catch (error) {
       setError(error.message);
@@ -130,11 +88,11 @@ export default function MainChildComponent({ qchildren = [], qloading, qerror })
       setLoading(false);
       return;
     }
-  }, [actionId]);
+  }, [action]);
 
   return (
     <>
-      <HeaderSlot>
+      {/* <HeaderSlot>
         <Button
           size="small"
           onClick={() => {
@@ -145,9 +103,9 @@ export default function MainChildComponent({ qchildren = [], qloading, qerror })
           className="flex items-center bg-content2 text:content1"
         >
           <Icon icon="akar-icons:plus" />
-          Invite a child
+          Invite a parent
         </Button>
-      </HeaderSlot>
+      </HeaderSlot> */}
       <div className="mb-5">
         {success && (
           <Alert hideIcon color="success" variant="faded">
@@ -168,26 +126,26 @@ export default function MainChildComponent({ qchildren = [], qloading, qerror })
           <TableColumn>Email</TableColumn>
           <TableColumn className="text-center">Membership</TableColumn>
           <TableColumn className="text-center">Invitation Status</TableColumn>
-          <TableColumn>Actions</TableColumn>
+          <TableColumn className="text-center">Actions</TableColumn>
         </TableHeader>
         <TableBody emptyContent={"No rows to display."} isLoading={qloading}>
-          {children.length > 0
-            ? children.map((data, index) => (
+          {parent.length > 0
+            ? parent.map((data, index) => (
                 <TableRow key={index}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>
                     <Avatar
-                      src={data.child.avatar}
-                      alt={data.child.name}
-                      name={data.child.name}
+                      src={data.parent.avatar}
+                      alt={data.parent.name}
+                      name={data.parent.name}
                       size="small"
                       radius="lg"
                     />
                   </TableCell>
-                  <TableCell>{data.child.name}</TableCell>
-                  <TableCell>{data.child.email}</TableCell>
+                  <TableCell>{data.parent.name}</TableCell>
+                  <TableCell>{data.parent.email}</TableCell>
                   <TableCell className="text-center">
-                    {data.child.is_plus ? (
+                    {data.parent.is_plus ? (
                       <span className="text-orange-500 bg-orange-200 px-3 py-0.5 capitalize rounded-full text-xs font-bold">
                         Plus
                       </span>
@@ -206,30 +164,44 @@ export default function MainChildComponent({ qchildren = [], qloading, qerror })
                       <span className="text-gray-500 capitalize rounded-full text-xs font-bold">{data.status}</span>
                     )}
                   </TableCell>
-                  <TableCell>
-                    <Button
-                      size="small"
-                      variant="ghost"
-                      color="primary"
-                      className="mr-2"
-                      isDisabled={data.status.toLowerCase() === "pending"}
-                      onClick={() => {
-                        route.push(`/parential-control/child/${data.id}`);
-                      }}
-                    >
-                      Manage
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="ghost"
-                      color="danger"
-                      onClick={() => {
-                        setActionId(data.id);
-                        setShowAction(true);
-                      }}
-                    >
-                      Remove
-                    </Button>
+                  <TableCell
+                    className={`${data.status.toLowerCase() === "pending" ? "flex justify-center content-center" : "text-center"}`}
+                  >
+                    {data.status.toLowerCase() === "pending" ? (
+                      <>
+                        <Button
+                          size="small"
+                          variant="ghost"
+                          color="success"
+                          className="mr-2"
+                          onClick={() => {
+                            setAction({
+                              id: data.id,
+                              accept: true,
+                            });
+                            setShowAction(true);
+                          }}
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="ghost"
+                          color="danger"
+                          onClick={() => {
+                            setAction({
+                              id: data.id,
+                              accept: false,
+                            });
+                            setShowAction(true);
+                          }}
+                        >
+                          Decline
+                        </Button>
+                      </>
+                    ) : (
+                      <span className="text-center">--</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
@@ -237,26 +209,11 @@ export default function MainChildComponent({ qchildren = [], qloading, qerror })
         </TableBody>
       </Table>
 
-      {showinvite && (
-        <InvitationCard
-          inviteEmail={inviteEmail}
-          setInviteEmail={setInviteEmail}
-          handleClose={handleClose}
-          handleSubmit={handleSubmit}
-          error={error}
-          setError={setError}
-          loading={loading}
-        />
-      )}
-
       {showAction && (
         <ActionCard
-          action={actionId}
-          handleClose={() => {
-            setActionId("");
-            setShowAction(false);
-          }}
-          handleSubmit={handleDelete}
+          action={action}
+          handleClose={handleClose}
+          handleSubmit={handleSubmit}
           error={error}
           setError={setError}
           loading={loading}

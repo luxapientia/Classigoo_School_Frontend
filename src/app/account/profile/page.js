@@ -16,6 +16,7 @@ export default async function ProfilePage() {
 
   const { data, loading, error } = await getClient().query({
     query: GET_PROFILE,
+    variables: { id: session.user.sub },
   });
 
   if (loading) {
@@ -26,7 +27,7 @@ export default async function ProfilePage() {
     return <ErrorPage message={error.message} />;
   }
 
-  const profileData = data.users[0];
+  const profileData = data.users_by_pk;
 
   return (
     <div className="w-full max-w-2xl flex-1 p-4">

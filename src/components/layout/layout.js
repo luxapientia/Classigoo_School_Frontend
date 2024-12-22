@@ -14,7 +14,7 @@ export default function Layout({ children }) {
         </aside>
         <section className="flex-auto h-[100vh] overflow-y-auto">
           <Header />
-          <main className="p-5 ">{children}</main>
+          <main className="p-5 h-[calc(100%_-_64px)] overflow-y-auto">{children}</main>
         </section>
       </section>
     </>
