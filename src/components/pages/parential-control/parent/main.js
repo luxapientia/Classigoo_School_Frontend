@@ -1,9 +1,6 @@
 "use client";
 import React from "react";
-import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import isEmail from "validator/lib/isEmail";
-import { HeaderSlot } from "@components/layout/header";
 import {
   Table,
   TableHeader,
@@ -14,16 +11,18 @@ import {
   TableRow,
   Avatar,
   TableColumn,
+  Spinner,
 } from "@nextui-org/react";
+import ActionCard from "./action";
 
-// queries & mutations
+// queries & mutations & subscriptions
+import { SUB_PARENT } from "@graphql/subscriptions";
 import { ACCEPT_CHILD_CLAIM } from "@graphql/mutations";
 
 //graphql client
-import { useMutation } from "@apollo/client";
-import ActionCard from "./action";
+import { useMutation, useSubscription } from "@apollo/client";
 
-export default function MainParentComponent({ qparent = [], qloading, qerror }) {
+export default function MainParentComponent({ user }) {
   // graphql
   // -> mutations
   const [acceptChildClaim] = useMutation(ACCEPT_CHILD_CLAIM);
@@ -32,15 +31,22 @@ export default function MainParentComponent({ qparent = [], qloading, qerror }) 
   const route = useRouter();
 
   // -> queries
+  const {
+    data: sub_data,
+    loading: sub_loading,
+    error: sub_error,
+  } = useSubscription(SUB_PARENT, {
+    variables: {
+      id: user.sub,
+    },
+  });
 
   // states
-  const [error, setError] = React.useState(qerror ? qerror.message : "");
+  const [error, setError] = React.useState(sub_error ? sub_error.message : "");
   const [success, setSuccess] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [action, setAction] = React.useState({});
   const [showAction, setShowAction] = React.useState(false);
-
-  const [parent, setParent] = React.useState(qparent.length > 0 ? qparent : []);
 
   const handleClose = React.useCallback(() => {
     setError("");
@@ -90,22 +96,10 @@ export default function MainParentComponent({ qparent = [], qloading, qerror }) 
     }
   }, [action]);
 
+  const parent = sub_data?.child_parent || [];
+
   return (
     <>
-      {/* <HeaderSlot>
-        <Button
-          size="small"
-          onClick={() => {
-            setShowInvite(true);
-          }}
-          radius="large"
-          variant="ghost"
-          className="flex items-center bg-content2 text:content1"
-        >
-          <Icon icon="akar-icons:plus" />
-          Invite a parent
-        </Button>
-      </HeaderSlot> */}
       <div className="mb-5">
         {success && (
           <Alert hideIcon color="success" variant="faded">
@@ -128,7 +122,15 @@ export default function MainParentComponent({ qparent = [], qloading, qerror }) 
           <TableColumn className="text-center">Invitation Status</TableColumn>
           <TableColumn className="text-center">Actions</TableColumn>
         </TableHeader>
-        <TableBody emptyContent={"No rows to display."} isLoading={qloading}>
+        <TableBody
+          emptyContent={"No rows to display."}
+          isLoading={sub_loading}
+          loadingContent={
+            <div className="flex items-center justify-center">
+              <Spinner color="success" />
+            </div>
+          }
+        >
           {parent.length > 0
             ? parent.map((data, index) => (
                 <TableRow key={index}>
@@ -165,7 +167,9 @@ export default function MainParentComponent({ qparent = [], qloading, qerror }) 
                     )}
                   </TableCell>
                   <TableCell
-                    className={`${data.status.toLowerCase() === "pending" ? "flex justify-center content-center" : "text-center"}`}
+                    className={`${
+                      data.status.toLowerCase() === "pending" ? "flex justify-center content-center" : "text-center"
+                    }`}
                   >
                     {data.status.toLowerCase() === "pending" ? (
                       <>

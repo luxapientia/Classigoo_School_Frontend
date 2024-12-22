@@ -16,19 +16,32 @@ import {
   TableRow,
   Avatar,
   TableColumn,
+  Spinner,
 } from "@nextui-org/react";
 
-// queries & mutations
+// queries & mutations & subscriptions
+import { SUB_CHILDREN } from "@graphql/subscriptions";
 import { DELETE_CHILD_CLAIM, INVITE_CHILD } from "@graphql/mutations";
 
 //graphql client
-import { useMutation } from "@apollo/client";
+import { useMutation, useSubscription } from "@apollo/client";
 
-export default function MainChildComponent({ qchildren = [], qloading, qerror }) {
+export default function MainChildComponent({ user }) {
   // graphql
   // -> mutations
   const [inviteChild] = useMutation(INVITE_CHILD);
   const [deleteChild] = useMutation(DELETE_CHILD_CLAIM);
+
+  // -> subscriptions
+  const {
+    data: sub_data,
+    loading: sub_loading,
+    error: sub_error,
+  } = useSubscription(SUB_CHILDREN, {
+    variables: {
+      id: user.sub,
+    },
+  });
 
   // router
   const route = useRouter();
@@ -36,7 +49,7 @@ export default function MainChildComponent({ qchildren = [], qloading, qerror })
   // -> queries
 
   // states
-  const [error, setError] = React.useState(qerror ? qerror.message : "");
+  const [error, setError] = React.useState(sub_error ? sub_error.message : "");
   const [success, setSuccess] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [showinvite, setShowInvite] = React.useState(false);
@@ -44,8 +57,6 @@ export default function MainChildComponent({ qchildren = [], qloading, qerror })
 
   const [actionId, setActionId] = React.useState();
   const [showAction, setShowAction] = React.useState(false);
-
-  const [children, setChildren] = React.useState(qchildren.length > 0 ? qchildren : []);
 
   const handleClose = React.useCallback(() => {
     setError("");
@@ -57,7 +68,6 @@ export default function MainChildComponent({ qchildren = [], qloading, qerror })
   const handleSubmit = React.useCallback(
     async (e) => {
       e.preventDefault();
-      console.log("submitting form");
       setLoading(true);
       setError("");
       setSuccess("");
@@ -132,6 +142,8 @@ export default function MainChildComponent({ qchildren = [], qloading, qerror })
     }
   }, [actionId]);
 
+  const children = sub_data?.child_parent || [];
+
   return (
     <>
       <HeaderSlot>
@@ -170,7 +182,15 @@ export default function MainChildComponent({ qchildren = [], qloading, qerror })
           <TableColumn className="text-center">Invitation Status</TableColumn>
           <TableColumn>Actions</TableColumn>
         </TableHeader>
-        <TableBody emptyContent={"No rows to display."} isLoading={qloading}>
+        <TableBody
+          emptyContent={"No rows to display."}
+          isLoading={sub_loading}
+          loadingContent={
+            <div className="flex items-center justify-center">
+              <Spinner color="success" />
+            </div>
+          }
+        >
           {children.length > 0
             ? children.map((data, index) => (
                 <TableRow key={index}>

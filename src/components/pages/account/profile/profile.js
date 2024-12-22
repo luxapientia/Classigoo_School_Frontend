@@ -1,9 +1,12 @@
 "use client";
 
+import axios from "axios";
 import moment from "moment";
 import * as React from "react";
 import { Icon } from "@iconify/react";
 import { cn } from "@nextui-org/react";
+import { isMobilePhone } from "validator";
+import isEmail from "validator/lib/isEmail";
 import { Avatar } from "@nextui-org/avatar";
 import { I18nProvider } from "@react-aria/i18n";
 import { Card, CardBody } from "@nextui-org/card";
@@ -13,9 +16,6 @@ import { Button, Badge, Input, Spacer, Textarea, DatePicker, Alert } from "@next
 
 import { useMutation } from "@apollo/client";
 import { UPDATE_PROFILE } from "@graphql/mutations";
-import isEmail from "validator/lib/isEmail";
-import { isMobilePhone } from "validator";
-import axios from "axios";
 
 const ProfileSetting = React.forwardRef(
   ({ className, id, avatar, name, email, phone, birthday, bio, institution, is_plus, ...props }, ref) => {
