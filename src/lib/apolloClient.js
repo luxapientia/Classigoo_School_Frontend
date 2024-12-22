@@ -29,7 +29,7 @@ const authLink = setContext(async (_, { headers }) => {
 // Create WebSocket client
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: process.env.HASURA_GRAPHQL_ENDPOINT, // WebSocket endpoint
+    url: process.env.HASURA_GRAPHQL_WS_ENDPOINT, // WebSocket endpoint
     connectionParams: async () => {
       const token = await fetchSession();
       return {
