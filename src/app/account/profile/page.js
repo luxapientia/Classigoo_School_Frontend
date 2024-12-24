@@ -30,12 +30,14 @@ export default async function ProfilePage() {
   const profileData = data.users_by_pk;
 
   return (
-    <div className="w-full max-w-2xl flex-1 p-4">
-      <div className="flex items-center gap-x-3">
-        <h1 className="text-3xl font-bold leading-9 text-default-foreground">Profile Settings</h1>
+    <div className="w-full flex-1 lg:grid lg:justify-center">
+      <div className="max-w-2xl lg:w-[650px]">
+        <div className="flex items-center gap-x-3">
+          <h1 className="text-3xl font-bold leading-9 text-default-foreground">Profile Settings</h1>
+        </div>
+        <h2 className="mt-2 text-small text-default-500">See your profile information and manage your settings.</h2>
+        <ProfileTabs data={profileData} />
       </div>
-      <h2 className="mt-2 text-small text-default-500">See your profile information and manage your settings.</h2>
-      <ProfileTabs data={profileData} />
     </div>
   );
 }

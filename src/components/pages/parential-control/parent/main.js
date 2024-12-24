@@ -144,7 +144,7 @@ export default function MainParentComponent({ user }) {
                       radius="lg"
                     />
                   </TableCell>
-                  <TableCell>{data.parent.name}</TableCell>
+                  <TableCell className="whitespace-nowrap">{data.parent.name}</TableCell>
                   <TableCell>{data.parent.email}</TableCell>
                   <TableCell className="text-center">
                     {data.parent.is_plus ? (
@@ -153,7 +153,7 @@ export default function MainParentComponent({ user }) {
                       </span>
                     ) : (
                       <span className="text-red-500 bg-red-200 px-3 py-0.5 capitalize rounded-full text-xs font-bold">
-                        Basic
+                        Free
                       </span>
                     )}
                   </TableCell>
@@ -174,10 +174,9 @@ export default function MainParentComponent({ user }) {
                     {data.status.toLowerCase() === "pending" ? (
                       <>
                         <Button
-                          size="small"
-                          variant="ghost"
-                          color="success"
-                          className="mr-2"
+                          size="sm"
+                          variant="text"
+                          className="my-0.5 mx-1 bg-green-500 text-background rounded-none font-medium"
                           onClick={() => {
                             setAction({
                               id: data.id,
@@ -189,9 +188,9 @@ export default function MainParentComponent({ user }) {
                           Accept
                         </Button>
                         <Button
-                          size="small"
-                          variant="ghost"
-                          color="danger"
+                          size="sm"
+                          variant="text"
+                          className="my-0.5 mx-1 bg-red-500 text-background rounded-none font-medium"
                           onClick={() => {
                             setAction({
                               id: data.id,

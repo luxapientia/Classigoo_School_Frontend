@@ -5,7 +5,7 @@ import { Card, CardHeader, CardBody, Button, Input, Spacer, Divider, Form } from
 
 export default function ActionCard({ action, handleClose, handleSubmit, error, setError, loading, ...props }) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm px-5">
       <Card className="w-full max-w-[500px]" {...props}>
         <CardHeader className="px-6 pb-0 pt-6">
           <div className="flex flex-col items-start">

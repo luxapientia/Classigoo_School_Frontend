@@ -84,10 +84,14 @@ export default function Header() {
   return (
     <header>
       <div className="flex items-center">
-        {slots.specificHeader && <div className="flex-initial pl-5">{slots.specificHeader}</div>}
+        {slots.specificHeader && <div className="hidden md:block flex-initial pl-5">{slots.specificHeader}</div>}
+        <div className="md:hidden flex-initial pl-5">
+          <Image src="/images/brand/logo-c.png" alt="logo" width={50} height={50} className="" />
+        </div>
         <div className="flex-auto"></div>
         <div className="flex-initial px-4">
           <div className="flex justify-end items-center h-full">
+            {slots.specificHeader && <div className="md:hidden flex-initial pr-3">{slots.specificHeader}</div>}
             <div className="flex-initial pr-3">
               <Badge color="danger" shape="circle" content="" size="sm">
                 <button className="flex w-11 h-11 bg-gray-800 dark:bg-white rounded-full justify-center items-center">

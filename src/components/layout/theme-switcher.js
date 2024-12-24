@@ -12,8 +12,6 @@ export function ThemeSwitcher() {
     setMounted(true);
   }, []);
 
-  console.log("theme", theme);
-
   if (!mounted) return null;
 
   return (

@@ -154,11 +154,19 @@ export default function MainChildComponent({ user }) {
           }}
           radius="large"
           variant="ghost"
-          className="flex items-center bg-content2 text:content1"
+          className="hidden md:flex items-center bg-content2 text:content1"
         >
           <Icon icon="akar-icons:plus" />
           Invite a child
         </Button>
+        <button
+          onClick={() => {
+            setShowInvite(true);
+          }}
+          className="grid md:hidden justify-center items-center h-[44px] w-[44px] rounded-full px-0 bg-blue-500 text-white shadow-[0px_0px_5px_1px_#3b82f6c7]"
+        >
+          <Icon icon="akar-icons:plus" />
+        </button>
       </HeaderSlot>
       <div className="mb-5">
         {success && (
@@ -204,7 +212,7 @@ export default function MainChildComponent({ user }) {
                       radius="lg"
                     />
                   </TableCell>
-                  <TableCell>{data.child.name}</TableCell>
+                  <TableCell className="whitespace-nowrap">{data.child.name}</TableCell>
                   <TableCell>{data.child.email}</TableCell>
                   <TableCell className="text-center">
                     {data.child.is_plus ? (
@@ -213,7 +221,7 @@ export default function MainChildComponent({ user }) {
                       </span>
                     ) : (
                       <span className="text-red-500 bg-red-200 px-3 py-0.5 capitalize rounded-full text-xs font-bold">
-                        Basic
+                        Free
                       </span>
                     )}
                   </TableCell>
@@ -228,10 +236,9 @@ export default function MainChildComponent({ user }) {
                   </TableCell>
                   <TableCell>
                     <Button
-                      size="small"
-                      variant="ghost"
-                      color="primary"
-                      className="mr-2"
+                      size="sm"
+                      variant="text"
+                      className="my-0.5 mx-1 bg-blue-500 text-background rounded-none font-medium"
                       isDisabled={data.status.toLowerCase() === "pending"}
                       onClick={() => {
                         route.push(`/parential-control/child/${data.id}`);
@@ -240,9 +247,9 @@ export default function MainChildComponent({ user }) {
                       Manage
                     </Button>
                     <Button
-                      size="small"
-                      variant="ghost"
-                      color="danger"
+                      size="sm"
+                      variant="text"
+                      className="my-0.5 mx-1 bg-red-500 text-background rounded-none font-medium"
                       onClick={() => {
                         setActionId(data.id);
                         setShowAction(true);

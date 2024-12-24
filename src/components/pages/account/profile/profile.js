@@ -176,27 +176,22 @@ const ProfileSetting = React.forwardRef(
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <Badge
-                    classNames={{
-                      badge: "w-5 h-5",
-                    }}
-                    content={
-                      <Button
-                        isIconOnly
-                        className="h-5 w-5 min-w-5 bg-background p-0 text-default-500"
-                        radius="full"
-                        size="sm"
-                        variant="bordered"
-                        onClick={() => setFilePicker(true)}
-                      >
-                        <Icon className="h-[9px] w-[9px]" icon="solar:pen-linear" />
-                      </Button>
-                    }
-                    placement="bottom-right"
-                    shape="circle"
-                  >
-                    <Avatar className="h-16 w-16" src={avatarUrl} alt={nameValue} name={nameValue} />
-                  </Badge>
+                  <button className="grid justify-center content-center" onClick={() => setFilePicker(true)}>
+                    <Badge
+                      classNames={{
+                        badge: "w-5 h-5",
+                      }}
+                      content={
+                        <div className="h-5 w-5 min-w-5 bg-background p-0 text-default-500 rounded-full border-2 grid justify-center content-center">
+                          <Icon className="h-[9px] w-[9px]" icon="solar:pen-linear" />
+                        </div>
+                      }
+                      placement="bottom-right"
+                      shape="circle"
+                    >
+                      <Avatar className="h-16 w-16" src={avatarUrl} alt={nameValue} name={nameValue} />
+                    </Badge>
+                  </button>
                   <div>
                     <p className="text-sm font-medium text-default-600">{nameValue}</p>
                     <p className="text-xs text-default-400">{emailValue}</p>
@@ -351,7 +346,7 @@ const ProfileSetting = React.forwardRef(
                   size="sm"
                   variant="text"
                   onClick={handleFileUpload}
-                  disabled={!profileFile}
+                  isDisabled={!profileFile}
                   isLoading={updating}
                 >
                   Confirm
