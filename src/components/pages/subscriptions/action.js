@@ -7,33 +7,30 @@ import {
   CardHeader,
   CardBody,
   Button,
-  Input,
   Spacer,
   Divider,
   Form,
+  RadioGroup,
+  Radio,
 } from "@nextui-org/react";
 
-export default function InvitationCard({
-  inviteEmail,
-  setInviteEmail,
+export default function ActionCard({
+  plan,
+  setPlan,
   handleClose,
   handleSubmit,
-  error,
-  setError,
   loading,
+  error,
   ...props
 }) {
   const bodyRef = useDetectClickOutside({ onTriggered: handleClose });
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm px-5">
+    <div className="fixed z-[999] inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm px-5">
       <Card className="w-full max-w-[500px]" {...props} ref={bodyRef}>
         <CardHeader className="px-6 pb-0 pt-6">
           <div className="flex flex-col items-start">
-            <h4 className="text-large">Child's Email Address</h4>
-            <p className="text-small text-default-500">
-              Enter the email address of the child you want to invite.
-            </p>
+            <h4 className="text-large">Choose a Plan</h4>
           </div>
         </CardHeader>
         <Spacer y={2} />
@@ -43,21 +40,20 @@ export default function InvitationCard({
             validationBehavior="native"
             onSubmit={handleSubmit}
           >
-            <Input
-              isClearable
+            <RadioGroup
+              orientation="horizontal"
               isRequired
-              label="Email Address"
-              name="inviteEmail"
-              placeholder="someone@example.com"
-              value={inviteEmail}
-              onValueChange={(value) => setInviteEmail(value)}
-            />
+              value={plan}
+              onValueChange={setPlan}
+            >
+              <Radio value="monthly">Monthly</Radio>
+              <Radio value="yearly">Yearly</Radio>
+            </RadioGroup>
             {error && (
               <p className="text-danger bg-danger/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">
                 {error}
               </p>
             )}
-
             <Spacer y={6} />
             <Divider />
             <div className="flex w-full flex-wrap-reverse items-center justify-between gap-2 px-4 pt-4 md:flex-wrap">
@@ -69,10 +65,11 @@ export default function InvitationCard({
                 <Button
                   color="primary"
                   type="submit"
+                  isDisabled={!plan}
                   isLoading={loading}
                   onClick={handleSubmit}
                 >
-                  Invite
+                  Subscribe
                 </Button>
               </div>
             </div>

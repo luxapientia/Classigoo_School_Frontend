@@ -29,9 +29,13 @@ export default function ProfileTabs({ data }) {
         />
       </Tab>
       <Tab key="address" title="Address">
-        <AddressSetting className="mt-0 bg-content1 dark:bg-content1" id={data?.id} address={data?.address} />
+        <AddressSetting
+          className="mt-0 bg-content1 dark:bg-content1"
+          id={data?.id}
+          address={data?.address}
+        />
       </Tab>
-      <Tab key="cards" title="Saved Cards"></Tab>
+      {/* <Tab key="subscriptions" title="Subscriptions"></Tab> */}
     </Tabs>
   );
 }

@@ -96,11 +96,11 @@ const AddressSetting = React.forwardRef(({ className, id, address, ...props }, r
 
   return (
     <div ref={ref} className={cn("p-2", className)} {...props}>
-      <div>
+      {/* <div>
         <p className="text-base font-medium text-default-700">Address</p>
         <p className="mt-1 text-sm font-normal text-default-400">View and edit your address.</p>
       </div>
-      <Spacer y={4} />
+      <Spacer y={4} /> */}
       <div className="flex-1 mr-1">
         <Input
           className="mt-2"

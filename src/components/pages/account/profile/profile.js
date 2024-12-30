@@ -12,13 +12,36 @@ import { I18nProvider } from "@react-aria/i18n";
 import { Card, CardBody } from "@nextui-org/card";
 import { parseDate } from "@internationalized/date";
 import { FileUploader } from "react-drag-drop-files";
-import { Button, Badge, Input, Spacer, Textarea, DatePicker, Alert } from "@nextui-org/react";
+import {
+  Button,
+  Badge,
+  Input,
+  Spacer,
+  Textarea,
+  DatePicker,
+  Alert,
+} from "@nextui-org/react";
 
 import { useMutation } from "@apollo/client";
 import { UPDATE_PROFILE } from "@graphql/mutations";
 
 const ProfileSetting = React.forwardRef(
-  ({ className, id, avatar, name, email, phone, birthday, bio, institution, is_plus, ...props }, ref) => {
+  (
+    {
+      className,
+      id,
+      avatar,
+      name,
+      email,
+      phone,
+      birthday,
+      bio,
+      institution,
+      is_plus,
+      ...props
+    },
+    ref
+  ) => {
     // constans
     const fileTypes = ["JPG", "JPEG", "PNG", "GIF"];
 
@@ -32,9 +55,13 @@ const ProfileSetting = React.forwardRef(
     const [avatarUrl, setAvatarUrl] = React.useState(avatar || "");
     const [emailValue, setEmailValue] = React.useState(email || "");
     const [phoneValue, setPhoneValue] = React.useState(phone || "");
-    const [birthdayValue, setBirthdayValue] = React.useState(birthday ? parseDate(birthday) : null);
+    const [birthdayValue, setBirthdayValue] = React.useState(
+      birthday ? parseDate(birthday) : null
+    );
     const [bioValue, setBioValue] = React.useState(bio || "");
-    const [institutionValue, setInstitutionValue] = React.useState(institution || "");
+    const [institutionValue, setInstitutionValue] = React.useState(
+      institution || ""
+    );
 
     // -> State Reminders
     const [error, setError] = React.useState(false);
@@ -45,11 +72,26 @@ const ProfileSetting = React.forwardRef(
     const [profileFilePreview, setProfileFilePreview] = React.useState(null);
 
     // State update handlers
-    const handleNameChange = React.useCallback((e) => setNameValue(e.target.value), [nameValue]);
-    const handlePhoneChange = React.useCallback((e) => setPhoneValue(e.target.value), [phoneValue]);
-    const handleBirthdayChange = React.useCallback((value) => setBirthdayValue(value), [birthdayValue]);
-    const handleBioChange = React.useCallback((e) => setBioValue(e.target.value), [bioValue]);
-    const handleInstitutionChange = React.useCallback((e) => setInstitutionValue(e.target.value), [institutionValue]);
+    const handleNameChange = React.useCallback(
+      (e) => setNameValue(e.target.value),
+      [nameValue]
+    );
+    const handlePhoneChange = React.useCallback(
+      (e) => setPhoneValue(e.target.value),
+      [phoneValue]
+    );
+    const handleBirthdayChange = React.useCallback(
+      (value) => setBirthdayValue(value),
+      [birthdayValue]
+    );
+    const handleBioChange = React.useCallback(
+      (e) => setBioValue(e.target.value),
+      [bioValue]
+    );
+    const handleInstitutionChange = React.useCallback(
+      (e) => setInstitutionValue(e.target.value),
+      [institutionValue]
+    );
 
     // validator function
     const validate = () => {
@@ -97,7 +139,9 @@ const ProfileSetting = React.forwardRef(
           email: emailValue,
           phone: phoneValue,
           //  to normal date
-          birthday: moment(`${birthdayValue.year}-${birthdayValue.month}-${birthdayValue.day}`).format("YYYY-MM-DD"),
+          birthday: moment(
+            `${birthdayValue.year}-${birthdayValue.month}-${birthdayValue.day}`
+          ).format("YYYY-MM-DD"),
           bio: bioValue,
           institution: institutionValue,
         },
@@ -112,7 +156,14 @@ const ProfileSetting = React.forwardRef(
         setError("Something went wrong. Please try again.");
         setTimeout(() => setError(false), 3000);
       }
-    }, [nameValue, bioValue, birthdayValue, avatarUrl, institutionValue, phoneValue]);
+    }, [
+      nameValue,
+      bioValue,
+      birthdayValue,
+      avatarUrl,
+      institutionValue,
+      phoneValue,
+    ]);
 
     // handle file change
     const handleFileChange = React.useCallback(
@@ -176,24 +227,37 @@ const ProfileSetting = React.forwardRef(
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <button className="grid justify-center content-center" onClick={() => setFilePicker(true)}>
+                  <button
+                    className="grid justify-center content-center"
+                    onClick={() => setFilePicker(true)}
+                  >
                     <Badge
                       classNames={{
                         badge: "w-5 h-5",
                       }}
                       content={
                         <div className="h-5 w-5 min-w-5 bg-background p-0 text-default-500 rounded-full border-2 grid justify-center content-center">
-                          <Icon className="h-[9px] w-[9px]" icon="solar:pen-linear" />
+                          <Icon
+                            className="h-[9px] w-[9px]"
+                            icon="solar:pen-linear"
+                          />
                         </div>
                       }
                       placement="bottom-right"
                       shape="circle"
                     >
-                      <Avatar className="h-16 w-16" src={avatarUrl} alt={nameValue} name={nameValue} />
+                      <Avatar
+                        className="h-16 w-16"
+                        src={avatarUrl}
+                        alt={nameValue}
+                        name={nameValue}
+                      />
                     </Badge>
                   </button>
                   <div>
-                    <p className="text-sm font-medium text-default-600">{nameValue}</p>
+                    <p className="text-sm font-medium text-default-600">
+                      {nameValue}
+                    </p>
                     <p className="text-xs text-default-400">{emailValue}</p>
                   </div>
                 </div>
@@ -204,15 +268,24 @@ const ProfileSetting = React.forwardRef(
         <Spacer y={4} />
         {/* Title */}
         <div>
-          <p className="text-base font-medium text-default-700">Name</p>
-          <p className="mt-1 text-sm font-normal text-default-400">Set your full name.</p>
-          <Input className="mt-2" placeholder="e.g John Doe" value={nameValue} onChange={handleNameChange} required />
+          {/* <p className="text-base font-medium text-default-700">Name</p>
+          <p className="mt-1 text-sm font-normal text-default-400">Set your full name.</p> */}
+          <Input
+            className="mt-2"
+            placeholder="e.g John Doe"
+            value={nameValue}
+            onChange={handleNameChange}
+            isRequired
+            label="Full Name"
+          />
         </div>
         <Spacer y={4} />
         {/* Birthadate */}
         <div>
-          <p className="text-base font-medium text-default-700">Birthdate</p>
-          <p className="mt-1 text-sm font-normal text-default-400">Set your birthdate.</p>
+          {/* <p className="text-base font-medium text-default-700">Birthdate</p>
+          <p className="mt-1 text-sm font-normal text-default-400">
+            Set your birthdate.
+          </p> */}
           <I18nProvider locale="en-GB">
             <DatePicker
               showMonthAndYearPickers
@@ -223,21 +296,33 @@ const ProfileSetting = React.forwardRef(
               // format="dd/MM/yyyy"
               maxValue={parseDate(moment().format("YYYY-MM-DD"))}
               isRequired
+              label="Birthdate"
             />
           </I18nProvider>
         </div>
         <Spacer y={4} />
         {/* Email */}
         <div>
-          <p className="text-base font-medium text-default-700">Email Address</p>
-          <p className="mt-1 text-sm font-normal text-default-400">Check your email address. (Read-only)</p>
-          <Input className="mt-2" value={emailValue} disabled />
+          {/* <p className="text-base font-medium text-default-700">
+            Email Address
+          </p>
+          <p className="mt-1 text-sm font-normal text-default-400">
+            Check your email address. (Read-only)
+          </p> */}
+          <Input
+            className="mt-2"
+            value={emailValue}
+            isReadOnly
+            label="Email Address"
+          />
         </div>
         <Spacer y={4} />
         {/* Phone Number */}
         <div>
-          <p className="text-base font-medium text-default-700">Phone Number</p>
-          <p className="mt-1 text-sm font-normal text-default-400">Set your phone number.</p>
+          {/* <p className="text-base font-medium text-default-700">Phone Number</p>
+          <p className="mt-1 text-sm font-normal text-default-400">
+            Set your phone number.
+          </p> */}
           <Input
             type="tel"
             className="mt-2"
@@ -247,25 +332,33 @@ const ProfileSetting = React.forwardRef(
             validate={{ pattern: "Invalid phone number" }}
             value={phoneValue}
             onChange={handlePhoneChange}
+            label="Phone Number"
           />
         </div>
         <Spacer y={4} />
         {/* School / College / University */}
         <div>
-          <p className="text-base font-medium text-default-700">School / College / University</p>
-          <p className="mt-1 text-sm font-normal text-default-400">Set your current school, college or university.</p>
+          {/* <p className="text-base font-medium text-default-700">
+            School / College / University
+          </p>
+          <p className="mt-1 text-sm font-normal text-default-400">
+            Set your current school, college or university.
+          </p> */}
           <Input
             className="mt-2"
             placeholder="e.g New York University"
             value={institutionValue}
             onChange={handleInstitutionChange}
+            label="School / College / University"
           />
         </div>
         <Spacer y={4} />
         {/* Biography */}
         <div>
-          <p className="text-base font-medium text-default-700">Biography</p>
-          <p className="mt-1 text-sm font-normal text-default-400">Specify your present whereabouts.</p>
+          {/* <p className="text-base font-medium text-default-700">Biography</p>
+          <p className="mt-1 text-sm font-normal text-default-400">
+            Specify your present whereabouts.
+          </p> */}
           <Textarea
             className="mt-2"
             classNames={{
@@ -274,13 +367,19 @@ const ProfileSetting = React.forwardRef(
             placeholder="e.g., 'I am a student at New York University.'"
             value={bioValue}
             onChange={handleBioChange}
+            label="Biography"
           />
         </div>
         {success && (
           <>
             <Spacer y={4} />
             <div className="flex items-center justify-center w-full">
-              <Alert hideIconWrapper color="success" title={success} variant="bordered" />
+              <Alert
+                hideIconWrapper
+                color="success"
+                title={success}
+                variant="bordered"
+              />
             </div>
           </>
         )}
@@ -288,14 +387,19 @@ const ProfileSetting = React.forwardRef(
           <>
             <Spacer y={4} />
             <div className="flex items-center justify-center w-full">
-              <Alert hideIconWrapper color="danger" title={error} variant="bordered" />
+              <Alert
+                hideIconWrapper
+                color="danger"
+                title={error}
+                variant="bordered"
+              />
             </div>
           </>
         )}
         <Spacer y={4} />
         <div className="flex justify-end">
           <Button
-            className="mt-4 bg-default-foreground text-background rounded-sm"
+            className="mt-4 bg-default-foreground text-background rounded-sm "
             size="md"
             radius="none"
             onClick={handleUpdateProfile}
@@ -309,14 +413,26 @@ const ProfileSetting = React.forwardRef(
             <div className="bg-white dark:bg-black p-5 rounded-xl max-w-[90%] w-[512px]">
               {profileFile ? (
                 <div className="flex justify-center content-center">
-                  <img src={profileFilePreview} alt="Profile" className="h-48 w-auto object-cover rounded-lg" />
+                  <img
+                    src={profileFilePreview}
+                    alt="Profile"
+                    className="h-48 w-auto object-cover rounded-lg"
+                  />
                 </div>
               ) : (
-                <FileUploader fileTypes={fileTypes} handleChange={handleFileChange} maxSize={2}>
+                <FileUploader
+                  fileTypes={fileTypes}
+                  handleChange={handleFileChange}
+                  maxSize={2}
+                >
                   <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8">
-                    <Icon icon="akar-icons:upload" className="h-8 w-8 text-default-400" />
+                    <Icon
+                      icon="akar-icons:upload"
+                      className="h-8 w-8 text-default-400"
+                    />
                     <p className="text-sm text-default-400">
-                      Drag and drop your profile picture here or click to upload.
+                      Drag and drop your profile picture here or click to
+                      upload.
                     </p>
                   </div>
                   <p className="mt-2 text-xs text-default-400">
