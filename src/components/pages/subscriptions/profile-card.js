@@ -76,17 +76,19 @@ export default function ProfileCard({ user, manageable }) {
           loading={loading}
         />
       )}
-      <div className="flex p-5 border-2 border-default-200 gap-4 relative bg-content1 text-gray-700 dark:text-white mt-2">
-        <div className="absolute top-0 right-0 px-5 py-2 text-xs bg-default-200">
+      <div className="sm:flex p-5 border-2 border-default-200 gap-4 relative bg-content1 text-gray-700 dark:text-white mt-2">
+        <div className="absolute top-0 right-0 px-2 py-0.5 sm:px-5 sm:py-2  md:px-4 md:py-1 lg:px-5 lg:py-2 text-xs bg-default-200">
           <p>{user.self ? "Your Subscription" : "Child's Subscription"}</p>
         </div>
-        <div className="flex-initial">
+        <div className="flex-initial grid justify-center sm:block pt-3 pb-5 sm:py-0">
           <Avatar src={user.avatar} className={"h-36 w-36"} radius="none" />
         </div>
         <div className="flex-auto">
-          <h3 className="text-2xl font-bold">{user.name}</h3>
-          <p className="">{user.email}</p>
-          <p className="flex items-center pt-1">
+          <h3 className="text-2xl font-bold sm:text-left text-center">
+            {user.name}
+          </h3>
+          <p className="sm:text-left text-center">{user.email}</p>
+          <p className="flex justify-center sm:justify-normal sm:items-center pt-1 sm:text-left text-center">
             Current Plan: {"  "}
             <span
               className={`ml-2 px-2 py-1 text-background text-xs font-semibold rounded-md ${
@@ -108,7 +110,7 @@ export default function ProfileCard({ user, manageable }) {
                 radius="none"
                 isLoading={loading}
                 onClick={handleManageSubscription}
-                className={`mt-4 px-4 py-2 text-white bg-primary`}
+                className={`mt-4 px-4 py-2 text-white bg-primary w-full sm:w-auto`}
                 isDisabled={!manageable}
               >
                 Manage Subscription
@@ -119,7 +121,7 @@ export default function ProfileCard({ user, manageable }) {
                 radius="none"
                 isLoading={loading}
                 onClick={() => setShowModal(true)}
-                className={`mt-4 px-4 py-2 text-white bg-black`}
+                className={`mt-4 px-4 py-2 text-white bg-black w-full sm:w-auto`}
                 isDisabled={!manageable}
               >
                 Subscribe Now
