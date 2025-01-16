@@ -1,5 +1,5 @@
 "use client";
-
+import { usePathname } from "next/navigation";
 import { Avatar, Tabs, Tab } from "@nextui-org/react";
 
 export default function ClassroomHeader({
@@ -11,7 +11,9 @@ export default function ClassroomHeader({
   room,
   owner,
 }) {
-  console.log(owner);
+  const pathname = usePathname();
+  const active_path = pathname.split("/").pop();
+
   return (
     <header>
       <div className="border-3 p-2 rounded-3xl dark:bg-gray-800 bg-gray-100 dark:border-gray-800 border-gray-200 relative mb-12">
@@ -48,6 +50,7 @@ export default function ClassroomHeader({
             className="mt-3 w-full flex-auto bg-transparent"
             variant="solid"
             fullWidth={true}
+            selectedKey={active_path}
           >
             <Tab key="home" title="Home" href={`/classroom/${id}/home`} />
             <Tab
