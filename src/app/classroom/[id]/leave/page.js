@@ -1,8 +1,9 @@
 import { auth0 } from "@lib/auth0";
 import { redirect } from "next/navigation";
-import ClassroomMembersMain from "@components/pages/classroom/members/main";
+import Loading from "@components/common/loading";
+import LeaveClassRoomMain from "@components/pages/classroom/leave/main";
 
-export default async function ClassroomHomePage({ params }) {
+export default async function LeaveClassRoom({ params }) {
   const session = await auth0.getSession();
   const { id } = await params;
 
@@ -12,7 +13,7 @@ export default async function ClassroomHomePage({ params }) {
 
   return (
     <>
-      <ClassroomMembersMain id={id} session={session} />
+      <LeaveClassRoomMain id={id} session={session} />
     </>
   );
 }

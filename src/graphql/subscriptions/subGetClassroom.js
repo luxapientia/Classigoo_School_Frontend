@@ -15,6 +15,17 @@ const SUB_GET_CLASSROOM = gql`
         id
         avatar
       }
+      classroom_relation {
+        id
+        role
+        status
+        user {
+          id
+          avatar
+          name
+          email
+        }
+      }
     }
   }
 `;

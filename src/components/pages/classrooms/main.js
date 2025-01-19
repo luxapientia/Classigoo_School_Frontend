@@ -1,12 +1,13 @@
 "use client";
 import React from "react";
 import { Icon } from "@iconify/react";
+import { useSearchParams } from "next/navigation";
 import { HeaderSlot } from "@components/layout/header";
-import { Avatar, Button, Form, Input } from "@nextui-org/react";
+import { Avatar, Button, Input, Alert } from "@nextui-org/react";
 import { useDetectClickOutside } from "react-detect-click-outside";
 
 // graphql things
-import { CREATE_CLASSROOM } from "@graphql/mutations";
+import { CREATE_CLASSROOM, JOIN_CLASSROOM } from "@graphql/mutations";
 import { SUB_LIST_CLASSROOMS } from "@graphql/subscriptions";
 
 import { useSubscription, useMutation } from "@apollo/client";
@@ -15,9 +16,14 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 
 export default function MainClassroomsComponent({ user }) {
+  // search params
+  const searchParams = useSearchParams();
+
   // graphql
   // -> mutations
   const [createClassroom] = useMutation(CREATE_CLASSROOM);
+  const [joinClassroom] = useMutation(JOIN_CLASSROOM);
+
   // -> subscriptions
   const {
     data: sub_data,
@@ -38,13 +44,14 @@ export default function MainClassroomsComponent({ user }) {
   const [success, setSuccess] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
+  // redirect msgs
+  const [redirectError, setRedirectError] = React.useState(null);
+  const [redirectSuccess, setRedirectSuccess] = React.useState(null);
+
   // -> dropdowns
   const [showAction, setShowAction] = React.useState(false);
   const [showCreator, setShowCreator] = React.useState(false);
   const [showJoin, setShowJoin] = React.useState(false);
-
-  // data states
-  const [classrooms, setClassrooms] = React.useState([]);
 
   // actions
   const handleShowAction = React.useCallback(() => {
@@ -114,6 +121,43 @@ export default function MainClassroomsComponent({ user }) {
     }
   };
 
+  const handleClassroomJoin = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      if (classCode === "") {
+        setError("Classroom code is required");
+        setLoading(false);
+        return;
+      }
+
+      // join classroom
+      const joinClass = await joinClassroom({
+        variables: {
+          code: classCode,
+        },
+      });
+
+      // check if classroom is joined
+      if (joinClass.data.joinClassroom.status === "success") {
+        setSuccess(joinClass.data.joinClassroom.message);
+        setTimeout(() => {
+          if (joinClass.data.joinClassroom.id) {
+            redirect(`/classroom/${joinClass.data.joinClassroom.id}`);
+          }
+        }, 500);
+      } else {
+        setError(joinClass.data.joinClassroom.message);
+      }
+      setLoading(false);
+    } catch (e) {
+      console.log(e);
+      setError(e.message);
+      setLoading(false);
+    }
+  };
+
   // hooks use
   const actionRef = useDetectClickOutside({
     onTriggered: () => setShowAction(false),
@@ -124,6 +168,17 @@ export default function MainClassroomsComponent({ user }) {
   const joinRef = useDetectClickOutside({
     onTriggered: () => setShowJoin(false),
   });
+
+  // auto
+  React.useEffect(() => {
+    if (searchParams.get("left") === "true") {
+      setRedirectSuccess("You have left the classroom successfully");
+    }
+
+    if (searchParams.get("left") === "false" && searchParams.get("error")) {
+      setRedirectError(searchParams.get("error"));
+    }
+  }, []);
 
   return (
     <>
@@ -145,6 +200,37 @@ export default function MainClassroomsComponent({ user }) {
           <Icon icon="akar-icons:plus" />
         </button>
       </HeaderSlot>
+
+      {redirectError && (
+        <div className="flex items-center justify-center w-full">
+          <Alert
+            hideIconWrapper
+            color="danger"
+            title="An error occurred"
+            description={redirectError}
+            variant="bordered"
+            isClosable={true}
+            classNames={{
+              base: "my-5",
+            }}
+          />
+        </div>
+      )}
+
+      {redirectSuccess && (
+        <div className="flex items-center justify-center w-full">
+          <Alert
+            hideIconWrapper
+            color="success"
+            title="Successfully declined the invitation"
+            variant="bordered"
+            isClosable={true}
+            classNames={{
+              base: "my-5",
+            }}
+          />
+        </div>
+      )}
 
       {/* content */}
       <div>
@@ -375,10 +461,29 @@ export default function MainClassroomsComponent({ user }) {
                 label="Classroom Code"
                 type="text"
                 variant="bordered"
+                value={classCode}
+                onChange={(e) => setClassCode(e.target.value)}
               />
-              <button className="bg-success-500 text-white p-3 rounded-lg">
+
+              {error && (
+                <p className="text-danger bg-danger/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">
+                  {error}
+                </p>
+              )}
+
+              {success && (
+                <p className="text-success bg-success/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">
+                  {success}
+                </p>
+              )}
+
+              <Button
+                isLoading={loading}
+                className="bg-success-500 text-white p-3 rounded-lg"
+                onClick={handleClassroomJoin}
+              >
                 Join
-              </button>
+              </Button>
             </div>
 
             <div className="flex justify-end absolute top-2 right-2">
