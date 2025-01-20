@@ -3,7 +3,7 @@ import React from "react";
 import { Icon } from "@iconify/react";
 import { useSearchParams } from "next/navigation";
 import { HeaderSlot } from "@components/layout/header";
-import { Avatar, Button, Input, Alert } from "@nextui-org/react";
+import { Avatar, Button, Input, Alert } from "@heroui/react";
 import { useDetectClickOutside } from "react-detect-click-outside";
 
 // graphql things
@@ -185,7 +185,7 @@ export default function MainClassroomsComponent({ user }) {
       <HeaderSlot>
         <Button
           size="small"
-          onClick={handleShowAction}
+          onPress={handleShowAction}
           radius="large"
           variant="ghost"
           className="hidden md:flex items-center bg-content2 text:content1"
@@ -259,7 +259,7 @@ export default function MainClassroomsComponent({ user }) {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
             {sub_data.classrooms.map((classroom) => (
               <div
                 key={classroom.id}
@@ -424,7 +424,7 @@ export default function MainClassroomsComponent({ user }) {
               <Button
                 isLoading={loading}
                 className="bg-primary-500 text-white p-3 rounded-lg"
-                onClick={handleClassroomCreation}
+                onPress={handleClassroomCreation}
               >
                 Create
               </Button>
@@ -480,7 +480,7 @@ export default function MainClassroomsComponent({ user }) {
               <Button
                 isLoading={loading}
                 className="bg-success-500 text-white p-3 rounded-lg"
-                onClick={handleClassroomJoin}
+                onPress={handleClassroomJoin}
               >
                 Join
               </Button>

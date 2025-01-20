@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@nextui-org/react";
+import { cn } from "@heroui/react";
 import countrylist from "./country.json";
-import { Button, Input, Spacer, Select, SelectItem, Alert } from "@nextui-org/react";
+import { Button, Input, Spacer, Select, SelectItem, Alert } from "@heroui/react";
 
 // Apollo
 import { useMutation } from "@apollo/client";
@@ -181,7 +181,7 @@ const AddressSetting = React.forwardRef(({ className, id, address, ...props }, r
           className="mt-4 bg-default-foreground text-background rounded-sm "
           size="md"
           radius="none"
-          onClick={handleUpdateAddress}
+          onPress={handleUpdateAddress}
           isLoading={updating}
         >
           Update Profile

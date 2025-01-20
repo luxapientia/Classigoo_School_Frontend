@@ -12,7 +12,7 @@ import {
   Form,
   RadioGroup,
   Radio,
-} from "@nextui-org/react";
+} from "@heroui/react";
 
 export default function ActionCard({
   plan,
@@ -59,7 +59,7 @@ export default function ActionCard({
             <div className="flex w-full flex-wrap-reverse items-center justify-between gap-2 px-4 pt-4 md:flex-wrap">
               <p className="text-small text-default-400"></p>
               <div className="flex items-center gap-2">
-                <Button type="reset" variant="bordered" onClick={handleClose}>
+                <Button type="reset" variant="bordered" onPress={handleClose}>
                   Cancel
                 </Button>
                 <Button
@@ -67,7 +67,7 @@ export default function ActionCard({
                   type="submit"
                   isDisabled={!plan}
                   isLoading={loading}
-                  onClick={handleSubmit}
+                  onPress={handleSubmit}
                 >
                   Subscribe
                 </Button>

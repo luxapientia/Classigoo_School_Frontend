@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth0 } from "@lib/auth0";
-import { Tabs, Tab, Button } from "@nextui-org/react";
+import { Tabs, Tab, Button } from "@heroui/react";
 import ProfileTabs from "@components/pages/account/profile/tabs";
 import { GET_PROFILE } from "@graphql/queries";
 import { getClient } from "@lib/apolloServer";

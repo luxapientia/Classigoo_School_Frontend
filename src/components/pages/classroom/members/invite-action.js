@@ -84,7 +84,7 @@ export default function InvitationCard({
                   color="primary"
                   type="submit"
                   isLoading={loading}
-                  onClick={handleSubmit}
+                  onPress={handleSubmit}
                 >
                   Invite
                 </Button>

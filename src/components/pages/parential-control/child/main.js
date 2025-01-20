@@ -17,7 +17,7 @@ import {
   Avatar,
   TableColumn,
   Spinner,
-} from "@nextui-org/react";
+} from "@heroui/react";
 
 // queries & mutations & subscriptions
 import { SUB_CHILDREN } from "@graphql/subscriptions";
@@ -149,7 +149,7 @@ export default function MainChildComponent({ user }) {
       <HeaderSlot>
         <Button
           size="small"
-          onClick={() => {
+          onPress={() => {
             setShowInvite(true);
           }}
           radius="large"
@@ -240,7 +240,7 @@ export default function MainChildComponent({ user }) {
                       variant="text"
                       className="my-0.5 mx-1 bg-blue-500 text-background rounded-none font-medium"
                       isDisabled={data.status.toLowerCase() === "pending"}
-                      onClick={() => {
+                      onPress={() => {
                         route.push(`/parential-control/child/${data.id}`);
                       }}
                     >
@@ -250,7 +250,7 @@ export default function MainChildComponent({ user }) {
                       size="sm"
                       variant="text"
                       className="my-0.5 mx-1 bg-red-500 text-background rounded-none font-medium"
-                      onClick={() => {
+                      onPress={() => {
                         setActionId(data.id);
                         setShowAction(true);
                       }}

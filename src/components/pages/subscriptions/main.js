@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 
 import { useQuery } from "@apollo/client";
 import { GET_SUBSCRIPTIONS } from "@graphql/queries";
-import { Alert, Avatar, Button } from "@nextui-org/react";
+import { Alert, Avatar, Button } from "@heroui/react";
 import Loading from "@components/common/loading";
 
 export default function SubscriptionMainComponent({ user }) {

@@ -1,6 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { Avatar, Tabs, Tab } from "@nextui-org/react";
+import { Avatar, Tabs, Tab } from "@heroui/react";
 
 export default function ClassroomHeader({
   id,

@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Avatar, Button } from "@nextui-org/react";
+import { Avatar, Button } from "@heroui/react";
 
 import { useMutation } from "@apollo/client";
 import { CREATE_SUBSCRIPTION, MANAGE_SUBSCRIPTION } from "@graphql/mutations";
@@ -109,7 +109,7 @@ export default function ProfileCard({ user, manageable }) {
                 variant="text"
                 radius="none"
                 isLoading={loading}
-                onClick={handleManageSubscription}
+                onPress={handleManageSubscription}
                 className={`mt-4 px-4 py-2 text-white bg-primary w-full sm:w-auto`}
                 isDisabled={!manageable}
               >
@@ -120,7 +120,7 @@ export default function ProfileCard({ user, manageable }) {
                 variant="text"
                 radius="none"
                 isLoading={loading}
-                onClick={() => setShowModal(true)}
+                onPress={() => setShowModal(true)}
                 className={`mt-4 px-4 py-2 text-white bg-black w-full sm:w-auto`}
                 isDisabled={!manageable}
               >

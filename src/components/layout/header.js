@@ -6,7 +6,7 @@ import { Icon } from "@iconify/react";
 import { useQuery } from "@apollo/client";
 import { useUser } from "@auth0/nextjs-auth0";
 import { ThemeSwitcher } from "./theme-switcher";
-import { Avatar, Badge } from "@nextui-org/react";
+import { Avatar, Badge } from "@heroui/react";
 import {
   useContext,
   createContext,
@@ -147,7 +147,9 @@ export default function Header() {
                   className="cursor-pointer"
                   isBordered
                   radius="full"
-                  {...(userAvatar ? { src: userAvatar } : { name: user?.name })}
+                  src={userAvatar}
+                  name={user?.name}
+                  // {...(userAvatar ? { src: userAvatar } : { name: user?.name })}
                 />
               </Link>
             </div>

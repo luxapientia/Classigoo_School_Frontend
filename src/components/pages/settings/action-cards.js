@@ -2,8 +2,8 @@
 
 import React from "react";
 import { Icon } from "@iconify/react";
-import { cn } from "@nextui-org/react";
-import { Card, CardBody } from "@nextui-org/react";
+import { cn } from "@heroui/react";
+import { Card, CardBody } from "@heroui/react";
 import Link from "next/link";
 
 const ActionCard = React.forwardRef(

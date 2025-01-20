@@ -12,7 +12,7 @@ import {
   Avatar,
   TableColumn,
   Spinner,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import ActionCard from "./action";
 
 // queries & mutations & subscriptions
@@ -177,7 +177,7 @@ export default function MainParentComponent({ user }) {
                           size="sm"
                           variant="text"
                           className="my-0.5 mx-1 bg-green-500 text-background rounded-none font-medium"
-                          onClick={() => {
+                          onPress={() => {
                             setAction({
                               id: data.id,
                               accept: true,
@@ -191,7 +191,7 @@ export default function MainParentComponent({ user }) {
                           size="sm"
                           variant="text"
                           className="my-0.5 mx-1 bg-red-500 text-background rounded-none font-medium"
-                          onClick={() => {
+                          onPress={() => {
                             setAction({
                               id: data.id,
                               accept: false,

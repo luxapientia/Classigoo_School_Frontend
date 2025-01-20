@@ -4,12 +4,12 @@ import axios from "axios";
 import moment from "moment";
 import * as React from "react";
 import { Icon } from "@iconify/react";
-import { cn } from "@nextui-org/react";
+import { cn } from "@heroui/react";
 import { isMobilePhone } from "validator";
 import isEmail from "validator/lib/isEmail";
-import { Avatar } from "@nextui-org/avatar";
+import { Avatar } from "@heroui/avatar";
 import { I18nProvider } from "@react-aria/i18n";
-import { Card, CardBody } from "@nextui-org/card";
+import { Card, CardBody } from "@heroui/card";
 import { parseDate } from "@internationalized/date";
 import { FileUploader } from "react-drag-drop-files";
 import {
@@ -20,7 +20,7 @@ import {
   Textarea,
   DatePicker,
   Alert,
-} from "@nextui-org/react";
+} from "@heroui/react";
 
 import { useMutation } from "@apollo/client";
 import { UPDATE_PROFILE } from "@graphql/mutations";
@@ -402,7 +402,7 @@ const ProfileSetting = React.forwardRef(
             className="mt-4 bg-default-foreground text-background rounded-sm "
             size="md"
             radius="none"
-            onClick={handleUpdateProfile}
+            onPress={handleUpdateProfile}
             isLoading={updating}
           >
             Update Profile
@@ -450,7 +450,7 @@ const ProfileSetting = React.forwardRef(
                   className="mt-4 bg-danger text-background rounded-sm mr-2"
                   size="sm"
                   variant="text"
-                  onClick={() => {
+                  onPress={() => {
                     setProfileFile(null);
                     setFilePicker(false);
                   }}
@@ -461,7 +461,7 @@ const ProfileSetting = React.forwardRef(
                   className="mt-4 bg-default-foreground text-background rounded-sm"
                   size="sm"
                   variant="text"
-                  onClick={handleFileUpload}
+                  onPress={handleFileUpload}
                   isDisabled={!profileFile}
                   isLoading={updating}
                 >

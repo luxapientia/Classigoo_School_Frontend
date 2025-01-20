@@ -2,7 +2,7 @@
 
 import ProfileSetting from "./profile";
 import AddressSetting from "./address";
-import { Tabs, Tab } from "@nextui-org/react";
+import { Tabs, Tab } from "@heroui/react";
 
 export default function ProfileTabs({ data }) {
   return (

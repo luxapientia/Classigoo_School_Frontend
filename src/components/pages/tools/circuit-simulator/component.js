@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 import { useCallback, useState } from "react";
 import { HeaderSlot } from "@components/layout/header";
 
@@ -19,7 +19,7 @@ export default function CircuitSimulatorComponent() {
       <HeaderSlot>
         <Button
           size="small"
-          onClick={handleFullScreen}
+          onPress={handleFullScreen}
           radius="large"
           variant="ghost"
           className="hidden md:flex items-center bg-content2 text:content1"
@@ -43,7 +43,7 @@ export default function CircuitSimulatorComponent() {
       {isFullScreen && (
         <Button
           size="small"
-          onClick={handleFullScreen}
+          onPress={handleFullScreen}
           radius="large"
           variant="ghost"
           color="danger"
