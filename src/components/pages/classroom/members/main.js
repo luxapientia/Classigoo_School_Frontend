@@ -7,11 +7,7 @@ import InviteMemberBlock from "./invite-block";
 import MembersTable from "./table-block";
 import RoleAction from "./role-action";
 import { useMutation } from "@apollo/client";
-import {
-  CHANGE_CLASSROOM_USER_ROLE,
-  REMOVE_CLASSROOM_MEMBER,
-  INVITE_CLASSROOM_MEMBER,
-} from "@graphql/mutations";
+import { CHANGE_CLASSROOM_USER_ROLE, REMOVE_CLASSROOM_MEMBER, INVITE_CLASSROOM_MEMBER } from "@graphql/mutations";
 import { Alert } from "@heroui/react";
 import RemoveMember from "./remove-action";
 import InvitationCard from "./invite-action";
@@ -71,7 +67,6 @@ export default function ClassroomMembersMain({ id, session }) {
     setLoading(true);
     setError(null);
     setSuccess(null);
-    console.log(session.user.sub, changeID);
 
     try {
       const result = await removeMember({
@@ -134,17 +129,11 @@ export default function ClassroomMembersMain({ id, session }) {
   };
 
   // get the current user's role
-  const userRole = sub_data?.classrooms_by_pk?.classroom_relation.find(
-    (r) => r.user.id === session.user.sub
-  );
+  const userRole = sub_data?.classrooms_by_pk?.classroom_relation.find((r) => r.user.id === session.user.sub);
 
   return (
     <>
-      <ClassroomLayout
-        id={id}
-        loading={sub_loading}
-        classroom={sub_data?.classrooms_by_pk}
-      >
+      <ClassroomLayout id={id} loading={sub_loading} classroom={sub_data?.classrooms_by_pk}>
         {success && (
           <div className="flex items-center justify-center w-full">
             <Alert
@@ -180,9 +169,7 @@ export default function ClassroomMembersMain({ id, session }) {
               id={id}
               code={sub_data?.classrooms_by_pk?.invitation_code}
               handleInviteEmail={handleShowInvite}
-              teacher={
-                userRole?.role === "teacher" || userRole?.role === "owner"
-              }
+              teacher={userRole?.role === "teacher" || userRole?.role === "owner"}
             />
           </div>
           <div className="flex-auto">

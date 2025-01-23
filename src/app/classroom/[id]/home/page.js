@@ -4,7 +4,7 @@ import ClassroomHomeMain from "@components/pages/classroom/home/main";
 
 export default async function ClassroomHomePage({ params }) {
   const session = await auth0.getSession();
-  const { id } = params;
+  const { id } = await params;
 
   if (!session) {
     redirect("/auth/login");
@@ -12,7 +12,7 @@ export default async function ClassroomHomePage({ params }) {
 
   return (
     <>
-      <ClassroomHomeMain id={id} />
+      <ClassroomHomeMain id={id} session={session} />
     </>
   );
 }

@@ -10,6 +10,8 @@ export default async function classroomsPage() {
     redirect("/auth/login");
   }
 
+  console.log("session", session);
+
   return (
     <>
       <MainClassroomsComponent user={session.user} />
