@@ -14,9 +14,37 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
-export default function ClassroomHomeEditor({ user }) {
+export default function ClassroomHomeEditor({
+  user,
+  loading,
+  content,
+  setContent,
+  type,
+  setType,
+  audience,
+  pubAt,
+  setPubAt,
+  files,
+  setFiles,
+  status,
+  setStatus,
+  writting,
+  setWritting,
+  setOpenPicker,
+  handleCreatePost,
+  handleAudienceChange,
+}) {
   const editorRef = React.useRef(null);
-  const [writting, setWritting] = React.useState(false);
+
+  const POST_TYPES = [
+    { key: "thread", label: "Thread" },
+    { key: "announcement", label: "Announcement" },
+  ];
+
+  const AUDIENCES = [
+    { key: "all", label: "All" },
+    { key: "custom", label: "Custom" },
+  ];
 
   return (
     <>
@@ -57,18 +85,48 @@ export default function ClassroomHomeEditor({ user }) {
               autoresize_bottom_margin: 50,
             }}
             initialValue="<p>This is the initial content of the editor</p>"
+            value={content}
+            onChange={(content) => setContent(content)}
           />
-          .
+          <div className="flex gap-2 my-3">
+            <Button
+              variant="text"
+              className="w-12 h-12 bg-gray-200 hover:outline-2 hover:outline-gray-700 text-sm rounded-full p-0 min-w-0"
+              onPress={() => setOpenPicker("photo")}
+            >
+              <Icon icon="tabler:photo-plus" className="w-6 h-6 text-gray-800" />
+            </Button>
+            <Button
+              variant="text"
+              className="w-12 h-12 bg-gray-200 hover:outline-2 hover:outline-gray-700 text-sm rounded-full p-0 min-w-0"
+              onPress={() => setOpenPicker("file")}
+            >
+              <Icon icon="tabler:file-plus" className="w-6 h-6 text-gray-800" />
+            </Button>
+          </div>
           <div className="flex justify-between">
-            <div className="flex-initial">
-              <Select className="w-[250px] mr-2" label="Post Type" placeholder="Thread">
+            <div className="flex-initial flex gap-2 max-w-[100%] w-[500px]">
+              <Select
+                className="w-[250px] mr-2 flex-1"
+                label="Post Type"
+                placeholder="Thread"
+                selectionMode="single"
+                value={"announcement"}
+                selectedKeys={[type]}
+                onChange={(e) => setType(e.target.value)}
+              >
                 <SelectItem key={"thread"}>Thread</SelectItem>
                 <SelectItem key={"announcement"}>Announcement</SelectItem>
               </Select>
-              <Select className="w-[250px]" label="Choose Audience" placeholder="All">
-                <SelectItem key={"all"}>All</SelectItem>
-                <SelectItem key={"custom"}>Custom</SelectItem>
-              </Select>
+              <div
+                className="flex-1  bg-content2 hover:bg-gray-200 dark:hover:bg-neutral-700 p-3 rounded-xl h-full relative cursor-pointer"
+                onClick={() => setOpenPicker(true)}
+              >
+                <label className="text-xs text-gray-600 dark:text-neutral-300 absolute top-2">Audience</label>
+                <p className="text-small pt-3">
+                  {audience.length === 0 ? "Teachers" : audience[0] == "*" ? "All" : "Custom"}
+                </p>
+              </div>
             </div>
             <div className="flex-initial grid content-center">
               <div className="flex gap-0.5">
@@ -82,9 +140,11 @@ export default function ClassroomHomeEditor({ user }) {
                 </Button>
                 <Button
                   variant="text"
-                  size="lg"
-                  // onPress={log}
-                  className="w-20 h-10 bg-primary text-sm text-white rounded-lg rounded-r-none"
+                  // size="lg"
+                  onPress={handleCreatePost}
+                  isLoading={loading}
+                  // isLoading
+                  className="bg-primary text-sm text-white rounded-lg rounded-r-none px-4"
                 >
                   Publish
                 </Button>

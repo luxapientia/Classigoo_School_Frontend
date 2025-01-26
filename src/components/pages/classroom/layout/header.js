@@ -2,15 +2,7 @@
 import { usePathname } from "next/navigation";
 import { Avatar, Tabs, Tab } from "@heroui/react";
 
-export default function ClassroomHeader({
-  id,
-  img,
-  name,
-  subject,
-  section,
-  room,
-  owner,
-}) {
+export default function ClassroomHeader({ id, img, name, subject, section, room, owner }) {
   const pathname = usePathname();
   const active_path = pathname.split("/").pop();
 
@@ -22,10 +14,7 @@ export default function ClassroomHeader({
           style={{ backgroundImage: `url(${img})` }}
         >
           <div>
-            <h2
-              className="text-white text-4xl font-bold"
-              style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}
-            >
+            <h2 className="text-white text-4xl font-bold" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}>
               {name}
             </h2>
             <p className="text-white text-xl font-medium mt-2">{subject}</p>
@@ -38,12 +27,7 @@ export default function ClassroomHeader({
         </div>
 
         <div className="absolute -bottom-10 right-10">
-          <Avatar
-            src={owner?.avatar}
-            alt={owner?.name}
-            className="w-24 h-24 border-2"
-            isBordered
-          />
+          <Avatar src={owner?.avatar} alt={owner?.name} className="w-24 h-24 border-2" isBordered />
         </div>
         <div className="flex justify-center items-center">
           <Tabs
@@ -53,24 +37,12 @@ export default function ClassroomHeader({
             selectedKey={active_path}
           >
             <Tab key="home" title="Home" href={`/classroom/${id}/home`} />
-            <Tab
-              key="members"
-              title="Members"
-              href={`/classroom/${id}/members`}
-            />
+            <Tab key="members" title="Members" href={`/classroom/${id}/members`} />
             <Tab key="exams" title="Exams" href={`/classroom/${id}/exams`} />
             <Tab key="grades" title="Grades" href={`/classroom/${id}/grades`} />
             <Tab key="notes" title="Notes" href={`/classroom/${id}/notes`} />
-            <Tab
-              key="assignments"
-              title="Assignments"
-              href={`/classroom/${id}/assignments`}
-            />
-            <Tab
-              key="settings"
-              title="Settings"
-              href={`/classroom/${id}/settings`}
-            />
+            <Tab key="assignments" title="Assignments" href={`/classroom/${id}/assignments`} />
+            <Tab key="settings" title="Settings" href={`/classroom/${id}/settings`} />
           </Tabs>
           <div className="flex-initial w-52"></div>
         </div>

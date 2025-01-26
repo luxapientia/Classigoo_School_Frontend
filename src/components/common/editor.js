@@ -75,6 +75,7 @@ export default function TinyEditor(props) {
         content_css: theme === "dark" ? "dark" : "default",
         ...props.init,
       }}
+      onEditorChange={(v) => props?.onChange(v)}
     />
   );
 }

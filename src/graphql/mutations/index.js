@@ -7,6 +7,7 @@ import ACCEPT_CHILD_CLAIM from "./acceptChildClaim";
 import DELETE_CHILD_CLAIM from "./deleteChildClaim";
 import CREATE_SUBSCRIPTION from "./createSubscription";
 import MANAGE_SUBSCRIPTION from "./manageSubscription";
+import CREATE_CLASSROOM_POST from "./createClassroomPost";
 import INVITE_CLASSROOM_MEMBER from "./inviteClassroomMember";
 import REMOVE_CLASSROOM_MEMBER from "./removeClassroomMember";
 import CHANGE_CLASSROOM_USER_ROLE from "./changeClassroomUserRole";
@@ -21,6 +22,7 @@ export {
   DELETE_CHILD_CLAIM,
   CREATE_SUBSCRIPTION,
   MANAGE_SUBSCRIPTION,
+  CREATE_CLASSROOM_POST,
   INVITE_CLASSROOM_MEMBER,
   REMOVE_CLASSROOM_MEMBER,
   CHANGE_CLASSROOM_USER_ROLE,
