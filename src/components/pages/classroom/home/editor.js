@@ -28,11 +28,13 @@ export default function ClassroomHomeEditor({
   setFiles,
   status,
   setStatus,
+  deleting,
   writting,
   setWritting,
   setOpenPicker,
+  setFilePicker,
   handleCreatePost,
-  handleAudienceChange,
+  handleRemoveFile,
 }) {
   const editorRef = React.useRef(null);
 
@@ -88,18 +90,73 @@ export default function ClassroomHomeEditor({
             value={content}
             onChange={(content) => setContent(content)}
           />
+          <div className="flex flex-col gap-2 my-3">
+            {files.map((file, index) => {
+              if (file.type === "image") {
+                return (
+                  <div
+                    key={index}
+                    className="flex relative w-full bg-content2 rounded-xl overflow-hidden border-3 dark:border-gray-700"
+                  >
+                    <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 grid justify-center content-center flex-initial">
+                      <img src={`${process.env.CLASSROOM_CDN_URL}/${file.location}`} className="w-full h-full" alt="" />
+                    </div>
+                    <div className="flex-auto px-5 py-4 h-full">
+                      <p className="text-sm text-gray-700 dark:text-gray-200">{file.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300 mt-2">{file?.size}</p>
+                    </div>
+                    <div className="flex-initial">
+                      <Button
+                        variant="text"
+                        className="w-12 h-20 grid justify-center items-center bg-gray-200 dark:bg-gray-700 rounded-none"
+                        onPress={() => handleRemoveFile([file.location])}
+                        isLoading={deleting}
+                      >
+                        {!deleting && <Icon icon="line-md:close" className="text-gray-500 w-6 h-6" />}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              } else {
+                return (
+                  <div
+                    key={index}
+                    className="flex relative w-full bg-content2 rounded-xl overflow-hidden border-3 dark:border-gray-700"
+                  >
+                    <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 grid justify-center content-center flex-initial">
+                      <Icon icon="tabler:file" className="w-8 h-8 text-gray-800 dark:text-gray-200" />
+                    </div>
+                    <div className="flex-auto px-5 py-4 h-full">
+                      <p className="text-sm text-gray-700 dark:text-gray-200">{file.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300 mt-2">{file?.size}</p>
+                    </div>
+                    <div className="flex-initial">
+                      <Button
+                        variant="text"
+                        className="w-12 h-20 grid justify-center items-center bg-gray-200 dark:bg-gray-700 rounded-none"
+                        onPress={() => handleRemoveFile([file.location])}
+                        isLoading={deleting}
+                      >
+                        {!deleting && <Icon icon="line-md:close" className="text-gray-500 w-6 h-6" />}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              }
+            })}
+          </div>
           <div className="flex gap-2 my-3">
             <Button
               variant="text"
               className="w-12 h-12 bg-gray-200 hover:outline-2 hover:outline-gray-700 text-sm rounded-full p-0 min-w-0"
-              onPress={() => setOpenPicker("photo")}
+              onPress={() => setFilePicker("image")}
             >
               <Icon icon="tabler:photo-plus" className="w-6 h-6 text-gray-800" />
             </Button>
             <Button
               variant="text"
               className="w-12 h-12 bg-gray-200 hover:outline-2 hover:outline-gray-700 text-sm rounded-full p-0 min-w-0"
-              onPress={() => setOpenPicker("file")}
+              onPress={() => setFilePicker("file")}
             >
               <Icon icon="tabler:file-plus" className="w-6 h-6 text-gray-800" />
             </Button>
@@ -133,12 +190,27 @@ export default function ClassroomHomeEditor({
                 <Button
                   variant="text"
                   size="lg"
-                  onPress={() => setWritting(false)}
+                  onPress={async () => {
+                    const fileLocs = files.map((f) => f.location);
+                    await handleRemoveFile(fileLocs);
+                    setFiles([]);
+                    setWritting(false);
+                  }}
                   className="w-20 h-10 bg-gray-500 hover:bg-gray-600 text-sm text-white rounded-lg mr-2"
                 >
                   Cancle
                 </Button>
                 <Button
+                  variant="text"
+                  // size="lg"
+                  onPress={handleCreatePost}
+                  isLoading={loading}
+                  // isLoading
+                  className="bg-primary text-sm text-white rounded-lg px-4"
+                >
+                  Publish
+                </Button>
+                {/* <Button
                   variant="text"
                   // size="lg"
                   onPress={handleCreatePost}
@@ -157,7 +229,7 @@ export default function ClassroomHomeEditor({
                   <DropdownMenu aria-label="Dynamic Actions">
                     <DropdownItem key="schedule">Schedule for later</DropdownItem>
                   </DropdownMenu>
-                </Dropdown>
+                </Dropdown> */}
               </div>
             </div>
           </div>

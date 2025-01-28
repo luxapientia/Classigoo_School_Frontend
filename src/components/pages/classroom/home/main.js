@@ -1,18 +1,24 @@
 "use client";
+import axios from "axios";
 import moment from "moment";
-import React, { useEffect } from "react";
-import { useSubscription } from "@apollo/client";
-import { SUB_GET_CLASSROOM } from "@graphql/subscriptions";
-import ClassroomLayout from "../layout/layout";
-import InviteMemberBlock from "../members/invite-block";
+import { Icon } from "@iconify/react";
+import React, { use, useEffect } from "react";
 import ClassroomHomeEditor from "./editor";
+import { Alert, Button } from "@heroui/react";
+import ClassroomLayout from "../layout/layout";
+import MemberSelector from "./member-selector";
+import { useSubscription } from "@apollo/client";
+import { FileUploader } from "react-drag-drop-files";
+import InviteMemberBlock from "../members/invite-block";
 
+// graphql imports
 import { useMutation } from "@apollo/client";
 import { CREATE_CLASSROOM_POST } from "@graphql/mutations";
-import { Alert } from "@heroui/react";
-import MemberSelector from "./member-selector";
+import { SUB_GET_POSTS, SUB_GET_CLASSROOM } from "@graphql/subscriptions";
+import ClassroomPost from "./posts";
 
 export default function ClassroomHomeMain({ id, session }) {
+  const imageTypes = ["JPEG", "JPG", "PNG", "GIF"];
   // states
   // -> data
   const [writting, setWritting] = React.useState(false);
@@ -21,8 +27,14 @@ export default function ClassroomHomeMain({ id, session }) {
   const [audience, setAudience] = React.useState(["*"]);
   const [pubAt, setPubAt] = React.useState(null);
   const [files, setFiles] = React.useState([]);
+  const [tempFile, setTempFile] = React.useState(null);
+  const [tempFilePreview, setTempFilePreview] = React.useState(null);
   const [status, setStatus] = React.useState("published");
   const [openPicker, setOpenPicker] = React.useState(false);
+  const [filePicker, setFilePicker] = React.useState("");
+  const [fileError, setFileError] = React.useState("");
+  const [fileSuccess, setFileSuccess] = React.useState("");
+  const [deleting, setDeleting] = React.useState(false);
   // -> status
 
   const [loading, setLoading] = React.useState(false);
@@ -39,6 +51,14 @@ export default function ClassroomHomeMain({ id, session }) {
     error: sub_error,
   } = useSubscription(SUB_GET_CLASSROOM, {
     variables: { id },
+  });
+
+  const {
+    data: sub_posts,
+    loading: sub_posts_loading,
+    error: sub_posts_error,
+  } = useSubscription(SUB_GET_POSTS, {
+    variables: { cid: id },
   });
 
   let user;
@@ -65,6 +85,16 @@ export default function ClassroomHomeMain({ id, session }) {
   }, [success]);
 
   // actions
+  // handle file change
+  const handleFileChange = async (file) => {
+    setTempFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setTempFilePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleCreatePost = async () => {
     setLoading(true);
 
@@ -104,8 +134,169 @@ export default function ClassroomHomeMain({ id, session }) {
     }
   };
 
+  // file upload logic
+  const handleFileUpload = async () => {
+    setLoading(true);
+    setSuccess("");
+    setFileError("");
+    try {
+      if (filePicker === "image") {
+        if (!tempFile) {
+          setFileError("Please select an image to upload.");
+          setTimeout(() => setFileError(false), 5000);
+          return;
+        }
+
+        let formData = new FormData();
+        formData.append("image", tempFile);
+
+        // post form data image
+        const response = await axios.post("/api/proxy/upload/posts/image", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        let fileSize;
+
+        if (tempFile.size < 1024) {
+          fileSize = `${tempFile.size} bytes`;
+        } else if (tempFile.size >= 1024 && tempFile.size < 1048576) {
+          fileSize = `${(tempFile.size / 1024).toFixed(2)} KB`;
+        } else {
+          fileSize = `${(tempFile.size / 1048576).toFixed(2)} MB`;
+        }
+
+        if (response.data.status === "success") {
+          setFileSuccess("Image uploaded successfully.");
+          setFiles((prev) =>
+            prev.concat({
+              type: "image",
+              name: response.data.data.name,
+              mimetype: response.data.data.type,
+              location: response.data.data.location,
+              size: fileSize,
+            })
+          );
+
+          setTimeout(() => {
+            setFileSuccess("");
+          }, 5000);
+
+          setTempFile(null);
+          setTempFilePreview(null);
+          setFilePicker(false);
+        } else {
+          setFileError(response.data.message);
+          setTimeout(() => {
+            setFileError("");
+          }, 5000);
+        }
+        setLoading(false);
+      } else if (filePicker === "file") {
+        if (!tempFile) {
+          setFileError("Please select a file to upload.");
+          setTimeout(() => {
+            setFileError("");
+          }, 5000);
+          return;
+        }
+
+        let formData = new FormData();
+        formData.append("file", tempFile);
+
+        // post form data image
+        const response = await axios.post("/api/proxy/upload/posts/file", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        let fileSize;
+
+        if (tempFile.size < 1024) {
+          fileSize = `${tempFile.size} bytes`;
+        } else if (tempFile.size >= 1024 && tempFile.size < 1048576) {
+          fileSize = `${(tempFile.size / 1024).toFixed(2)} KB`;
+        } else {
+          fileSize = `${(tempFile.size / 1048576).toFixed(2)} MB`;
+        }
+
+        if (response.data.status === "success") {
+          setFileSuccess("Image uploaded successfully.");
+          setFiles((prev) =>
+            prev.concat({
+              type: "file",
+              name: response.data.data.name,
+              mimetype: response.data.data.type,
+              location: response.data.data.location,
+              size: fileSize,
+            })
+          );
+
+          setTempFile(null);
+          setTempFilePreview(null);
+          setFilePicker(false);
+
+          setTimeout(() => {
+            setFileSuccess("");
+          }, 5000);
+        } else {
+          setFileError(response.data.message);
+          setTimeout(() => {
+            setFileError("");
+          }, 5000);
+        }
+        setLoading(false);
+      } else {
+        setFileError("Invalid file type.");
+        setTimeout(() => {
+          setFileError("");
+        }, 5000);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+      setFileError(err.message);
+      setTimeout(() => setFileError(false), 5000);
+    }
+  };
+
+  // handle delete file
+  const handleDeleteFile = async (locations) => {
+    // remove file from the server
+    setDeleting(true);
+    try {
+      const response = await axios.post("/api/proxy/upload/posts/delete", {
+        files: locations,
+      });
+
+      if (response.data.status === "success") {
+        // remove the specific files from the state by the way locations are array of file locations
+        setFiles((prev) => prev.filter((f) => !locations.includes(f.location)));
+      }
+
+      if (response.data.status === "error") {
+        setFileError(response.data.message);
+        setTimeout(() => setFileError(false), 5000);
+      } else {
+        setFileSuccess("File deleted successfully.");
+        setTimeout(() => setFileSuccess(false), 5000);
+      }
+    } catch (err) {
+      console.log(err);
+      setFileError(err.message);
+      setTimeout(() => setFileError(false), 5000);
+    }
+    setDeleting(false);
+  };
+
+  // can user post
+  const canPost = !sub_data?.classrooms_by_pk?.child_only || user?.role === "owner" || user?.role === "teacher";
+
   return (
-    <ClassroomLayout id={id} loading={sub_loading} classroom={sub_data?.classrooms_by_pk}>
+    <ClassroomLayout id={id} loading={sub_loading || sub_posts_loading} classroom={sub_data?.classrooms_by_pk}>
       {openPicker && (
         <MemberSelector
           my_id={session.user.sub}
@@ -135,6 +326,20 @@ export default function ClassroomHomeMain({ id, session }) {
               />
             )}
 
+            {fileError && (
+              <Alert
+                hideIconWrapper
+                color="danger"
+                title="Something went wrong"
+                description={fileError}
+                variant="bordered"
+                isClosable={true}
+                classNames={{
+                  base: "my-5",
+                }}
+              />
+            )}
+
             {success && (
               <Alert
                 hideIconWrapper
@@ -148,29 +353,133 @@ export default function ClassroomHomeMain({ id, session }) {
               />
             )}
 
-            <ClassroomHomeEditor
-              user={user}
-              loading={loading}
-              content={content}
-              setContent={setContent}
-              type={pType}
-              setType={setPType}
-              audience={audience}
-              pubAt={pubAt}
-              setPubAt={setPubAt}
-              files={files}
-              setFiles={setFiles}
-              status={status}
-              setStatus={setStatus}
-              setOpenPicker={setOpenPicker}
-              writting={writting}
-              setWritting={setWritting}
-              handleCreatePost={handleCreatePost}
-            />
+            {fileSuccess != "" && (
+              <Alert
+                hideIconWrapper
+                color="success"
+                title={fileSuccess}
+                variant="bordered"
+                isClosable={true}
+                classNames={{
+                  base: "my-5",
+                }}
+              />
+            )}
+
+            {/* check if classroom child only and if child only then if am i a owner or teacher */}
+            {canPost ? (
+              <ClassroomHomeEditor
+                user={user}
+                loading={loading}
+                content={content}
+                setContent={setContent}
+                type={pType}
+                setType={setPType}
+                audience={audience}
+                pubAt={pubAt}
+                setPubAt={setPubAt}
+                files={files}
+                setFiles={setFiles}
+                status={status}
+                setStatus={setStatus}
+                setOpenPicker={setOpenPicker}
+                deleting={deleting}
+                writting={writting}
+                setWritting={setWritting}
+                setFilePicker={setFilePicker}
+                handleCreatePost={handleCreatePost}
+                handleRemoveFile={handleDeleteFile}
+              />
+            ) : (
+              ""
+            )}
+
+            <ClassroomPost posts={sub_posts?.classroom_posts} user={user} canPost={canPost} />
           </div>
         </div>
         {/* <h1>Classroom Home Main</h1> */}
       </div>
+
+      {filePicker && (
+        <div className="bg-black/5 fixed inset-0 z-50 flex items-center justify-center top-0 left-0 right-0 bottom-0 backdrop-blur-[5px]">
+          <div className="bg-white dark:bg-black p-5 rounded-xl max-w-[90%] w-[512px]">
+            {tempFile ? (
+              filePicker === "file" ? (
+                <div className="">
+                  <div className="flex justify-center content-center">
+                    <Icon icon="akar-icons:file" className="h-full w-36 text-default-400 py-5" />
+                  </div>
+                  <p className="text-center text-xs text-gray-500">
+                    {tempFile.name} - {tempFile.size / 1000000}MB
+                  </p>
+                </div>
+              ) : (
+                <div className="flex justify-center content-center">
+                  <img src={tempFilePreview} alt="Profile" className="h-48 w-auto object-cover rounded-lg" />
+                </div>
+              )
+            ) : (
+              <FileUploader
+                {...(filePicker === "image" && { types: imageTypes })}
+                handleChange={handleFileChange}
+                // free users 10mb pro users 50mb
+                maxSize={user?.user?.is_plus ? 50 : 10}
+                overRide
+              >
+                <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8 mb-2">
+                  <Icon icon="akar-icons:upload" className="h-8 w-8 text-default-400" />
+                  <p className="text-sm text-default-400">
+                    Drag and drop your profile picture here or click to upload.
+                  </p>
+                </div>
+                {filePicker === "image" && (
+                  <p className="text-xs text-default-400">
+                    <span className="text-danger-500">*</span>
+                    Allowed File types: {imageTypes.join(", ")}
+                  </p>
+                )}
+                <p className="text-xs text-default-400">
+                  <span className="text-danger-500">*</span>
+                  Max file size: {user?.user?.is_plus ? 50 : 10}MB
+                </p>
+                {!user?.user?.is_plus && (
+                  <p className="text-xs text-default-400">
+                    <span className="text-danger-500">*</span>
+                    Upgrade to plus to upload bigger files.
+                  </p>
+                )}
+              </FileUploader>
+            )}
+
+            {fileError && <Alert className="my-2" color="danger" title="Error" description={fileError} />}
+
+            <div className="flex justify-end w-full">
+              <Button
+                className="mt-4 bg-danger text-background rounded-sm mr-2"
+                size="sm"
+                variant="text"
+                onPress={() => {
+                  setTempFile(null);
+                  setFilePicker(false);
+                }}
+                isDisabled={loading}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="mt-4 bg-default-foreground text-background rounded-sm"
+                size="sm"
+                variant="text"
+                onPress={handleFileUpload}
+                isDisabled={!tempFile}
+                isLoading={loading}
+              >
+                Confirm
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </ClassroomLayout>
   );
 }

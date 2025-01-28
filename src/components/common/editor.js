@@ -60,7 +60,6 @@ if (typeof window !== "undefined") {
   require("tinymce/skins/ui/oxide-dark/skin");
 }
 export default function TinyEditor(props) {
-  console.log(window);
   const { theme } = useTheme();
   return (
     <Editor

@@ -24,6 +24,7 @@ const SUB_GET_CLASSROOM = gql`
           avatar
           name
           email
+          is_plus
         }
       }
     }
