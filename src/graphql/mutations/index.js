@@ -1,3 +1,4 @@
+import DELETE_POST from "./deletePost";
 import INVITE_CHILD from "./inviteChild";
 import UPDATE_ADDRESS from "./updateAddress";
 import UPDATE_PROFILE from "./updateProfile";
@@ -13,6 +14,7 @@ import REMOVE_CLASSROOM_MEMBER from "./removeClassroomMember";
 import CHANGE_CLASSROOM_USER_ROLE from "./changeClassroomUserRole";
 
 export {
+  DELETE_POST,
   INVITE_CHILD,
   UPDATE_ADDRESS,
   UPDATE_PROFILE,

@@ -325,7 +325,6 @@ export default function ClassroomHomeMain({ id, session }) {
                 }}
               />
             )}
-
             {fileError && (
               <Alert
                 hideIconWrapper
@@ -339,7 +338,6 @@ export default function ClassroomHomeMain({ id, session }) {
                 }}
               />
             )}
-
             {success && (
               <Alert
                 hideIconWrapper
@@ -352,7 +350,6 @@ export default function ClassroomHomeMain({ id, session }) {
                 }}
               />
             )}
-
             {fileSuccess != "" && (
               <Alert
                 hideIconWrapper
@@ -365,7 +362,6 @@ export default function ClassroomHomeMain({ id, session }) {
                 }}
               />
             )}
-
             {/* check if classroom child only and if child only then if am i a owner or teacher */}
             {canPost ? (
               <ClassroomHomeEditor
@@ -393,8 +389,14 @@ export default function ClassroomHomeMain({ id, session }) {
             ) : (
               ""
             )}
-
-            <ClassroomPost posts={sub_posts?.classroom_posts} user={user} canPost={canPost} />
+            <ClassroomPost
+              posts={sub_posts?.classroom_posts}
+              user={user}
+              canPost={canPost}
+              setSuceess={setSuccess}
+              setError={setError}
+              handleDeleteFile={handleDeleteFile}
+            />
           </div>
         </div>
         {/* <h1>Classroom Home Main</h1> */}

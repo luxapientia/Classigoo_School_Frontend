@@ -192,7 +192,9 @@ export default function ClassroomHomeEditor({
                   size="lg"
                   onPress={async () => {
                     const fileLocs = files.map((f) => f.location);
-                    await handleRemoveFile(fileLocs);
+                    if (fileLocs.length > 0) {
+                      await handleRemoveFile(fileLocs);
+                    }
                     setFiles([]);
                     setWritting(false);
                   }}
