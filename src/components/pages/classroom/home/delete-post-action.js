@@ -4,7 +4,7 @@ import React from "react";
 import { useDetectClickOutside } from "react-detect-click-outside";
 import { Card, CardHeader, CardBody, Button, Spacer, Divider } from "@heroui/react";
 
-export default function DeleteAction({ handleClose, handleSubmit, error, loading, ...props }) {
+export default function DeletePostAction({ handleClose, handleSubmit, error, loading, ...props }) {
   const bodyRef = useDetectClickOutside({ onTriggered: handleClose });
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm px-5 z-[1000]">
