@@ -3,20 +3,13 @@
 import React from "react";
 import { Button, Snippet } from "@heroui/react";
 
-export default function InviteMemberBlock({
-  id,
-  code,
-  teacher,
-  handleInviteEmail,
-}) {
+export default function InviteMemberBlock({ id, code, teacher, handleInviteEmail }) {
   // states
   const [copyURL, setCopyURL] = React.useState(false);
 
   // actions
   const handleCopyURL = () => {
-    navigator.clipboard.writeText(
-      `${process.env.APP_BASE_URL}/classroom/${id}/join?code=${code}`
-    );
+    navigator.clipboard.writeText(`${process.env.APP_BASE_URL}/classroom/${id}/join?code=${code}`);
     setCopyURL(true);
     setTimeout(() => {
       setCopyURL(false);
@@ -25,9 +18,7 @@ export default function InviteMemberBlock({
   return (
     <>
       <div className="w-[250px] border-3 p-5 dark:bg-neutral-900 rounded-2xl dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-center mb-3">
-          Invitation Code
-        </h3>
+        <h3 className="text-lg font-semibold text-center mb-3">Invitation Code</h3>
         <Snippet
           symbol=""
           copyable
@@ -46,10 +37,8 @@ export default function InviteMemberBlock({
 
       {teacher && (
         <div className="mt-5 w-[250px] border-3 p-5 dark:bg-neutral-900 rounded-2xl dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-center mb-3">
-            Invite by email
-          </h3>
-          <Button className="w-full" onPress={handleInviteEmail}>
+          <h3 className="text-lg font-semibold text-center mb-3">Invite by email</h3>
+          <Button className="w-full" onClick={handleInviteEmail}>
             Send Invitation
           </Button>
         </div>

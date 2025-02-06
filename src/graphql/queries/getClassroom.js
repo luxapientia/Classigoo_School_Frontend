@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
-const SUB_GET_CLASSROOM = gql`
-  subscription GetClassroom($id: uuid!) {
+const GET_CLASSROOM = gql`
+  query GetClassroom($id: uuid!) {
     classrooms_by_pk(id: $id) {
       id
       name
@@ -32,4 +32,4 @@ const SUB_GET_CLASSROOM = gql`
   }
 `;
 
-export default SUB_GET_CLASSROOM;
+export default GET_CLASSROOM;

@@ -164,14 +164,16 @@ export default function ClassroomMembersMain({ id, session }) {
           </div>
         )}
         <div className="flex gap-5">
-          <div className="flex-initial">
-            <InviteMemberBlock
-              id={id}
-              code={sub_data?.classrooms_by_pk?.invitation_code}
-              handleInviteEmail={handleShowInvite}
-              teacher={userRole?.role === "teacher" || userRole?.role === "owner"}
-            />
-          </div>
+          {sub_data?.classrooms_by_pk?.invitation_code !== "" && (
+            <div className="flex-initial">
+              <InviteMemberBlock
+                id={id}
+                code={sub_data?.classrooms_by_pk?.invitation_code}
+                handleInviteEmail={handleShowInvite}
+                teacher={userRole?.role === "teacher" || userRole?.role === "owner"}
+              />
+            </div>
+          )}
           <div className="flex-auto">
             <MembersTable
               user={session.user}
