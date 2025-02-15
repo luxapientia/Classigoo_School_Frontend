@@ -1,3 +1,6 @@
+import EDIT_NOTE from "./editNote";
+import CREATE_NOTE from "./createNote";
+import DELETE_NOTE from "./deleteNote";
 import DELETE_POST from "./deletePost";
 import ADD_COMMENT from "./addComment";
 import INVITE_CHILD from "./inviteChild";
@@ -20,6 +23,9 @@ import ENABLE_CLASSROOM_INVITATION from "./enableClassroomInvitation";
 import DISABLE_CLASSROOM_INVITATION from "./disableClassroomInvitation";
 
 export {
+  EDIT_NOTE,
+  CREATE_NOTE,
+  DELETE_NOTE,
   DELETE_POST,
   ADD_COMMENT,
   INVITE_CHILD,

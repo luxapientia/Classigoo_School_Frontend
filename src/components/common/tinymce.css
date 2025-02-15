@@ -1,0 +1,93 @@
+#editor_rendered {
+  @apply prose max-w-none text-gray-700;
+}
+
+#editor_rendered a {
+  @apply text-blue-600 underline;
+}
+
+#editor_rendered blockquote {
+  @apply border-l-4 border-gray-300 italic pl-4;
+}
+
+#editor_rendered img {
+  @apply rounded-lg shadow-md max-w-full;
+}
+
+#editor_rendered ul {
+  @apply list-disc pl-5;
+}
+
+#editor_rendered ol {
+  @apply list-decimal pl-5;
+}
+
+#editor_rendered table {
+  @apply border-collapse border border-gray-300 w-full;
+}
+
+#editor_rendered th,
+#editor_rendered td {
+  @apply border p-2;
+}
+
+#editor_rendered th {
+  @apply bg-gray-100;
+}
+
+#editor_rendered p {
+  @apply mb-4;
+}
+
+/* Heading styles */
+#editor_rendered h1 {
+  @apply text-3xl font-bold text-gray-800;
+}
+
+#editor_rendered h2 {
+  @apply text-2xl font-semibold text-gray-800;
+}
+
+#editor_rendered h3 {
+  @apply text-xl font-medium text-gray-800;
+}
+
+#editor_rendered h4 {
+  @apply text-lg font-medium text-gray-800;
+}
+
+#editor_rendered h5 {
+  @apply text-base font-medium text-gray-800;
+}
+
+#editor_rendered h6 {
+  @apply text-sm font-medium text-gray-800;
+}
+
+#editor_rendered code {
+  @apply bg-gray-100 p-1 rounded font-mono;
+}
+
+#editor_rendered pre {
+  @apply bg-gray-900 text-white p-4 rounded overflow-x-auto;
+}
+
+#editor_rendered hr {
+  @apply border-t border-gray-300 my-4;
+}
+
+#editor_rendered strong {
+  @apply font-bold;
+}
+
+#editor_rendered em {
+  @apply italic;
+}
+
+#editor_rendered u {
+  @apply underline;
+}
+
+#editor_rendered del {
+  @apply line-through;
+}

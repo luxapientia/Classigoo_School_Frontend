@@ -14,6 +14,13 @@ const menuItems = [
     dropdown: [],
   },
   {
+    name: "Notes",
+    icon: "solar:notebook-minimalistic-bold-duotone",
+    href: "/notes",
+    // isMain: true,
+    dropdown: [],
+  },
+  {
     name: "Parential Control",
     icon: "raphael:parent",
     href: "#",

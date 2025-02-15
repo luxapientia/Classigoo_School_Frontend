@@ -16,5 +16,5 @@ module.exports = {
     },
   },
   darkMode: "class",
-  plugins: [heroui()],
+  plugins: [require("@tailwindcss/typography"), heroui()],
 };

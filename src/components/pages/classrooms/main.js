@@ -51,7 +51,6 @@ export default function MainClassroomsComponent({ user }) {
 
   // actions
   const handleShowAction = () => {
-    console.log("show action");
     setShowAction(true);
   };
 

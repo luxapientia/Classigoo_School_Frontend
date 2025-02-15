@@ -66,7 +66,12 @@ export default function TinyEditor(props) {
       licenseKey="gpl"
       promotion={false}
       init={{
-        plugins: "link lists autoresize",
+        extended_valid_elements: "*[.*]",
+        external_plugins: {
+          tiny_mce_wiris: `${process.env.APP_BASE_URL}/tinymce-plugins/mathtype/plugin.min.js`,
+        },
+        plugins:
+          "advlist anchor autolink autoresize autosave charmap code codesample directionality emoticons fullscreen help image importcss insertdatetime link lists media nonbreaking pagebreak preview quickbars save searchreplace table visualblocks visualchars wordcount",
         promotion: false,
         branding: false,
         highlight_on_focus: false,
@@ -74,7 +79,9 @@ export default function TinyEditor(props) {
         content_css: theme === "dark" ? "dark" : "default",
         ...props.init,
       }}
+      value={props?.value}
       onEditorChange={(v) => props?.onChange(v)}
+      suppressHydrationWarning
     />
   );
 }
