@@ -90,8 +90,8 @@ export default function ClassroomNotesMain({ id, session }) {
               <h1 className="text-2xl font-bold text-center">No Notes Found</h1>
               <div className="mt-5 mx-auto">
                 <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-                  You will notes here when a teacher publishes a note for this
-                  classroom.
+                  You will find notes here when a teacher publishes a note for
+                  this classroom.
                 </p>
               </div>
             </div>

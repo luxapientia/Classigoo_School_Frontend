@@ -8,9 +8,12 @@ import DELETE_COMMENT from "./deleteComment";
 import UPDATE_ADDRESS from "./updateAddress";
 import UPDATE_PROFILE from "./updateProfile";
 import JOIN_CLASSROOM from "./joinClassroom";
+import EDIT_ASSIGNMENT from "./editAssignment";
 import CREATE_CLASSROOM from "./createClassroom";
 import UPDATE_CLASSROOM from "./updateClassroom";
 import DELETE_CLASSROOM from "./deleteClassroom";
+import CREATE_ASSIGNMENT from "./createAssignment";
+import DELETE_ASSIGNMENT from "./deleteAssignment";
 import ACCEPT_CHILD_CLAIM from "./acceptChildClaim";
 import DELETE_CHILD_CLAIM from "./deleteChildClaim";
 import CREATE_SUBSCRIPTION from "./createSubscription";
@@ -21,6 +24,8 @@ import REMOVE_CLASSROOM_MEMBER from "./removeClassroomMember";
 import CHANGE_CLASSROOM_USER_ROLE from "./changeClassroomUserRole";
 import ENABLE_CLASSROOM_INVITATION from "./enableClassroomInvitation";
 import DISABLE_CLASSROOM_INVITATION from "./disableClassroomInvitation";
+import CREATE_ASSIGNMENT_SUBMISSION from "./createAssignmentSubmission";
+import UPDATE_ASSIGNMENT_SUBMISSION from "./updateAssignmentSubmission";
 
 export {
   EDIT_NOTE,
@@ -33,9 +38,12 @@ export {
   UPDATE_ADDRESS,
   UPDATE_PROFILE,
   JOIN_CLASSROOM,
+  EDIT_ASSIGNMENT,
   CREATE_CLASSROOM,
   UPDATE_CLASSROOM,
   DELETE_CLASSROOM,
+  CREATE_ASSIGNMENT,
+  DELETE_ASSIGNMENT,
   ACCEPT_CHILD_CLAIM,
   DELETE_CHILD_CLAIM,
   CREATE_SUBSCRIPTION,
@@ -46,4 +54,6 @@ export {
   CHANGE_CLASSROOM_USER_ROLE,
   ENABLE_CLASSROOM_INVITATION,
   DISABLE_CLASSROOM_INVITATION,
+  CREATE_ASSIGNMENT_SUBMISSION,
+  UPDATE_ASSIGNMENT_SUBMISSION,
 };

@@ -6,6 +6,8 @@ import SUB_GET_NOTES from "./subGetNotes";
 import SUB_GET_COMMENTS from "./subGetComments";
 import SUB_GET_CLASSROOM from "./subGetClassroom";
 import SUB_LIST_CLASSROOMS from "./subListClassrooms";
+import SUB_GET_ASSIGNMENT from "./subGetAssignment";
+import SUB_LIST_ASSIGNMENTS from "./subListAssignments";
 import SUB_GET_CLASSROOM_NOTES from "./subGetClassroomNotes";
 
 export {
@@ -16,6 +18,8 @@ export {
   SUB_GET_NOTES,
   SUB_GET_COMMENTS,
   SUB_GET_CLASSROOM,
+  SUB_GET_ASSIGNMENT,
   SUB_LIST_CLASSROOMS,
+  SUB_LIST_ASSIGNMENTS,
   SUB_GET_CLASSROOM_NOTES,
 };

@@ -1,10 +1,45 @@
 "use client";
+import * as NProgress from "nprogress";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { Avatar, Tabs, Tab } from "@heroui/react";
 
-export default function ClassroomHeader({ id, img, name, subject, section, room, owner }) {
+export default function ClassroomHeader({
+  id,
+  img,
+  name,
+  subject,
+  section,
+  room,
+  owner,
+}) {
   const pathname = usePathname();
-  const active_path = pathname.split("/").pop();
+  const router = useRouter();
+
+  // logic setter
+  let selected_key;
+  const split_path = pathname.split("/");
+  if (split_path.includes("home")) {
+    selected_key = `/classroom/${id}/home`;
+  }
+  if (split_path.includes("members")) {
+    selected_key = `/classroom/${id}/members`;
+  }
+  if (split_path.includes("exams")) {
+    selected_key = `/classroom/${id}/exams`;
+  }
+  if (split_path.includes("grades")) {
+    selected_key = `/classroom/${id}/grades`;
+  }
+  if (split_path.includes("notes")) {
+    selected_key = `/classroom/${id}/notes`;
+  }
+  if (split_path.includes("assignments") || split_path.includes("assignment")) {
+    selected_key = `/classroom/${id}/assignments`;
+  }
+  if (split_path.includes("settings")) {
+    selected_key = `/classroom/${id}/settings`;
+  }
 
   return (
     <header>
@@ -14,7 +49,10 @@ export default function ClassroomHeader({ id, img, name, subject, section, room,
           style={{ backgroundImage: `url(${img})` }}
         >
           <div>
-            <h2 className="text-white text-4xl font-bold" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}>
+            <h2
+              className="text-white text-4xl font-bold"
+              style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}
+            >
               {name}
             </h2>
             <p className="text-white text-xl font-medium mt-2">{subject}</p>
@@ -27,22 +65,31 @@ export default function ClassroomHeader({ id, img, name, subject, section, room,
         </div>
 
         <div className="absolute -bottom-10 right-10">
-          <Avatar src={owner?.avatar} alt={owner?.name} className="w-24 h-24 border-2" isBordered />
+          <Avatar
+            src={owner?.avatar}
+            alt={owner?.name}
+            className="w-24 h-24 border-2"
+            isBordered
+          />
         </div>
         <div className="flex justify-center items-center">
           <Tabs
             className="mt-3 w-full flex-auto bg-transparent"
             variant="solid"
             fullWidth={true}
-            selectedKey={active_path}
+            selectedKey={selected_key}
+            onSelectionChange={(value) => {
+              NProgress.start();
+              router.push(value);
+            }}
           >
-            <Tab key="home" title="Home" href={`/classroom/${id}/home`} />
-            <Tab key="members" title="Members" href={`/classroom/${id}/members`} />
-            <Tab key="exams" title="Exams" href={`/classroom/${id}/exams`} />
-            <Tab key="grades" title="Grades" href={`/classroom/${id}/grades`} />
-            <Tab key="notes" title="Notes" href={`/classroom/${id}/notes`} />
-            <Tab key="assignments" title="Assignments" href={`/classroom/${id}/assignments`} />
-            <Tab key="settings" title="Settings" href={`/classroom/${id}/settings`} />
+            <Tab key={`/classroom/${id}/home`} title="Home" />
+            <Tab key={`/classroom/${id}/members`} title="Members" />
+            <Tab key={`/classroom/${id}/exams`} title="Exams" />
+            <Tab key={`/classroom/${id}/grades`} title="Grades" />
+            <Tab key={`/classroom/${id}/notes`} title="Notes" />
+            <Tab key={`/classroom/${id}/assignments`} title="Assignments" />
+            <Tab key={`/classroom/${id}/settings`} title="Settings" />
           </Tabs>
           <div className="flex-initial w-52"></div>
         </div>

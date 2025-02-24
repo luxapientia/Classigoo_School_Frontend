@@ -248,7 +248,7 @@ export default function ClassroomHomeMain({ id, session }) {
         }
 
         if (response.data.status === "success") {
-          setFileSuccess("Image uploaded successfully.");
+          setFileSuccess("File uploaded successfully.");
           setFiles((prev) =>
             prev.concat({
               type: "file",
