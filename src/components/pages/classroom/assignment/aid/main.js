@@ -39,7 +39,6 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
   const [fileSuccess, setFileSuccess] = React.useState(null);
   const [deleting, setDeleting] = React.useState(false);
   const [doing, setDoing] = React.useState(false);
-  const [errror, setErrror] = React.useState(null);
   const [success, setSuccess] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [mySubmission, setMySubmission] = React.useState(null);
@@ -163,15 +162,28 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
             },
           });
         }
-        setAssignmentFiles((prev) =>
-          prev.concat({
-            type: "file",
-            name: response.data.data.name,
-            mimetype: response.data.data.type,
-            location: response.data.data.location,
-            size: fileSize,
-          })
-        );
+
+        if (assignMentFiles?.length > 0) {
+          setAssignmentFiles((prev) =>
+            prev.concat({
+              type: "file",
+              name: response.data.data.name,
+              mimetype: response.data.data.type,
+              location: response.data.data.location,
+              size: fileSize,
+            })
+          );
+        } else {
+          setAssignmentFiles([
+            {
+              type: "file",
+              name: response.data.data.name,
+              mimetype: response.data.data.type,
+              location: response.data.data.location,
+              size: fileSize,
+            },
+          ]);
+        }
 
         setTempAssignmentFile(null);
         setFilePicker(false);
@@ -197,9 +209,16 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
 
       if (response.data.status === "success") {
         // remove the specific files from the state by the way locations are array of file locations
-        setAssignmentFiles((prev) =>
-          prev.filter((f) => !locations.includes(f.location))
-        );
+
+        // if set assignment is an array of files then remove the files from the array
+        if (assignMentFiles?.length > 0) {
+          setAssignmentFiles((prev) =>
+            prev.filter((f) => !locations.includes(f.location))
+          );
+        } else {
+          // if set assignment is not an array of files then remove the file from the array
+          setAssignmentFiles([]);
+        }
       }
 
       if (response.data.status === "error") {
@@ -252,7 +271,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
       setSubmissionStatus("published");
       setDoing(false);
     } catch (err) {
-      setErrror(err.message);
+      setError(err.message);
       setDoing(false);
     }
   };
@@ -278,7 +297,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
       setSubmissionStatus("draft");
       setDoing(false);
     } catch (err) {
-      setErrror(err.message);
+      setError(err.message);
       setDoing(false);
     }
   };
