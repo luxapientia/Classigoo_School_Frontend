@@ -37,7 +37,7 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
   const editorRef = React.useRef(null);
   const [title, setTitle] = React.useState("");
   const [files, setFiles] = React.useState([]);
-  const [content, setContent] = React.useState("");
+  const [content, setContent] = React.useState("loading...........");
   const [deadline, setDeadline] = React.useState();
 
   const [error, setError] = React.useState(null);
@@ -69,8 +69,6 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
   } = useSubscription(SUB_GET_ASSIGNMENT, {
     variables: { id: aid },
   });
-
-  console.log(sub_data_assignment);
 
   // initiate mutations
   const [editAssignment] = useMutation(EDIT_ASSIGNMENT);
@@ -289,10 +287,6 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
       );
 
       setDeadline(parsedDeadline);
-
-      if (sub_data_assignment.assignments_by_pk.content) {
-        setLoadedEditor(true);
-      }
     }
   }, [sub_data_assignment]);
 
@@ -394,7 +388,7 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
             />
           </div>
           <div>
-            {loadedEditor ? (
+            {content !== "loading..........." ? (
               <TinyEditor
                 onInit={(evt, editor) => (editorRef.current = editor)}
                 init={{
@@ -437,9 +431,15 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                     input.click();
                   },
                 }}
-                // initialValue="<p>This is the initial content of the editor</p>"
+                // initialValue={content}
                 value={content}
-                onChange={(content) => setContent(content)}
+                onChange={(c) => {
+                  if (!loadedEditor) {
+                    return setLoadedEditor(true);
+                  }
+
+                  setContent(c);
+                }}
                 suppressHydrationWarning
               />
             ) : (

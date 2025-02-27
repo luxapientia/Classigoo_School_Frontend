@@ -389,9 +389,9 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
           <h1 className="text-2xl  p-5 bg-content2 font-bold rounded-xl">
             {sub_assignment_data?.assignments_by_pk?.title}
           </h1>
-          <div className="flex gap-4">
-            <div className="flex-auto flex flex-col">
-              <div className="flex-auto px-10 py-4 bg-content2 rounded-xl h-full">
+          <div className="flex gap-4 max-w-full w-full">
+            <div className="flex-auto flex flex-col overflow-x-auto">
+              <div className="flex-auto px-10 py-4 bg-content2 rounded-xl h-full overflow-x-auto">
                 <article
                   id="editor_rendered"
                   className="prose max-w-none prose-lg prose-headings:text-gray-800 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:italic prose-img:rounded-lg prose-img:shadow-md prose-ul:list-disc prose-ol:list-decimal prose-table:border-collapse prose-table:border prose-table:border-gray-300 prose-th:border prose-th:p-2 prose-th:bg-gray-100 prose-td:border prose-td:p-2 prose-td:text-gray-700"
