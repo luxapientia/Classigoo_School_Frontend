@@ -6,6 +6,7 @@ import GET_CHILDREN from "./getChildren";
 import GET_COMMENTS from "./getComments";
 import GET_CLASSROOM from "./getClassroom";
 import GET_SUBSCRIPTIONS from "./getSubscriptions";
+import GET_EXAM_SUBMISSION from "./getExamSubmission";
 import GET_CLASSROOM_NAMES from "./getClassroomNames";
 import GET_CLASSROOM_ACCESS from "./getClassroomAccess";
 
@@ -18,6 +19,7 @@ export {
   GET_COMMENTS,
   GET_CLASSROOM,
   GET_SUBSCRIPTIONS,
+  GET_EXAM_SUBMISSION,
   GET_CLASSROOM_NAMES,
   GET_CLASSROOM_ACCESS,
 };

@@ -1,3 +1,4 @@
+import xss from "xss";
 import React from "react";
 import moment from "moment";
 import { Icon } from "@iconify/react";
@@ -66,8 +67,8 @@ export default function PostsSingle({
       } else {
         setToDeleteComment(null);
         setError(
-          deleted?.data?.delete_classroom_post_comments_by_pk.errors[0]
-            .message || "Something went wrong. Please try again."
+          deleted?.data?.delete_classroom_post_comments_by_pk.errors[0].message ||
+            "Something went wrong. Please try again."
         );
       }
     } catch (error) {
@@ -105,10 +106,7 @@ export default function PostsSingle({
           handleDeleteComment={setToDeleteComment}
         />
       )}
-      <div
-        key={post.id}
-        className="shadow-lg rounded-2xl dark:bg-gray-800 my-5 overflow-hidden"
-      >
+      <div key={post.id} className="shadow-lg rounded-2xl dark:bg-gray-800 my-5 overflow-hidden">
         <div className="p-5">
           <div className="flex justify-between">
             <div className="flex-initial">
@@ -121,28 +119,15 @@ export default function PostsSingle({
                   name: post.user.name,
                 }}
                 name={post.user.name}
-                description={
-                  <p className="text-gray-500">
-                    {moment(post.created_at).format("Do MMMM YYYY, h:mm a")}
-                  </p>
-                }
+                description={<p className="text-gray-500">{moment(post.created_at).format("Do MMMM YYYY, h:mm a")}</p>}
               />
             </div>
             <div className="flex-initial">
-              {post.user.id === user.user.id ||
-              user.role === "owner" ||
-              user.role === "teacher" ? (
+              {post.user.id === user.user.id || user.role === "owner" || user.role === "teacher" ? (
                 <Dropdown>
                   <DropdownTrigger>
-                    <Button
-                      variant="text"
-                      className="grid justify-center items-center p-0"
-                      isIconOnly
-                    >
-                      <Icon
-                        icon="bi:three-dots-vertical"
-                        className="text-gray-500 w-5 h-5"
-                      />
+                    <Button variant="text" className="grid justify-center items-center p-0" isIconOnly>
+                      <Icon icon="bi:three-dots-vertical" className="text-gray-500 w-5 h-5" />
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu>
@@ -169,7 +154,7 @@ export default function PostsSingle({
           <div className="mt-5">
             <div
               className="prose prose-lg prose-h1:text-3xl prose-h1:font-bold prose-h2:text-2xl prose-h2:font-semibold prose-p:leading-relaxed prose-a:text-blue-600 prose-a:underline prose-ul:list-disc prose-ol:list-decimal prose-li:my-1 prose-img:rounded-lg prose-img:w-full prose-img:shadow-sm"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{ __html: xss(post.content) }}
             ></div>
           </div>
 
@@ -190,12 +175,8 @@ export default function PostsSingle({
                         />
                       </div>
                       <div className="flex-auto px-5 py-4 h-full">
-                        <p className="text-sm text-gray-700 dark:text-gray-200">
-                          {file.name}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-300 mt-2">
-                          {file?.size}
-                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-200">{file.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-300 mt-2">{file?.size}</p>
                       </div>
                       <div className="flex-initial">
                         <Link
@@ -204,10 +185,7 @@ export default function PostsSingle({
                           className="w-16 h-20 grid justify-center items-center bg-gray-200 dark:bg-gray-700 rounded-none"
                           href={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
                         >
-                          <Icon
-                            icon="si:file-download-duotone"
-                            className="text-gray-500 w-6 h-6"
-                          />
+                          <Icon icon="si:file-download-duotone" className="text-gray-500 w-6 h-6" />
                         </Link>
                       </div>
                     </div>
@@ -219,18 +197,11 @@ export default function PostsSingle({
                       className="flex relative w-full bg-content2 rounded-xl overflow-hidden border-3 dark:border-gray-700"
                     >
                       <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 grid justify-center content-center flex-initial">
-                        <Icon
-                          icon="tabler:file"
-                          className="w-8 h-8 text-gray-800 dark:text-gray-200"
-                        />
+                        <Icon icon="tabler:file" className="w-8 h-8 text-gray-800 dark:text-gray-200" />
                       </div>
                       <div className="flex-auto px-5 py-4 h-full">
-                        <p className="text-sm text-gray-700 dark:text-gray-200">
-                          {file.name}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-300 mt-2">
-                          {file?.size}
-                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-200">{file.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-300 mt-2">{file?.size}</p>
                       </div>
                       <div className="flex-initial">
                         <Link
@@ -239,10 +210,7 @@ export default function PostsSingle({
                           className="w-16 h-20 grid justify-center items-center bg-gray-200 dark:bg-gray-700 rounded-none"
                           href={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
                         >
-                          <Icon
-                            icon="si:file-download-duotone"
-                            className="text-gray-500 w-6 h-6"
-                          />
+                          <Icon icon="si:file-download-duotone" className="text-gray-500 w-6 h-6" />
                         </Link>
                       </div>
                     </div>
@@ -263,12 +231,7 @@ export default function PostsSingle({
           <div className="p-5 bg-slate-100 dark:bg-slate-700">
             <div className="flex gap-4">
               <div className="flex-intial mt-1">
-                <Avatar
-                  isBordered
-                  src={user.user.avatar}
-                  name={user.user.name}
-                  size="sm"
-                />
+                <Avatar isBordered src={user.user.avatar} name={user.user.name} size="sm" />
               </div>
               <div className="flex-auto w-full">
                 {openComment === post.id ? (
@@ -317,37 +280,22 @@ export default function PostsSingle({
             {post.comments?.map((comment, index) => (
               <div key={index} className="flex gap-4 mt-4">
                 <div className="flex-initial mt-1">
-                  <Avatar
-                    isBordered
-                    src={comment.user.avatar}
-                    name={comment.user.name}
-                    size="sm"
-                  />
+                  <Avatar isBordered src={comment.user.avatar} name={comment.user.name} size="sm" />
                 </div>
                 <div className="flex-auto w-full">
                   <div className="bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2 border-2 border-gray-200 dark:border-gray-700 flex justify-between">
                     <div className="">
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        <strong>{comment.user.name}</strong> commented{" "}
-                        {moment(comment.created_at).fromNow()}
+                        <strong>{comment.user.name}</strong> commented {moment(comment.created_at).fromNow()}
                       </p>
-                      <p className="text-sm text-gray-700 dark:text-gray-200 mt-2">
-                        {comment.content}
-                      </p>{" "}
+                      <p className="text-sm text-gray-700 dark:text-gray-200 mt-2">{comment.content}</p>{" "}
                     </div>
 
                     <div className="flex-initial">
                       <Dropdown>
                         <DropdownTrigger>
-                          <Button
-                            variant="text"
-                            className="grid justify-center items-center p-0"
-                            isIconOnly
-                          >
-                            <Icon
-                              icon="bi:three-dots-vertical"
-                              className="text-gray-500 w-5 h-5"
-                            />
+                          <Button variant="text" className="grid justify-center items-center p-0" isIconOnly>
+                            <Icon icon="bi:three-dots-vertical" className="text-gray-500 w-5 h-5" />
                           </Button>
                         </DropdownTrigger>
                         <DropdownMenu>
@@ -367,15 +315,9 @@ export default function PostsSingle({
                           user.role === "teacher" ||
                           post.user.id === user.user.id ? (
                             <DropdownItem>
-                              <button
-                                className=""
-                                onClick={() => setToDeleteComment(comment.id)}
-                              >
+                              <button className="" onClick={() => setToDeleteComment(comment.id)}>
                                 <p className="flex items-center text-danger-500">
-                                  <Icon
-                                    icon="bi:trash"
-                                    className="w-4 h-4 mr-2"
-                                  />
+                                  <Icon icon="bi:trash" className="w-4 h-4 mr-2" />
                                   Delete
                                 </p>
                               </button>

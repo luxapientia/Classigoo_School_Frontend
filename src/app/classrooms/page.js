@@ -4,15 +4,19 @@ import { redirect } from "next/navigation";
 import MainClassroomsComponent from "@components/pages/classrooms/main";
 
 export default async function classroomsPage() {
-  const session = await auth0.getSession();
+  try {
+    const session = await auth0.getSession();
 
-  if (!session) {
-    redirect("/auth/login");
+    if (!session) {
+      redirect("/auth/login");
+    }
+
+    return (
+      <>
+        <MainClassroomsComponent user={session.user} />
+      </>
+    );
+  } catch (error) {
+    console.error(`Error in classroomsPage: ${error}`);
   }
-
-  return (
-    <>
-      <MainClassroomsComponent user={session.user} />
-    </>
-  );
 }

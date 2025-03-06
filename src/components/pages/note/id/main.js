@@ -1,4 +1,5 @@
 "use client";
+import xss from "xss";
 import React from "react";
 import moment from "moment";
 import Link from "next/link";
@@ -59,26 +60,18 @@ export default function NotePageMainComponent({ user, id }) {
       <div className="flex flex-col gap-4">
         {d_error && (
           <div className="mb-4">
-            <Alert
-              color="danger"
-              title="Something went wrong!"
-              description={d_error.message}
-            />
+            <Alert color="danger" title="Something went wrong!" description={d_error.message} />
           </div>
         )}
 
-        <h1 className="text-2xl  p-5 bg-content2 font-bold rounded-xl">
-          {data?.notes_by_pk?.title}
-        </h1>
+        <h1 className="text-2xl  p-5 bg-content2 font-bold rounded-xl">{data?.notes_by_pk?.title}</h1>
         <div className="flex gap-4">
           <div className="flex-auto px-10 py-4 bg-content2 rounded-xl">
             <article
               id="editor_rendered"
               // className="prose max-w-none prose-lg prose-headings:text-gray-800 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:italic prose-img:rounded-lg prose-img:shadow-md prose-ul:list-disc prose-ol:list-decimal prose-table:border-collapse prose-table:border prose-table:border-gray-300 prose-th:border prose-th:p-2 prose-th:bg-gray-100 prose-td:border prose-td:p-2 prose-td:text-gray-700"
             >
-              <div
-                dangerouslySetInnerHTML={{ __html: data?.notes_by_pk?.content }}
-              ></div>
+              <div dangerouslySetInnerHTML={{ __html: xss(data?.notes_by_pk?.content) }}></div>
             </article>
           </div>
           <div className="flex-initial">
@@ -97,16 +90,10 @@ export default function NotePageMainComponent({ user, id }) {
 
             <div className="p-5 bg-content2 w-72 rounded-xl mt-4">
               <h2 className="text-sm">
-                Status:{" "}
-                <span className="font-semibold">
-                  {data?.notes_by_pk?.status.toUpperCase()}
-                </span>
+                Status: <span className="font-semibold">{data?.notes_by_pk?.status.toUpperCase()}</span>
               </h2>
               <h2 className="text-sm">
-                Last Updated:{" "}
-                <span className="font-semibold">
-                  {moment(data?.notes_by_pk?.updated_at).fromNow()}
-                </span>
+                Last Updated: <span className="font-semibold">{moment(data?.notes_by_pk?.updated_at).fromNow()}</span>
               </h2>
             </div>
             <div className="p-5 bg-content2 w-72 rounded-xl mt-4">
@@ -115,10 +102,7 @@ export default function NotePageMainComponent({ user, id }) {
                 <ul className="list-disc list-inside mt-1">
                   {data?.notes_by_pk?.classroom_notes.map((classroom) => (
                     <li key={classroom.classroom.name} className="text-xs">
-                      <Link
-                        href={`/classroom/${classroom.classroom.id}`}
-                        className="underline"
-                      >
+                      <Link href={`/classroom/${classroom.classroom.id}`} className="underline">
                         {classroom.classroom.name}
                       </Link>
                     </li>

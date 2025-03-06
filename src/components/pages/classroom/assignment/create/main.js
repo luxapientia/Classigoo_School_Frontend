@@ -7,14 +7,7 @@ import { redirect } from "next/navigation";
 import MemberSelector from "./member-selector";
 import Loading from "@components/common/loading";
 import TinyEditor from "@components/common/editor";
-import {
-  Input,
-  Button,
-  Select,
-  SelectItem,
-  Alert,
-  DatePicker,
-} from "@heroui/react";
+import { Input, Button, Select, SelectItem, Alert, DatePicker } from "@heroui/react";
 
 import { now, getLocalTimeZone } from "@internationalized/date";
 
@@ -93,15 +86,11 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
         formData.append("image", tempFile);
 
         // post form data image
-        const response = await axios.post(
-          "/api/proxy/upload/posts/image",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        const response = await axios.post("/api/proxy/upload/posts/image", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
         let fileSize;
 
@@ -142,15 +131,11 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
         formData.append("file", tempFile);
 
         // post form data image
-        const response = await axios.post(
-          "/api/proxy/upload/posts/file",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        const response = await axios.post("/api/proxy/upload/posts/file", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
         let fileSize;
 
@@ -229,7 +214,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
 
     try {
       // remove null or '' from members
-      const fixedAudience = audience.filter((a) => a !== null && a !== "");
+      const fixedAudience = audience.filter((a) => a);
       const fixedDeadline = deadline ? deadline.toAbsoluteString() : null;
 
       if (!title) {
@@ -335,14 +320,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
           />
         )}
 
-        {success && (
-          <Alert
-            color="success"
-            className="mb-5"
-            title={success}
-            onClose={() => setSuccess(null)}
-          />
-        )}
+        {success && <Alert color="success" className="mb-5" title={success} onClose={() => setSuccess(null)} />}
 
         {openPicker && (
           <MemberSelector
@@ -372,8 +350,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
                 placeholder: "Write your assignment's instructions here...",
                 toolbar:
                   "undo redo | fontselect fontsizeselect | bold italic underline strikethrough | forecolor backcolor | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | link image table codesample emoticons | removeformat",
-                content_style:
-                  "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
+                content_style: "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
                 // autosave_ask_before_unload: true,
                 // autosave_interval: "30s",
                 // autosave_prefix: "classigoo-note-autosave-{path}{query}-{id}-",
@@ -418,10 +395,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
               <div className="border-2 border-dashed border-content2 p-5 rounded-lg mb-5">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {files.map((file, index) => (
-                    <div
-                      key={index}
-                      className="bg-content2 p-3 rounded-lg flex items-center justify-between w-full"
-                    >
+                    <div key={index} className="bg-content2 p-3 rounded-lg flex items-center justify-between w-full">
                       <div className="flex-initial pr-2">
                         <div className="w-24 h-24 grid justify-center content-center border-2 border-default-200 rounded-lg">
                           {file.type === "image" ? (
@@ -431,10 +405,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
                               className="h-16 w-auto object-cover"
                             />
                           ) : (
-                            <Icon
-                              icon="akar-icons:file"
-                              className="h-16 w-auto object-cover"
-                            />
+                            <Icon icon="akar-icons:file" className="h-16 w-auto object-cover" />
                           )}
                         </div>
                       </div>
@@ -444,21 +415,11 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
                         </p>
                       </div>
                       <div className="flex-initial pr-2">
-                        <button
-                          className=""
-                          onClick={() => handleDeleteFile([file.location])}
-                          disabled={deleting}
-                        >
+                        <button className="" onClick={() => handleDeleteFile([file.location])} disabled={deleting}>
                           {deleting ? (
-                            <Icon
-                              icon="eos-icons:three-dots-loading"
-                              className="text-danger-500 text-xl"
-                            />
+                            <Icon icon="eos-icons:three-dots-loading" className="text-danger-500 text-xl" />
                           ) : (
-                            <Icon
-                              icon="mingcute:delete-2-fill"
-                              className="text-danger-500 text-xl"
-                            />
+                            <Icon icon="mingcute:delete-2-fill" className="text-danger-500 text-xl" />
                           )}
                         </button>
                       </div>
@@ -477,10 +438,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
                     onPress={() => setFilePicker("image")}
                     isIconOnly={true}
                   >
-                    <Icon
-                      icon="stash:image-plus-duotone"
-                      className="text-3xl"
-                    />
+                    <Icon icon="stash:image-plus-duotone" className="text-3xl" />
                   </Button>
                 </div>
                 <div className="flex-initial ml-2">
@@ -505,15 +463,9 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
                 className="flex-1  bg-content2 hover:bg-gray-200 dark:hover:bg-neutral-700 p-3 rounded-xl h-full relative cursor-pointer max-h-[55px]"
                 onClick={() => setOpenPicker(true)}
               >
-                <label className="text-xs text-gray-600 dark:text-neutral-300 absolute top-2">
-                  Audience
-                </label>
+                <label className="text-xs text-gray-600 dark:text-neutral-300 absolute top-2">Audience</label>
                 <p className="text-small pt-3">
-                  {audience.length === 0
-                    ? "Teachers"
-                    : audience[0] == "*"
-                    ? "All"
-                    : "Custom"}
+                  {audience.length === 0 ? "Teachers" : audience[0] == "*" ? "All" : "Custom"}
                 </p>
               </div>
             </div>
@@ -566,10 +518,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
               filePicker === "file" ? (
                 <div className="">
                   <div className="flex justify-center content-center">
-                    <Icon
-                      icon="akar-icons:file"
-                      className="h-full w-36 text-default-400 py-5"
-                    />
+                    <Icon icon="akar-icons:file" className="h-full w-36 text-default-400 py-5" />
                   </div>
                   <p className="text-center text-xs text-gray-500">
                     {tempFile.name} - {tempFile.size / 1000000}MB
@@ -577,11 +526,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
                 </div>
               ) : (
                 <div className="flex justify-center content-center">
-                  <img
-                    src={tempFilePreview}
-                    alt="Profile"
-                    className="h-48 w-auto object-cover rounded-lg"
-                  />
+                  <img src={tempFilePreview} alt="Profile" className="h-48 w-auto object-cover rounded-lg" />
                 </div>
               )
             ) : (
@@ -593,10 +538,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
                 overRide
               >
                 <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8 mb-2">
-                  <Icon
-                    icon="akar-icons:upload"
-                    className="h-8 w-8 text-default-400"
-                  />
+                  <Icon icon="akar-icons:upload" className="h-8 w-8 text-default-400" />
                   <p className="text-sm text-default-400">
                     Drag and drop your profile picture here or click to upload.
                   </p>
@@ -620,14 +562,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
               </FileUploader>
             )}
 
-            {fileError && (
-              <Alert
-                className="my-2"
-                color="danger"
-                title="Error"
-                description={fileError}
-              />
-            )}
+            {fileError && <Alert className="my-2" color="danger" title="Error" description={fileError} />}
 
             <div className="flex justify-end w-full">
               <Button

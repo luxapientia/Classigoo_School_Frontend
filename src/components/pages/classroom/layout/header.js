@@ -1,18 +1,11 @@
 "use client";
 import * as NProgress from "nprogress";
 import { useRouter } from "next/navigation";
+import { useUser } from "@auth0/nextjs-auth0";
 import { usePathname } from "next/navigation";
 import { Avatar, Tabs, Tab } from "@heroui/react";
 
-export default function ClassroomHeader({
-  id,
-  img,
-  name,
-  subject,
-  section,
-  room,
-  owner,
-}) {
+export default function ClassroomHeader({ id, img, name, subject, section, room, owner, currentUser }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -25,11 +18,11 @@ export default function ClassroomHeader({
   if (split_path.includes("members")) {
     selected_key = `/classroom/${id}/members`;
   }
-  if (split_path.includes("exams")) {
+  if (split_path.includes("exams") || split_path.includes("exam")) {
     selected_key = `/classroom/${id}/exams`;
   }
-  if (split_path.includes("grades")) {
-    selected_key = `/classroom/${id}/grades`;
+  if (split_path.includes("results")) {
+    selected_key = `/classroom/${id}/results`;
   }
   if (split_path.includes("notes")) {
     selected_key = `/classroom/${id}/notes`;
@@ -49,10 +42,7 @@ export default function ClassroomHeader({
           style={{ backgroundImage: `url(${img})` }}
         >
           <div>
-            <h2
-              className="text-white text-4xl font-bold"
-              style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}
-            >
+            <h2 className="text-white text-4xl font-bold" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}>
               {name}
             </h2>
             <p className="text-white text-xl font-medium mt-2">{subject}</p>
@@ -65,12 +55,7 @@ export default function ClassroomHeader({
         </div>
 
         <div className="absolute -bottom-10 right-10">
-          <Avatar
-            src={owner?.avatar}
-            alt={owner?.name}
-            className="w-24 h-24 border-2"
-            isBordered
-          />
+          <Avatar src={owner?.avatar} alt={owner?.name} className="w-24 h-24 border-2" isBordered />
         </div>
         <div className="flex justify-center items-center">
           <Tabs
@@ -86,10 +71,12 @@ export default function ClassroomHeader({
             <Tab key={`/classroom/${id}/home`} title="Home" />
             <Tab key={`/classroom/${id}/members`} title="Members" />
             <Tab key={`/classroom/${id}/exams`} title="Exams" />
-            <Tab key={`/classroom/${id}/grades`} title="Grades" />
+            {currentUser?.role === "student" && <Tab key={`/classroom/${id}/results`} title="Results" />}
             <Tab key={`/classroom/${id}/notes`} title="Notes" />
             <Tab key={`/classroom/${id}/assignments`} title="Assignments" />
-            <Tab key={`/classroom/${id}/settings`} title="Settings" />
+            {(currentUser?.role === "owner" || currentUser?.role === "teacher") && (
+              <Tab key={`/classroom/${id}/settings`} title="Settings" />
+            )}
           </Tabs>
           <div className="flex-initial w-52"></div>
         </div>

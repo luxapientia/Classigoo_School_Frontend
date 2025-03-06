@@ -11,7 +11,7 @@
   "dependencies": {
     "@apollo/client": "^3.12.3",
     "@apollo/experimental-nextjs-app-support": "^0.11.7",
-    "@auth0/nextjs-auth0": "4.0.0-beta.10",
+    "@auth0/nextjs-auth0": "^4.0.2",
     "@heroui/react": "^2.6.14",
     "@heroui/system": "2.4.7",
     "@iconify/react": "^5.1.0",
@@ -20,7 +20,9 @@
     "@tinymce/tinymce-react": "^5.1.1",
     "@wiris/mathtype-tinymce6": "^8.12.0",
     "axios": "^1.7.9",
+    "classnames": "^2.5.1",
     "clsx": "^2.1.1",
+    "dompurify": "^3.2.4",
     "framer-motion": "^11.13.1",
     "graphql": "^16.9.0",
     "graphql-ws": "^5.16.0",
@@ -37,7 +39,8 @@
     "subscriptions-transport-ws": "^0.11.0",
     "tailwind-merge": "^2.5.5",
     "usehooks-ts": "^3.1.0",
-    "validator": "^13.12.0"
+    "validator": "^13.12.0",
+    "xss": "^1.0.15"
   },
   "devDependencies": {
     "@types/node": "22.10.1",
