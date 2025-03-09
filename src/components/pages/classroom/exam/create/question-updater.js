@@ -190,9 +190,9 @@ export default function QuestionBuilder({ index, question: qobj, updateQuestion,
                 menubar: false,
                 // set colors font size etc
                 toolbar:
-                  "bold italic underline | bullist numlist | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry | removeformat",
+                  "bold italic underline | bullist numlist | image table | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry | removeformat",
                 toolbar_location: "bottom",
-                quickbars_insert_toolbar: "image table",
+                quickbars_insert_toolbar: false,
                 height: 750,
                 autoresize_bottom_margin: 50,
                 placeholder: "Write your question here...",
@@ -362,7 +362,7 @@ export default function QuestionBuilder({ index, question: qobj, updateQuestion,
               className="rounded-none bg-red-500 text-background font-medium mr-2"
               onClick={cancleQuestion}
             >
-              Cancle
+              Cancel
             </Button>
             <Button
               variant="text"

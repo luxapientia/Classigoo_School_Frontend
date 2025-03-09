@@ -431,12 +431,14 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                     {duration(exam_data.exams_by_pk.duration, "minutes").minutes()}m
                   </span>
                 </p>
-                <div className=" justify-center items-center grid">
-                  <p className="border-2 border-dashed border-gray-500 rounded-lg flex gap-2 px-2 py-1 w-fit justify-center items-center">
-                    <Icon icon="fluent:timer-20-regular" className="h-6 w-6" />
-                    {timeLeft <= 0 && <span>Time's up!</span>}
-                  </p>
-                </div>
+                {timeLeft <= 0 && (
+                  <div className=" justify-center items-center grid">
+                    <p className="border-2 border-dashed border-gray-500 rounded-lg flex gap-2 px-2 py-1 w-fit justify-center items-center">
+                      <Icon icon="fluent:timer-20-regular" className="h-6 w-6" />
+                      <span>Time's up!</span>
+                    </p>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -504,7 +506,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                     <div className="px-5">
                       <CheckboxGroup
                         name={q.id}
-                        defaultValue={[...answers.find((a) => a.question_id === q.id)?.answer] || []}
+                        defaultValue={answers?.find((a) => a.question_id === q.id)?.answer || []}
                         onChange={(e) => {
                           console.log(e);
                           const newAnswers = answers.filter((a) => a.question_id !== q.id);

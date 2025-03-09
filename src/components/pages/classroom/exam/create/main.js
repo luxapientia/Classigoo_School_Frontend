@@ -92,11 +92,11 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
         return;
       }
 
-      if (fixedAudience.length === 0) {
-        setError("Please select the audience for the exam.");
-        setLoading(false);
-        return;
-      }
+      // if (fixedAudience.length === 0) {
+      //   setError("Please select the audience for the exam.");
+      //   setLoading(false);
+      //   return;
+      // }
 
       if (dStart === "yes" && !startAt) {
         setError("Please enter the exam start date.");
@@ -241,7 +241,7 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
                 menubar: false,
                 // set colors font size etc
                 toolbar:
-                  "blocks fontsize | bold italic underline | bullist numlist | forecolor backcolor | link image | removeformat",
+                  "blocks fontsize | bold italic underline | bullist numlist | forecolor backcolor | link image table | removeformat",
                 // toolbar_location: "bottom",
                 height: 750,
                 autoresize_bottom_margin: 50,
@@ -253,7 +253,7 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
                 // autosave_restore_when_empty: true,
                 paste_data_images: true,
                 image_uploadtab: true,
-
+                quickbars_insert_toolbar: false,
                 file_picker_callback: function (callback, value, meta) {
                   const input = document.createElement("input");
                   input.setAttribute("type", "file");

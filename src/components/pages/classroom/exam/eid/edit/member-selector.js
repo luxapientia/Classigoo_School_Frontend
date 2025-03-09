@@ -42,7 +42,7 @@ export default function MemberSelector({ my_id, members, setOpenPicker, audience
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000] flex items-center justify-center">
       <div className="bg-white rounded-lg p-4 max-w-[calc(100%_-_20px)] w-[750px]">
-        <h2>Select members to share this assignment with</h2>
+        <h2>Select members to share this exam with</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-5">
           <div className="flex items-center w-full cursor-pointer" onClick={() => setSelectedMembers([])}>
             <div
@@ -93,8 +93,8 @@ export default function MemberSelector({ my_id, members, setOpenPicker, audience
         <div>
           <p className="italic text-xs text-gray-500 dark:text-gray-400">
             <span className="text-danger-500 text-sm">*</span>
-            Though you have choosen to share this assignment with selected members, the assignment will still be visible
-            to all the teachers and owners of the classroom.
+            Though you have choosen to share this exam with selected members, the exam will still be visible to all the
+            teachers and owners of the classroom.
           </p>
         </div>
 

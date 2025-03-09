@@ -127,20 +127,33 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
         let mrking = [];
         // check for each question if making is already there if not for objective auto evaluate marking by checking the answer
         exam_data.exams_by_pk.questions.forEach((q) => {
-          let marking = submission_data.exam_submissions_by_pk.markings.find((m) => m.question_id === q.id);
+          let marking = submission_data?.exam_submissions_by_pk.markings?.find((m) => m.question_id === q.id);
           if (marking) {
             mrking.push(marking);
           } else {
             if (q.question_type === "objective") {
               if (q.answer_type === "single") {
-                let answer = submission_data.exam_submissions_by_pk.answers.find((a) => a.question_id === q.id).answer;
-                let marking = q.options.find((o) => o === answer) ? q.points : 0;
+                let answer = submission_data?.exam_submissions_by_pk.answers?.find(
+                  (a) => a.question_id === q.id
+                )?.answer;
+
+                let fullMark = q.answer === answer;
+                let marking = fullMark ? q.points : 0;
+
                 mrking.push({ question_id: q.id, marking: marking, notes: "" });
               }
               if (q.answer_type === "multiple") {
-                let answer = submission_data.exam_submissions_by_pk.answers.find((a) => a.question_id === q.id).answer;
+                let answer = submission_data?.exam_submissions_by_pk.answers?.find(
+                  (a) => a.question_id === q.id
+                )?.answer;
                 // check if this answer is correct by matching with the options array with the answer array
-                let marking = q.options.filter((o) => answer.includes(o)).length === q.options.length ? q.points : 0;
+                let fullMark = true;
+                answer.forEach((ans) => {
+                  if (!q.answer.includes(ans)) {
+                    fullMark = false;
+                  }
+                });
+                let marking = fullMark ? q.points : 0;
                 mrking.push({ question_id: q.id, marking: marking, notes: "" });
               }
             } else {
@@ -376,7 +389,7 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                       <div className="px-5">
                         <CheckboxGroup
                           name={q.id}
-                          defaultValue={[...answers.find((a) => a.question_id === q.id)?.answer]}
+                          defaultValue={answers?.find((a) => a.question_id === q.id)?.answer || []}
                           isReadOnly
                           isDisabled
                         >
@@ -386,7 +399,7 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                               value={option}
                               className="text-lg"
                               isSelected={(option) =>
-                                answers.find((a) => a.question_id === q.id)?.answer.includes(option)
+                                answers.find((a) => a.question_id === q.id)?.answer?.includes(option)
                               }
                             >
                               {option}

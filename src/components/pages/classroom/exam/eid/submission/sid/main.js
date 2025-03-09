@@ -227,7 +227,7 @@ export default function ExamSubmissionSeeMainComponent({ cid, eid, sid, user }) 
                     <div className="px-5">
                       <CheckboxGroup
                         name={q.id}
-                        defaultValue={[...answers.find((a) => a.question_id === q.id)?.answer]}
+                        defaultValue={answers?.find((a) => a.question_id === q.id)?.answer || []}
                         isReadOnly
                         isDisabled
                       >
@@ -237,7 +237,7 @@ export default function ExamSubmissionSeeMainComponent({ cid, eid, sid, user }) 
                             value={option}
                             className="text-lg"
                             isSelected={(option) =>
-                              answers.find((a) => a.question_id === q.id)?.answer.includes(option)
+                              answers?.find((a) => a.question_id === q.id)?.answer?.includes(option)
                             }
                           >
                             {option}
