@@ -36,6 +36,9 @@ const wsLink = new GraphQLWsLink(
         headers: {
           authorization: token ? `Bearer ${token}` : "",
         },
+        next: {
+          revalidate: 0,
+        },
       };
     },
   })
@@ -54,6 +57,16 @@ const splitLink = split(
 export const client = new ApolloClient({
   link: splitLink,
   cache: new InMemoryCache(),
+  defaultOptions: {
+    query: {
+      fetchPolicy: "no-cache",
+      errorPolicy: "all",
+    },
+    watchQuery: {
+      fetchPolicy: "no-cache",
+      errorPolicy: "all",
+    },
+  },
 });
 
 export default client;

@@ -425,7 +425,7 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
           <div className="my-5">
             {files.length !== 0 && (
               <div className="border-2 border-dashed border-content2 p-5 rounded-lg mb-5">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
                   {files.map((file, index) => (
                     <div key={index} className="bg-content2 p-3 rounded-lg flex items-center justify-between w-full">
                       <div className="flex-initial pr-2">
@@ -489,54 +489,61 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
           </div>
 
           {/* bottom */}
-          <div className="my-5 flex gap-5">
-            <div className="flex-1 grid items-center">
-              <div
-                className="flex-1  bg-content2 hover:bg-gray-200 dark:hover:bg-neutral-700 p-3 rounded-xl h-full relative cursor-pointer max-h-[55px]"
-                onClick={() => setOpenPicker(true)}
-              >
-                <label className="text-xs text-gray-600 dark:text-neutral-300 absolute top-2">Audience</label>
-                <p className="text-small pt-3">
-                  {audience.length === 0 ? "Teachers" : audience[0] == "*" ? "All" : "Custom"}
-                </p>
+          <div className="flex lg:flex-row flex-col lg:justify-between w-full gap-4">
+            <div className="my-5 flex-initial flex flex-col md:flex-row gap-5 w-full lg:max-w-[600px]">
+              <div className="flex-1 grid items-center">
+                <div
+                  className="flex-1  bg-content2 hover:bg-gray-200 dark:hover:bg-neutral-700 p-3 rounded-xl h-full relative cursor-pointer max-h-[55px]"
+                  onClick={() => setOpenPicker(true)}
+                >
+                  <label className="text-xs text-gray-600 dark:text-neutral-300 absolute top-2">Audience</label>
+                  <p className="text-small pt-3">
+                    {audience.length === 0 ? "Teachers" : audience[0] == "*" ? "All" : "Custom"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex-1 grid items-center">
+                <DatePicker
+                  hideTimeZone={false}
+                  showMonthAndYearPickers
+                  // defaultValue={deadline}
+                  value={deadline}
+                  onChange={setDeadline}
+                  label="Submission Deadline"
+                  variant="flat"
+                />
               </div>
             </div>
-            <div className="flex-1 grid items-center">
-              <DatePicker
-                hideTimeZone={false}
-                showMonthAndYearPickers
-                // defaultValue={deadline}
-                value={deadline}
-                onChange={setDeadline}
-                label="Submission Deadline"
-                variant="flat"
-              />
-            </div>
-            <div className="flex-1">
-              <div className="my-5 grid items-center">
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    variant="text"
-                    isLoading={loading === "draft"}
-                    isDisabled={loading === "published"}
-                    className="bg-primary-500 text-background rounded-none font-medium"
-                    onPress={() => {
-                      handleEditAssignment("draft");
-                    }}
-                  >
-                    Save as Draft
-                  </Button>
-                  <Button
-                    variant="text"
-                    isLoading={loading === "published"}
-                    isDisabled={loading === "draft"}
-                    className="bg-black dark:bg-white text-background rounded-none font-medium"
-                    onPress={() => {
-                      handleEditAssignment("published");
-                    }}
-                  >
-                    Save & Publish
-                  </Button>
+
+            <div className="flex-auto hidden lg:block"></div>
+
+            <div className="flex-initial flex justify-end items-center">
+              <div className="flex-1">
+                <div className="grid items-center">
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="text"
+                      isLoading={loading === "draft"}
+                      isDisabled={loading === "published"}
+                      className="w-full lg:w-auto bg-primary-500 text-background rounded-none font-medium"
+                      onPress={() => {
+                        handleEditAssignment("draft");
+                      }}
+                    >
+                      Save as Draft
+                    </Button>
+                    <Button
+                      variant="text"
+                      isLoading={loading === "published"}
+                      isDisabled={loading === "draft"}
+                      className="w-full lg:w-auto bg-black dark:bg-white text-background rounded-none font-medium"
+                      onPress={() => {
+                        handleEditAssignment("published");
+                      }}
+                    >
+                      Save & Publish
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -572,7 +579,7 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                 <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8 mb-2">
                   <Icon icon="akar-icons:upload" className="h-8 w-8 text-default-400" />
                   <p className="text-sm text-default-400">
-                    Drag and drop your profile picture here or click to upload.
+                    Drag and drop your {filePicker === "image" ? "image" : "file"} here or click to upload
                   </p>
                 </div>
                 {filePicker === "image" && (

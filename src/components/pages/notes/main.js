@@ -39,7 +39,7 @@ export default function NotesMainComponent({ user }) {
       </HeaderSlot>
 
       {data?.notes?.length > 0 ? (
-        <div className="grid gap-4 grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
           {data.notes.map((note) => (
             <Link
               href={`/note/${note.id}`}

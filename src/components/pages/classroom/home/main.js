@@ -64,9 +64,7 @@ export default function ClassroomHomeMain({ id, session }) {
   let user;
 
   if (session && sub_data?.classrooms_by_pk) {
-    user = sub_data?.classrooms_by_pk.classroom_relation.find(
-      (r) => r.user.id === session.user.sub
-    );
+    user = sub_data?.classrooms_by_pk.classroom_relation.find((r) => r.user.id === session.user.sub);
   }
 
   // hooks
@@ -134,9 +132,7 @@ export default function ClassroomHomeMain({ id, session }) {
           status: status,
           type: pType,
           // utc time pub at or now
-          published_at: pubAt
-            ? moment(pubAt).format().toString()
-            : moment().format().toString(),
+          published_at: pubAt ? moment(pubAt).format().toString() : moment().format().toString(),
         },
       });
 
@@ -178,15 +174,11 @@ export default function ClassroomHomeMain({ id, session }) {
         formData.append("image", tempFile);
 
         // post form data image
-        const response = await axios.post(
-          "/api/proxy/upload/posts/image",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        const response = await axios.post("/api/proxy/upload/posts/image", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
         let fileSize;
 
@@ -227,15 +219,11 @@ export default function ClassroomHomeMain({ id, session }) {
         formData.append("file", tempFile);
 
         // post form data image
-        const response = await axios.post(
-          "/api/proxy/upload/posts/file",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        const response = await axios.post("/api/proxy/upload/posts/file", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
         let fileSize;
 
@@ -305,17 +293,10 @@ export default function ClassroomHomeMain({ id, session }) {
   };
 
   // can user post
-  const canPost =
-    !sub_data?.classrooms_by_pk?.child_only ||
-    user?.role === "owner" ||
-    user?.role === "teacher";
+  const canPost = !sub_data?.classrooms_by_pk?.child_only || user?.role === "owner" || user?.role === "teacher";
 
   return (
-    <ClassroomLayout
-      id={id}
-      loading={sub_loading || sub_posts_loading}
-      classroom={sub_data?.classrooms_by_pk}
-    >
+    <ClassroomLayout id={id} loading={sub_loading || sub_posts_loading} classroom={sub_data?.classrooms_by_pk}>
       {openPicker && (
         <MemberSelector
           my_id={session.user.sub}
@@ -326,99 +307,99 @@ export default function ClassroomHomeMain({ id, session }) {
         />
       )}
       <div className="max-w-4xl mx-auto">
-        <div className="flex">
+        {/* <div className="flex">
           <div className="flex-initial">
-            {/* <InviteMemberBlock id={id} code={sub_data?.classrooms_by_pk?.invitation_code} teacher={false} /> */}
-          </div>
-          <div className="flex-auto">
-            {error && (
-              <Alert
-                hideIconWrapper
-                color="danger"
-                title="Something went wrong"
-                description={error}
-                variant="bordered"
-                isClosable={true}
-                classNames={{
-                  base: "my-5",
-                }}
-              />
-            )}
-            {fileError && (
-              <Alert
-                hideIconWrapper
-                color="danger"
-                title="Something went wrong"
-                description={fileError}
-                variant="bordered"
-                isClosable={true}
-                classNames={{
-                  base: "my-5",
-                }}
-              />
-            )}
-            {success && (
-              <Alert
-                hideIconWrapper
-                color="success"
-                title={success}
-                variant="bordered"
-                isClosable={true}
-                classNames={{
-                  base: "my-5",
-                }}
-              />
-            )}
-            {fileSuccess != "" && (
-              <Alert
-                hideIconWrapper
-                color="success"
-                title={fileSuccess}
-                variant="bordered"
-                isClosable={true}
-                classNames={{
-                  base: "my-5",
-                }}
-              />
-            )}
-            {/* check if classroom child only and if child only then if am i a owner or teacher */}
-            {canPost ? (
-              <ClassroomHomeEditor
-                user={user}
-                loading={loading}
-                content={content}
-                setContent={setContent}
-                type={pType}
-                setType={setPType}
-                audience={audience}
-                pubAt={pubAt}
-                setPubAt={setPubAt}
-                files={files}
-                setFiles={setFiles}
-                status={status}
-                setStatus={setStatus}
-                setOpenPicker={setOpenPicker}
-                deleting={deleting}
-                writting={writting}
-                setWritting={setWritting}
-                setFilePicker={setFilePicker}
-                handleCreatePost={handleCreatePost}
-                handleRemoveFile={handleDeleteFile}
-              />
-            ) : (
-              ""
-            )}
-            <ClassroomPost
-              posts={sub_posts?.classroom_posts}
-              user={user}
-              canPost={canPost}
-              setSuccess={setSuccess}
-              setError={setError}
-              handleDeleteFile={handleDeleteFile}
-              classroom_id={id}
+            <InviteMemberBlock id={id} code={sub_data?.classrooms_by_pk?.invitation_code} teacher={false} />
+          </div> */}
+        <div className="flex-auto">
+          {error && (
+            <Alert
+              hideIconWrapper
+              color="danger"
+              title="Something went wrong"
+              description={error}
+              variant="bordered"
+              isClosable={true}
+              classNames={{
+                base: "my-5",
+              }}
             />
-          </div>
+          )}
+          {fileError && (
+            <Alert
+              hideIconWrapper
+              color="danger"
+              title="Something went wrong"
+              description={fileError}
+              variant="bordered"
+              isClosable={true}
+              classNames={{
+                base: "my-5",
+              }}
+            />
+          )}
+          {success && (
+            <Alert
+              hideIconWrapper
+              color="success"
+              title={success}
+              variant="bordered"
+              isClosable={true}
+              classNames={{
+                base: "my-5",
+              }}
+            />
+          )}
+          {fileSuccess != "" && (
+            <Alert
+              hideIconWrapper
+              color="success"
+              title={fileSuccess}
+              variant="bordered"
+              isClosable={true}
+              classNames={{
+                base: "my-5",
+              }}
+            />
+          )}
+          {/* check if classroom child only and if child only then if am i a owner or teacher */}
+          {canPost ? (
+            <ClassroomHomeEditor
+              user={user}
+              loading={loading}
+              content={content}
+              setContent={setContent}
+              type={pType}
+              setType={setPType}
+              audience={audience}
+              pubAt={pubAt}
+              setPubAt={setPubAt}
+              files={files}
+              setFiles={setFiles}
+              status={status}
+              setStatus={setStatus}
+              setOpenPicker={setOpenPicker}
+              deleting={deleting}
+              writting={writting}
+              setWritting={setWritting}
+              setFilePicker={setFilePicker}
+              handleCreatePost={handleCreatePost}
+              handleRemoveFile={handleDeleteFile}
+            />
+          ) : (
+            ""
+          )}
+          <ClassroomPost
+            posts={sub_posts?.classroom_posts}
+            user={user}
+            canPost={canPost}
+            setSuccess={setSuccess}
+            setError={setError}
+            handleDeleteFile={handleDeleteFile}
+            classroom_id={id}
+          />
         </div>
+        {/* </div> */}
         {/* <h1>Classroom Home Main</h1> */}
       </div>
 
@@ -429,10 +410,7 @@ export default function ClassroomHomeMain({ id, session }) {
               filePicker === "file" ? (
                 <div className="">
                   <div className="flex justify-center content-center">
-                    <Icon
-                      icon="akar-icons:file"
-                      className="h-full w-36 text-default-400 py-5"
-                    />
+                    <Icon icon="akar-icons:file" className="h-full w-36 text-default-400 py-5" />
                   </div>
                   <p className="text-center text-xs text-gray-500">
                     {tempFile.name} - {tempFile.size / 1000000}MB
@@ -440,11 +418,7 @@ export default function ClassroomHomeMain({ id, session }) {
                 </div>
               ) : (
                 <div className="flex justify-center content-center">
-                  <img
-                    src={tempFilePreview}
-                    alt="Profile"
-                    className="h-48 w-auto object-cover rounded-lg"
-                  />
+                  <img src={tempFilePreview} alt="Profile" className="h-48 w-auto object-cover rounded-lg" />
                 </div>
               )
             ) : (
@@ -456,13 +430,8 @@ export default function ClassroomHomeMain({ id, session }) {
                 overRide
               >
                 <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8 mb-2">
-                  <Icon
-                    icon="akar-icons:upload"
-                    className="h-8 w-8 text-default-400"
-                  />
-                  <p className="text-sm text-default-400">
-                    Drag and drop your profile picture here or click to upload.
-                  </p>
+                  <Icon icon="akar-icons:upload" className="h-8 w-8 text-default-400" />
+                  <p className="text-sm text-default-400">Drag and drop your file here</p>
                 </div>
                 {filePicker === "image" && (
                   <p className="text-xs text-default-400">
@@ -483,14 +452,7 @@ export default function ClassroomHomeMain({ id, session }) {
               </FileUploader>
             )}
 
-            {fileError && (
-              <Alert
-                className="my-2"
-                color="danger"
-                title="Error"
-                description={fileError}
-              />
-            )}
+            {fileError && <Alert className="my-2" color="danger" title="Error" description={fileError} />}
 
             <div className="flex justify-end w-full">
               <Button

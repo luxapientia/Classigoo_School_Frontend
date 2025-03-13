@@ -106,11 +106,7 @@ export default function NoteEditMainComponent({ user, id }) {
     if (noteData?.notes_by_pk) {
       setTitle(noteData.notes_by_pk.title);
       setContent(noteData.notes_by_pk.content);
-      setClassrooms(
-        noteData.notes_by_pk.classroom_notes.map(
-          ({ classroom }) => classroom.id
-        )
-      );
+      setClassrooms(noteData.notes_by_pk.classroom_notes.map(({ classroom }) => classroom.id));
     }
   }, [noteData]);
 
@@ -130,22 +126,10 @@ export default function NoteEditMainComponent({ user, id }) {
         />
       )}
 
-      {success && (
-        <Alert
-          color="success"
-          className="mb-5"
-          title={success}
-          onClose={() => setSuccess(null)}
-        />
-      )}
+      {success && <Alert color="success" className="mb-5" title={success} onClose={() => setSuccess(null)} />}
       <div>
         <div className="my-4">
-          <Input
-            label="Note Title"
-            className="w-full"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <Input label="Note Title" className="w-full" value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <div>
           {noteData.notes_by_pk.content && (
@@ -157,8 +141,7 @@ export default function NoteEditMainComponent({ user, id }) {
                 branding: false,
                 toolbar:
                   "undo redo | fontselect fontsizeselect | bold italic underline strikethrough | forecolor backcolor | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | link image table codesample emoticons | removeformat",
-                content_style:
-                  "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
+                content_style: "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
                 // autosave_ask_before_unload: true,
                 // autosave_interval: "30s",
                 // autosave_prefix: "classigoo-note-autosave-{path}{query}-{id}-",
@@ -198,7 +181,7 @@ export default function NoteEditMainComponent({ user, id }) {
             />
           )}
         </div>
-        <div className="my-5 flex gap-5">
+        <div className="my-5 flex flex-col lg:flex-row gap-5">
           <div className="flex-1 grid items-center">
             <Select
               label="Select Classroom"
@@ -224,7 +207,7 @@ export default function NoteEditMainComponent({ user, id }) {
                   variant="text"
                   isLoading={loading === "draft"}
                   isDisabled={loading === "published"}
-                  className="bg-primary-500 text-background rounded-none font-medium"
+                  className="bg-primary-500 text-background rounded-none font-medium w-full lg:w-auto"
                   onPress={() => {
                     handleEditNote("draft");
                   }}
@@ -235,7 +218,7 @@ export default function NoteEditMainComponent({ user, id }) {
                   variant="text"
                   isLoading={loading === "published"}
                   isDisabled={loading === "draft"}
-                  className="bg-black dark:bg-white text-background rounded-none font-medium"
+                  className="bg-black dark:bg-white text-background rounded-none font-medium w-full lg:w-auto"
                   onPress={() => {
                     handleEditNote("published");
                   }}

@@ -20,23 +20,23 @@ const menuItems = [
     // isMain: true,
     dropdown: [],
   },
-  {
-    name: "Parential Control",
-    icon: "raphael:parent",
-    href: "#",
-    dropdown: [
-      {
-        name: "Parents",
-        icon: "solar:user-hands-bold-duotone",
-        href: "/parential-control/parents",
-      },
-      {
-        name: "Children",
-        icon: "solar:people-nearby-bold-duotone",
-        href: "/parential-control/children",
-      },
-    ],
-  },
+  // {
+  //   name: "Parential Control",
+  //   icon: "raphael:parent",
+  //   href: "#",
+  //   dropdown: [
+  //     {
+  //       name: "Parents",
+  //       icon: "solar:user-hands-bold-duotone",
+  //       href: "/parential-control/parents",
+  //     },
+  //     {
+  //       name: "Children",
+  //       icon: "solar:people-nearby-bold-duotone",
+  //       href: "/parential-control/children",
+  //     },
+  //   ],
+  // },
   {
     name: "Learning",
     icon: "solar:lightbulb-bold-duotone",

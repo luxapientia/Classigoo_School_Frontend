@@ -82,7 +82,7 @@ export default function ClassroomAssignmentsMain({ id, session }) {
                         <div className="flex-initial">
                           {assignment.title.length > 50 ? (
                             <Tooltip color="default" content={assignment.title}>
-                              <h2 className="text-base font-semibold font-exo">
+                              <h2 className="text-sm md:text-base font-semibold font-exo">
                                 {assignment.title.substring(0, 50) + "..."}
                                 {assignment.status === "draft" ? (
                                   <span className="ml-2 text-[10px] bg-red-500 text-white px-1 rounded-lg">Draft</span>
@@ -94,7 +94,7 @@ export default function ClassroomAssignmentsMain({ id, session }) {
                               </h2>
                             </Tooltip>
                           ) : (
-                            <h2 className="text-base font-semibold font-exo">
+                            <h2 className="text-sm md:text-base font-semibold font-exo">
                               {assignment.title}
                               {assignment.status === "draft" ? (
                                 <span className="ml-2 text-[10px] bg-red-500 text-white px-1 rounded-lg">Draft</span>
@@ -112,8 +112,8 @@ export default function ClassroomAssignmentsMain({ id, session }) {
                             Deadline: {moment(assignment.deadline).format("DD MMM YYYY hh:mm A")}
                           </p>
                         </div>
-                        <div className="flex-auto"></div>
-                        <div className="flex-initial grid content-center justify-end">
+                        <div className="hidden lg:block flex-auto"></div>
+                        <div className="flex-initial hidden lg:grid content-center justify-end">
                           <div className="flex justify-end">
                             <div className="border-2 border-dashed w-full px-2 py-1 grid justify-center content-center rounded-lg">
                               <User

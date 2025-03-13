@@ -163,7 +163,7 @@ export default function ClassroomMembersMain({ id, session }) {
             />
           </div>
         )}
-        <div className="flex gap-5">
+        <div className="flex flex-col xl:flex-row gap-5">
           {sub_data?.classrooms_by_pk?.invitation_code !== "" && (
             <div className="flex-initial">
               <InviteMemberBlock

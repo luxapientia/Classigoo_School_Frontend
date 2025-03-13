@@ -116,8 +116,8 @@ export default function ClassroomExamsMain({ id, session }) {
                             </p>
                           )}
                         </div>
-                        <div className="flex-auto"></div>
-                        <div className="flex-initial grid content-center justify-end">
+                        <div className="flex-auto hidden lg:block"></div>
+                        <div className="flex-initial hidden lg:grid content-center justify-end">
                           <div className="flex flex-col justify-center items-center">
                             <div className="border-2 border-dashed w-full px-2 py-1 grid justify-center content-center rounded-lg">
                               <User

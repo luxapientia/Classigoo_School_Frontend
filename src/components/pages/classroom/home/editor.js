@@ -161,7 +161,7 @@ export default function ClassroomHomeEditor({
               <Icon icon="tabler:file-plus" className="w-6 h-6 text-gray-800" />
             </Button>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between lg:flex-row flex-col gap-2">
             <div className="flex-initial flex gap-2 max-w-[100%] w-[500px]">
               <Select
                 className="w-[250px] mr-2 flex-1"
@@ -185,8 +185,8 @@ export default function ClassroomHomeEditor({
                 </p>
               </div>
             </div>
-            <div className="flex-initial grid content-center">
-              <div className="flex gap-0.5">
+            <div className="flex-initial grid content-center mt-5 lg:mt-0">
+              <div className="flex  gap-0.5">
                 <Button
                   variant="text"
                   size="lg"
@@ -198,7 +198,7 @@ export default function ClassroomHomeEditor({
                     setFiles([]);
                     setWritting(false);
                   }}
-                  className="w-20 h-10 bg-gray-500 hover:bg-gray-600 text-sm text-white rounded-lg mr-2"
+                  className="w-full lg:w-20 h-10 bg-gray-500 hover:bg-gray-600 text-sm text-white rounded-lg mr-2"
                 >
                   Cancle
                 </Button>
@@ -208,7 +208,7 @@ export default function ClassroomHomeEditor({
                   onPress={handleCreatePost}
                   isLoading={loading}
                   // isLoading
-                  className="bg-primary text-sm text-white rounded-lg px-4"
+                  className="w-full lg:w-20 bg-primary text-sm text-white rounded-lg px-4"
                 >
                   Publish
                 </Button>

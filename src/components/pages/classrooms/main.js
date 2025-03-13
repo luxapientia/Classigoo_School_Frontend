@@ -25,11 +25,7 @@ export default function MainClassroomsComponent({ user }) {
   const [joinClassroom] = useMutation(JOIN_CLASSROOM);
 
   // -> subscriptions
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_LIST_CLASSROOMS);
+  const { data: sub_data, loading: sub_loading, error: sub_error } = useSubscription(SUB_LIST_CLASSROOMS);
 
   // states
   // -> data
@@ -105,9 +101,7 @@ export default function MainClassroomsComponent({ user }) {
         setCreatedClassroom(makeClassroom.data.createClassroom.id);
         setTimeout(() => {
           if (makeClassroom.data.createClassroom.id) {
-            redirect(
-              `/classroom/${makeClassroom.data.createClassroom.id}?created=true`
-            );
+            redirect(`/classroom/${makeClassroom.data.createClassroom.id}/home?created=true`);
           }
         }, 500);
       } else {
@@ -144,7 +138,7 @@ export default function MainClassroomsComponent({ user }) {
         setSuccess(joinClass.data.joinClassroom.message);
         setTimeout(() => {
           if (joinClass.data.joinClassroom.id) {
-            redirect(`/classroom/${joinClass.data.joinClassroom.id}`);
+            redirect(`/classroom/${joinClass.data.joinClassroom.id}/home`);
           }
         }, 500);
       } else {
@@ -243,16 +237,10 @@ export default function MainClassroomsComponent({ user }) {
             <div className="py-5 px-2 border-2 rounded-lg border-dashed w-[calc(100%-20px)] text-center">
               <p className="font-medium">No classrooms found!</p>
               <div className="flex flex-row gap-2 mt-5 p-3 justify-center">
-                <button
-                  className="bg-primary-500 text-white py-1.5 px-3 text-sm"
-                  onClick={handleShowCreator}
-                >
+                <button className="bg-primary-500 text-white py-1.5 px-3 text-sm" onClick={handleShowCreator}>
                   Create a classroom
                 </button>
-                <button
-                  className="bg-success-500 text-white py-1.5 px-3 text-sm"
-                  onClick={handleShowJoin}
-                >
+                <button className="bg-success-500 text-white py-1.5 px-3 text-sm" onClick={handleShowJoin}>
                   Join a classroom
                 </button>
               </div>
@@ -265,7 +253,7 @@ export default function MainClassroomsComponent({ user }) {
                 key={classroom.id}
                 className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg border-2 dark:border-gray-700 overflow-hidden relative"
               >
-                <Link key={classroom.id} href={`/classroom/${classroom.id}`}>
+                <Link key={classroom.id} href={`/classroom/${classroom.id}/home`}>
                   <div
                     className="bg-cover bg-center bg-no-repeat"
                     style={{
@@ -273,9 +261,7 @@ export default function MainClassroomsComponent({ user }) {
                     }}
                   >
                     <div className="py-5 px-5 min-h-[150px] bg-gradient-to-r from-[#00000080] to-[#00000020] flex flex-col justify-end">
-                      <h2 className="text-white font-bold text-lg">
-                        {classroom.name}
-                      </h2>
+                      <h2 className="text-white font-bold text-lg">{classroom.name}</h2>
                       <p className="text-white text-sm">{classroom.subject}</p>
                       <p className="text-white text-sm">
                         {classroom.section}
@@ -296,10 +282,7 @@ export default function MainClassroomsComponent({ user }) {
                   </div>
                   <div className="min-h-[50px]">
                     <p className="text-sm px-5 py-2 italic">
-                      By{" "}
-                      <span className="font-medium">
-                        {classroom.ownerDetails.name}
-                      </span>
+                      By <span className="font-medium">{classroom.ownerDetails.name}</span>
                     </p>
                   </div>
                 </Link>
@@ -321,10 +304,7 @@ export default function MainClassroomsComponent({ user }) {
                       href={`/classroom/${classroom.id}/exams`}
                       className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
                     >
-                      <Icon
-                        icon="line-md:check-list-3-filled"
-                        className="h-4 w-4"
-                      />
+                      <Icon icon="line-md:check-list-3-filled" className="h-4 w-4" />
                     </Link>
                   </div>
                 </div>
@@ -343,25 +323,16 @@ export default function MainClassroomsComponent({ user }) {
             <h1 className="text-lg font-bold text-center">Choose an action</h1>
 
             <div className="flex flex-col gap-3 mt-5">
-              <button
-                className="bg-primary-500 text-white p-3 rounded-lg"
-                onClick={handleShowCreator}
-              >
+              <button className="bg-primary-500 text-white p-3 rounded-lg" onClick={handleShowCreator}>
                 Create a classroom
               </button>
-              <button
-                className="bg-success-500 text-white p-3 rounded-lg"
-                onClick={handleShowJoin}
-              >
+              <button className="bg-success-500 text-white p-3 rounded-lg" onClick={handleShowJoin}>
                 Join a classroom
               </button>
             </div>
 
             <div className="flex justify-end absolute top-2 right-2">
-              <button
-                onClick={() => setShowAction(false)}
-                className="bg-content2 p-1 rounded-full"
-              >
+              <button onClick={() => setShowAction(false)} className="bg-content2 p-1 rounded-full">
                 <Icon icon="line-md:close-small" className="w-6 h-6" />
               </button>
             </div>
@@ -375,9 +346,7 @@ export default function MainClassroomsComponent({ user }) {
             ref={creatorRef}
             className="bg-white dark:bg-slate-900 p-5 rounded-lg shadow-lg max-w-[400px] w-[calc(100vw_-_20px)] relative"
           >
-            <h1 className="text-lg font-bold text-center">
-              Create a classroom
-            </h1>
+            <h1 className="text-lg font-bold text-center">Create a classroom</h1>
 
             <div className="flex flex-col gap-3 mt-5">
               <Input
@@ -410,16 +379,10 @@ export default function MainClassroomsComponent({ user }) {
                 onChange={(e) => setClassRoom(e.target.value)}
               />
 
-              {error && (
-                <p className="text-danger bg-danger/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">
-                  {error}
-                </p>
-              )}
+              {error && <p className="text-danger bg-danger/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">{error}</p>}
 
               {success && (
-                <p className="text-success bg-success/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">
-                  {success}
-                </p>
+                <p className="text-success bg-success/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">{success}</p>
               )}
               <Button
                 isLoading={loading}
@@ -431,10 +394,7 @@ export default function MainClassroomsComponent({ user }) {
             </div>
 
             <div className="flex justify-end absolute top-2 right-2">
-              <button
-                onClick={() => setShowCreator(false)}
-                className="bg-content2 p-1 rounded-full"
-              >
+              <button onClick={() => setShowCreator(false)} className="bg-content2 p-1 rounded-full">
                 <Icon
                   icon="line-md:close-small"
                   className="w-6 h-6"
@@ -465,16 +425,10 @@ export default function MainClassroomsComponent({ user }) {
                 onChange={(e) => setClassCode(e.target.value)}
               />
 
-              {error && (
-                <p className="text-danger bg-danger/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">
-                  {error}
-                </p>
-              )}
+              {error && <p className="text-danger bg-danger/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">{error}</p>}
 
               {success && (
-                <p className="text-success bg-success/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">
-                  {success}
-                </p>
+                <p className="text-success bg-success/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">{success}</p>
               )}
 
               <Button
@@ -487,10 +441,7 @@ export default function MainClassroomsComponent({ user }) {
             </div>
 
             <div className="flex justify-end absolute top-2 right-2">
-              <button
-                onClick={() => setShowJoin(false)}
-                className="bg-content2 p-1 rounded-full"
-              >
+              <button onClick={() => setShowJoin(false)} className="bg-content2 p-1 rounded-full">
                 <Icon icon="line-md:close-small" className="w-6 h-6" />
               </button>
             </div>

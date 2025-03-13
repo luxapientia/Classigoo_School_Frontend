@@ -170,7 +170,7 @@ export default function NoteCreateMainComponent({ user }) {
             suppressHydrationWarning
           />
         </div>
-        <div className="my-5 flex gap-5">
+        <div className="my-5 flex flex-col lg:flex-row gap-5">
           <div className="flex-1 grid items-center">
             <Select
               label="Select Classroom"
@@ -196,7 +196,7 @@ export default function NoteCreateMainComponent({ user }) {
                   variant="text"
                   isLoading={loading === "draft"}
                   isDisabled={loading === "published"}
-                  className="bg-primary-500 text-background rounded-none font-medium"
+                  className="bg-primary-500 text-background rounded-none font-medium w-full lg:w-auto"
                   onPress={() => {
                     handleCreateNote("draft");
                   }}
@@ -207,7 +207,7 @@ export default function NoteCreateMainComponent({ user }) {
                   variant="text"
                   isLoading={loading === "published"}
                   isDisabled={loading === "draft"}
-                  className="bg-black dark:bg-white text-background rounded-none font-medium"
+                  className="bg-black dark:bg-white text-background rounded-none font-medium w-full lg:w-auto"
                   onPress={() => {
                     handleCreateNote("published");
                   }}

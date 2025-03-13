@@ -25,6 +25,7 @@ import { DELETE_CHILD_CLAIM, INVITE_CHILD } from "@graphql/mutations";
 
 //graphql client
 import { useMutation, useSubscription } from "@apollo/client";
+import NotFoundPage from "@app/not-found";
 
 export default function MainChildComponent({ user }) {
   // graphql
@@ -143,6 +144,9 @@ export default function MainChildComponent({ user }) {
   }, [actionId]);
 
   const children = sub_data?.child_parent || [];
+
+  // right now disabled parent control
+  return <NotFoundPage />;
 
   return (
     <>

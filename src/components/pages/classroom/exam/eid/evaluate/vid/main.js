@@ -253,7 +253,7 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
     <>
       <div className="flex flex-col gap-4">
         {autoUpdateError && (
-          <div className="bottom-2 right-5 fixed z-2 w-fit">
+          <div className="top-2 right-5 fixed z-50 w-fit">
             <p className="flex border border-dashed border-gray-500 rounded-lg p-2 bg-white dark:bg-gray-700 text-xs">
               <Icon icon="fluent:timer-20-regular" className="h-4 w-4" />
               Auto Save Failed!
@@ -261,7 +261,7 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
           </div>
         )}
         {autoUpdateSuccess && (
-          <div className="bottom-2 right-5 fixed z-2 w-fit">
+          <div className="top-2 right-5 fixed z-50 w-fit">
             <p className="flex border border-dashed border-gray-500 rounded-lg p-2 bg-white dark:bg-gray-700 text-xs">
               <Icon icon="fluent:timer-20-regular" className="h-4 w-4" />
               Auto Saved!
@@ -270,7 +270,7 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
         )}
 
         {autoUpdateLoading && (
-          <div className="bottom-2 right-5 fixed z-2 w-fit">
+          <div className="top-2 right-5 fixed z-50 w-fit">
             <p className="flex border border-dashed border-gray-500 rounded-lg p-2 bg-white dark:bg-gray-700 text-xs">
               <Icon icon="fluent:timer-20-regular" className="h-4 w-4" />
               Auto saving...
@@ -284,7 +284,7 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
           </div>
         </div>
 
-        <div className="max-w-[calc(100vw-20px)] w-[750px] mx-auto grid grid-rows-1 gap-5 mb-[100px] relative">
+        <div className="max-w-[calc(100%_-_20px)] w-[750px] mx-auto grid grid-rows-1 gap-5 mb-[30px] md:mb-[100px] relative">
           <div>
             {error && (
               <Alert
@@ -614,13 +614,13 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
             })}
 
           {/* action buttons */}
-          <div className="flex justify-between gap-4 fixed bottom-4 bg-black/15 dark:bg-white/20 backdrop-blur-lg z-10 dark:bg-gray-700 p-3 w-[inherit] rounded-full">
-            <div className="flex-auto grid content-center"></div>
+          <div className="md:flex md:justify-between gap-4 md:fixed bottom-4 bg-black/15 dark:bg-white/20 backdrop-blur-lg z-10 dark:bg-gray-700 p-3 w-full md:w-[inherit] md:max-w-[calc(100vw_-_360px)] rounded-full">
+            <div className="flex-auto md:grid content-center hidden"></div>
             <div className="flex-initial grid justify-items-end content-center">
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-2 md:justify-end w-full">
                 <Button
                   variant="text"
-                  className="bg-default-foreground text-background rounded-full h-9 text-xs"
+                  className="w-full md:w-auto bg-default-foreground text-background rounded-full h-9 text-xs"
                   onPress={() => {
                     handleSave();
                   }}
@@ -632,7 +632,7 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
 
                 <Button
                   variant="text"
-                  className="bg-danger text-background rounded-full h-9 text-xs"
+                  className="w-full md:w-auto bg-danger text-background rounded-full h-9 text-xs"
                   onPress={() => {
                     handleSubmit();
                   }}

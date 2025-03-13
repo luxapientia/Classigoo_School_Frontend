@@ -20,6 +20,9 @@ const authLink = setContext((_, { headers }) => {
         ...headers,
         authorization: token ? `Bearer ${token}` : "",
       },
+      next: {
+        revalidate: 0,
+      },
     };
   });
 
@@ -30,5 +33,15 @@ export const { getClient } = registerApolloClient(() => {
   return new ApolloClient({
     cache: new InMemoryCache({ addTypename: false }),
     link: authLink.concat(httpLink),
+    defaultOptions: {
+      query: {
+        fetchPolicy: "no-cache",
+        errorPolicy: "all",
+      },
+      watchQuery: {
+        fetchPolicy: "no-cache",
+        errorPolicy: "all",
+      },
+    },
   });
 });

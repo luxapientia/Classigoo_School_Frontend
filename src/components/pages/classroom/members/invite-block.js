@@ -17,32 +17,34 @@ export default function InviteMemberBlock({ id, code, teacher, handleInviteEmail
   };
   return (
     <>
-      <div className="w-[250px] border-3 p-5 dark:bg-neutral-900 rounded-2xl dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-center mb-3">Invitation Code</h3>
-        <Snippet
-          symbol=""
-          copyable
-          tooltipProps={{
-            placement: "top",
-          }}
-          className="w-full"
-        >
-          {code}
-        </Snippet>
+      <div className="flex gap-5 flex-col md:flex-row xl:flex-col">
+        <div className="flex-1 w-full md:w-[250px] border-3 p-5 dark:bg-neutral-900 rounded-2xl dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-center mb-3">Invitation Code</h3>
+          <Snippet
+            symbol=""
+            copyable
+            tooltipProps={{
+              placement: "top",
+            }}
+            className="w-full"
+          >
+            {code}
+          </Snippet>
 
-        <Button className="w-full mt-5" onPress={handleCopyURL}>
-          {copyURL ? "URL Copied!" : "Copy URL"}
-        </Button>
-      </div>
-
-      {teacher && (
-        <div className="mt-5 w-[250px] border-3 p-5 dark:bg-neutral-900 rounded-2xl dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-center mb-3">Invite by email</h3>
-          <Button className="w-full" onClick={handleInviteEmail}>
-            Send Invitation
+          <Button className="w-full mt-5" onPress={handleCopyURL}>
+            {copyURL ? "URL Copied!" : "Copy URL"}
           </Button>
         </div>
-      )}
+
+        {teacher && (
+          <div className="flex-1 w-full md:w-[250px] border-3 p-5 dark:bg-neutral-900 rounded-2xl dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-center mb-3">Invite by email</h3>
+            <Button className="w-full" onClick={handleInviteEmail}>
+              Send Invitation
+            </Button>
+          </div>
+        )}
+      </div>
     </>
   );
 }

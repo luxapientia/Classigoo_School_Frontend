@@ -54,10 +54,10 @@ export default function ClassroomHeader({ id, img, name, subject, section, room,
           </div>
         </div>
 
-        <div className="absolute -bottom-10 right-10">
+        <div className="hidden xl:block absolute -bottom-10 right-10">
           <Avatar src={owner?.avatar} alt={owner?.name} className="w-24 h-24 border-2" isBordered />
         </div>
-        <div className="flex justify-center items-center">
+        <div className="xl:flex justify-center items-center">
           <Tabs
             className="mt-3 w-full flex-auto bg-transparent"
             variant="solid"

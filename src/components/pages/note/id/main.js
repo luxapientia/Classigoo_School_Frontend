@@ -64,8 +64,8 @@ export default function NotePageMainComponent({ user, id }) {
           </div>
         )}
 
-        <h1 className="text-2xl  p-5 bg-content2 font-bold rounded-xl">{data?.notes_by_pk?.title}</h1>
-        <div className="flex gap-4">
+        <h1 className="text-lg md:text-xl lg:text-2xl p-5 bg-content2 font-bold rounded-xl">{data?.notes_by_pk?.title}</h1>
+        <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-auto px-10 py-4 bg-content2 rounded-xl">
             <article
               id="editor_rendered"
@@ -75,7 +75,7 @@ export default function NotePageMainComponent({ user, id }) {
             </article>
           </div>
           <div className="flex-initial">
-            <div className="p-5 bg-content2 w-72 rounded-xl">
+            <div className="p-5 bg-content2 w-full lg:w-72 rounded-xl">
               <h1 className="text-xl font-bold mb-2">Author</h1>
 
               <User
@@ -88,7 +88,7 @@ export default function NotePageMainComponent({ user, id }) {
               />
             </div>
 
-            <div className="p-5 bg-content2 w-72 rounded-xl mt-4">
+            <div className="p-5 bg-content2 w-full lg:w-72 rounded-xl mt-4">
               <h2 className="text-sm">
                 Status: <span className="font-semibold">{data?.notes_by_pk?.status.toUpperCase()}</span>
               </h2>
@@ -96,7 +96,7 @@ export default function NotePageMainComponent({ user, id }) {
                 Last Updated: <span className="font-semibold">{moment(data?.notes_by_pk?.updated_at).fromNow()}</span>
               </h2>
             </div>
-            <div className="p-5 bg-content2 w-72 rounded-xl mt-4">
+            <div className="p-5 bg-content2 w-full lg:w-72 rounded-xl mt-4">
               <h2 className="text-sm">Shared with classrooms: </h2>
               {data?.notes_by_pk?.classroom_notes.length > 0 ? (
                 <ul className="list-disc list-inside mt-1">
@@ -115,7 +115,7 @@ export default function NotePageMainComponent({ user, id }) {
 
             {/* if owner == current user */}
             {user.sub === data?.notes_by_pk?.owner_data.id && (
-              <div className="p-5 bg-content2 w-72 rounded-xl mt-4">
+              <div className="p-5 bg-content2 w-full lg:w-72 rounded-xl mt-4">
                 <div className="w-full">
                   <Button
                     variant="text"

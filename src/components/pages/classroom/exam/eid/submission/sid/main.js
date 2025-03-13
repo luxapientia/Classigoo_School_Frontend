@@ -120,8 +120,7 @@ export default function ExamSubmissionSeeMainComponent({ cid, eid, sid, user }) 
             )}
           </div>
         </div>
-
-        <div className="max-w-[calc(100vw-20px)] w-[750px] mx-auto grid grid-rows-1 gap-5 mb-[100px] relative">
+        <div className="max-w-[calc(100%_-_20px)] w-[750px] mx-auto grid grid-rows-1 gap-5 mb-[30px] md:mb-[100px] relative">
           {questions.map((q, index) => {
             const ans = answers.find((a) => a.question_id === q.id)?.answer;
             const points = markings.find((m) => m.question_id === q.id)?.marking;

@@ -165,7 +165,7 @@ export default function QuestionBuilder({ index, question: qobj, updateQuestion,
   return (
     <>
       <div className="fixed top-0 bottom-0 left-0 right-0 z-50 w-full h-full bg-black bg-opacity-50 backdrop-blur-md grid justify-center content-center">
-        <div className="bg-white dark:bg-neutral-700 rounded-lg p-5 max-w-[calc(100%_-_20px)] w-[750px] max-h-[calc(100vh_-_50px)] overflow-y-auto">
+        <div className="bg-white dark:bg-neutral-700 rounded-lg p-5 max-w-[calc(100vw_-_30px)] w-[750px] max-h-[calc(100vh_-_100px)] sm:max-h-[calc(100vh_-_150px)] md:max-h-[calc(100vh_-_50px)] mb-[50px] md:mb-0 overflow-y-auto">
           <h1 className="text-2xl font-bold text-center font-exo my-4 mb-8">Update Question</h1>
           {error?.length > 0 && (
             <Alert

@@ -366,7 +366,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
           <h1 className="text-2xl  p-5 bg-content2 font-bold rounded-xl">
             {sub_assignment_data?.assignments_by_pk?.title}
           </h1>
-          <div className="flex gap-4 max-w-full w-full">
+          <div className="flex flex-col xl:flex-row gap-4 max-w-full w-full">
             <div className="flex-auto flex flex-col overflow-x-auto">
               <div className="flex-auto px-10 py-4 bg-content2 rounded-xl h-full overflow-x-auto">
                 <article
@@ -427,9 +427,8 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
               )}
             </div>
             <div className="flex-initial">
-              <div className="p-5 bg-content2 w-72 rounded-xl">
+              <div className="p-5 bg-content2 w-full xl:w-72 rounded-xl">
                 <h1 className="text-xl font-bold mb-2">Author</h1>
-
                 <User
                   avatarProps={{
                     src: sub_assignment_data?.assignments_by_pk?.owner?.avatar,
@@ -440,7 +439,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                 />
               </div>
 
-              <div className="p-5 bg-content2 w-72 rounded-xl mt-4">
+              <div className="p-5 bg-content2 w-full xl:w-72 rounded-xl mt-4">
                 <h2 className="text-sm">
                   Status:{" "}
                   <span className="font-semibold">{sub_assignment_data?.assignments_by_pk?.status.toUpperCase()}</span>
@@ -460,7 +459,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
               </div>
               {/* if current user is the student */}
               {currentUser?.role === "student" && (
-                <div className="p-5 bg-content2 w-72 rounded-xl mt-4">
+                <div className="p-5 bg-content2 w-full xl:w-72 rounded-xl mt-4">
                   <h2 className="text-sm font-exo font-bold">
                     Submit Assignment
                     {submissionStatus === "draft" ? (
@@ -564,7 +563,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
 
               {/* if current user is the owner or teacher */}
               {(currentUser?.role === "owner" || currentUser?.role === "teacher") && (
-                <div className="p-5 bg-content2 w-72 rounded-xl mt-4">
+                <div className="p-5 bg-content2 w-full xl:w-72 rounded-xl mt-4">
                   <div className="w-full">
                     <Link href={`/classroom/${cid}/assignment/${aid}/edit`}>
                       <div className="bg-primary-500 text-background rounded-lg font-medium w-full cursor-pointer text-center py-2">
@@ -596,7 +595,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                     <TableColumn>#</TableColumn>
                     <TableColumn>STUDENT</TableColumn>
                     <TableColumn>STATUS</TableColumn>
-                    <TableColumn className="w-fit-content">FILES</TableColumn>
+                    <TableColumn className="">FILES</TableColumn>
                     <TableColumn>LAST UPDATED</TableColumn>
                   </TableHeader>
                   <TableBody emptyContent={"No submissions found"}>
@@ -627,7 +626,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                           </span>
                         </TableCell>
                         <TableCell className="w-fit-content">
-                          <div className="grid grid-cols-1 gap-1">
+                          <div className="grid grid-cols-1 gap-1  min-w-[200px]">
                             {submission.files.map((file, index) => (
                               <div key={index} className="bg-content1 text-content1-foreground rounded-lg p-2">
                                 <div className="flex items-center justify-between">

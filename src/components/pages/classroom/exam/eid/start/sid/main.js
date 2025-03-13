@@ -395,7 +395,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
     <>
       <div className="flex flex-col gap-4">
         {autoUpdateError && (
-          <div className="bottom-2 right-5 fixed z-2 w-fit">
+          <div className="top-2 right-5 fixed z-50 w-fit">
             <p className="flex border border-dashed border-gray-500 rounded-lg p-2 bg-white dark:bg-gray-700 text-xs">
               <Icon icon="fluent:timer-20-regular" className="h-4 w-4" />
               Auto Save Failed!
@@ -403,7 +403,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
           </div>
         )}
         {autoUpdateSuccess && (
-          <div className="bottom-2 right-5 fixed z-2 w-fit">
+          <div className="top-2 right-5 fixed z-50 w-fit">
             <p className="flex border border-dashed border-gray-500 rounded-lg p-2 bg-white dark:bg-gray-700 text-xs">
               <Icon icon="fluent:timer-20-regular" className="h-4 w-4" />
               Auto Saved!
@@ -412,7 +412,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
         )}
 
         {autoUpdateLoading && (
-          <div className="bottom-2 right-5 fixed z-2 w-fit">
+          <div className="top-2 right-5 fixed z-50 w-fit">
             <p className="flex border border-dashed border-gray-500 rounded-lg p-2 bg-white dark:bg-gray-700 text-xs">
               <Icon icon="fluent:timer-20-regular" className="h-4 w-4" />
               Auto saving...
@@ -431,6 +431,17 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                     {duration(exam_data.exams_by_pk.duration, "minutes").minutes()}m
                   </span>
                 </p>
+
+                {timer > 0 && (
+                  <div className="md:hidden grid justify-center items-center">
+                    <p className="text-xs text-gray-500 font-exo px-3 py-2 border-2 rounded-lg border-dotted">
+                      <span className="text-sm font-exo font-medium text-black dark:text-gray-200">
+                        Time left: {duration(timeLeft, "seconds").hours()}h : {duration(timeLeft, "seconds").minutes()}m
+                        : {duration(timeLeft, "seconds").seconds()}s
+                      </span>
+                    </p>
+                  </div>
+                )}
                 {timeLeft <= 0 && (
                   <div className=" justify-center items-center grid">
                     <p className="border-2 border-dashed border-gray-500 rounded-lg flex gap-2 px-2 py-1 w-fit justify-center items-center">
@@ -444,7 +455,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
           </div>
         </div>
 
-        <div className="max-w-[calc(100vw-20px)] w-[750px] mx-auto grid grid-rows-1 gap-5 mb-[100px] relative">
+        <div className="max-w-[calc(100%_-_20px)] w-[750px] mx-auto grid grid-rows-1 gap-5 mb-[30px] md:mb-[100px] relative">
           {questions.map((q, index) => {
             if (q.question_type === "objective") {
               if (q.answer_type === "single") {
@@ -652,8 +663,8 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
           })}
 
           {/* action buttons */}
-          <div className="flex justify-between gap-4 fixed bottom-4 bg-black/15 dark:bg-white/20 backdrop-blur-lg z-10 dark:bg-gray-700 p-3 w-[inherit] rounded-full">
-            <div className="flex-initial grid content-center">
+          <div className="md:flex md:justify-between gap-4 md:fixed bottom-4 bg-black/15 dark:bg-white/20 backdrop-blur-lg z-10 dark:bg-gray-700 p-3 w-full md:w-[inherit] md:max-w-[calc(100vw_-_360px)] rounded-full">
+            <div className="flex-initial hidden md:grid content-center">
               {timer > 0 && (
                 <p className="text-xs text-gray-500 font-exo">
                   <span className="text-sm font-exo font-medium text-black dark:text-gray-200">
@@ -664,10 +675,10 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
               )}
             </div>
             <div className="flex-auto grid justify-items-end content-center">
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-2 justify-end w-full md:w-auto">
                 <Button
                   variant="text"
-                  className="bg-default-foreground text-background rounded-full h-9 text-xs"
+                  className="w-full md:w-auto bg-default-foreground text-background rounded-full h-9 text-xs"
                   onPress={() => {
                     handleSubmit("draft");
                   }}
@@ -679,7 +690,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
 
                 <Button
                   variant="text"
-                  className="bg-danger text-background rounded-full h-9 text-xs"
+                  className="w-full md:w-auto bg-danger text-background rounded-full h-9 text-xs"
                   onPress={() => {
                     handleSubmit("submitted");
                   }}

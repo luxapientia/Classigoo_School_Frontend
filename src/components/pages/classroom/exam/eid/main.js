@@ -157,7 +157,7 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
             if (start_time.isBefore(moment())) {
               setSubmissionStatus("ENDED");
             } else {
-              setSubmissionStatus("NOT STARTED");
+              setSubmissionStatus("SCEDULED");
             }
           } else {
             setSubmissionStatus("NOT STARTED");
@@ -188,7 +188,6 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
 
   React.useEffect(() => {
     let subs = [];
-    console.log(sub_list_submissions_data?.exam_submissions);
     if (sub_list_submissions_data?.exam_submissions.length > 0) {
       if (currentUser?.role === "teacher" || currentUser?.role === "owner") {
         sub_list_submissions_data?.exam_submissions.map((submission) => {
@@ -258,8 +257,10 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
             </div>
           )}
 
-          <h1 className="text-2xl  p-5 bg-content2 font-bold rounded-xl">{sub_exams_data?.exams_by_pk?.title}</h1>
-          <div className="flex gap-4 max-w-full w-full">
+          <h1 className="text-lg md:text-xl xl:text-2xl  p-5 bg-content2 font-bold rounded-xl">
+            {sub_exams_data?.exams_by_pk?.title}
+          </h1>
+          <div className="flex flex-col xl:flex-row gap-4 max-w-full w-full">
             <div className="flex-auto flex flex-col overflow-x-auto">
               <div className="flex-auto px-10 py-4 bg-content2 rounded-xl h-full overflow-x-auto">
                 <article
@@ -274,8 +275,8 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
                 </article>
               </div>
             </div>
-            <div className="flex-initial">
-              <div className="p-5 bg-content2 w-72 rounded-xl">
+            <div className="flex-initial flex flex-col gap-4">
+              <div className="p-5 bg-content2 w-full xl:w-72 rounded-xl">
                 <h1 className="text-xl font-bold mb-2">Author</h1>
 
                 <User
@@ -288,7 +289,7 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
                 />
               </div>
 
-              <div className="p-5 bg-content2 w-72 rounded-xl mt-4">
+              <div className="p-5 bg-content2 w-full xl:w-72 rounded-xl">
                 <h2 className="text-sm">
                   Status: <span className="font-semibold">{sub_exams_data?.exams_by_pk?.status.toUpperCase()}</span>
                 </h2>
@@ -320,7 +321,7 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
               </div>
               {/* if current user is the student */}
               {currentUser?.role === "student" && (
-                <div className="p-5 bg-content2 w-72 rounded-xl mt-4">
+                <div className="p-5 bg-content2 w-full xl:w-72 rounded-xl">
                   {/* if start at */}
                   {submissionStatus === "NOT STARTED" && (
                     <Button
@@ -364,6 +365,17 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
                     </>
                   )}
 
+                  {/* if scheduled */}
+                  {submissionStatus === "SCEDULED" && (
+                    <p className="text-sm text-center pt-1">
+                      <span className="text-danger-500 dark:text-danger-400 italic text-xs font-medium">
+                        Exam is scheduled to start at <br />
+                        {moment(sub_exams_data?.exams_by_pk?.start_once).format("MMM DD, YYYY hh:mm A")} <br />
+                        Please wait for the exam to start.
+                      </span>
+                    </p>
+                  )}
+
                   {/* if ended */}
                   {submissionStatus === "ENDED" && (
                     <p className="text-sm text-center pt-1">
@@ -377,7 +389,7 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
 
               {/* if current user is the owner or teacher */}
               {(currentUser?.role === "owner" || currentUser?.role === "teacher") && (
-                <div className="p-5 bg-content2 w-72 rounded-xl mt-4">
+                <div className="p-5 bg-content2 w-full xl:w-72 rounded-xl">
                   <div className="w-full">
                     <Link href={`/classroom/${cid}/exam/${eid}/edit`}>
                       <div className="bg-primary-500 text-background rounded-lg font-medium w-full cursor-pointer text-center py-2">

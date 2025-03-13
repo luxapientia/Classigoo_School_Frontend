@@ -80,7 +80,7 @@ export default function MemberSelector({ my_id, members, setOpenPicker, audience
                     avatarProps={{
                       src: m.user.avatar,
                     }}
-                    description={<h4 className="text-sm text-gray-500 dark:text-gray-400">{m.user.email}</h4>}
+                    // description={<h4 className="text-sm text-gray-500 dark:text-gray-400">{m.user.email}</h4>}
                     name={m.user.name}
                     size="md"
                   />

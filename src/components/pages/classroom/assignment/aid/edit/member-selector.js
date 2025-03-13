@@ -1,13 +1,7 @@
 import { User } from "@heroui/react";
 import React from "react";
 
-export default function MemberSelector({
-  my_id,
-  members,
-  setOpenPicker,
-  audience,
-  setAudience,
-}) {
+export default function MemberSelector({ my_id, members, setOpenPicker, audience, setAudience }) {
   console.log("members", members);
 
   const [selectedMembers, setSelectedMembers] = React.useState([...audience]);
@@ -18,10 +12,7 @@ export default function MemberSelector({
     if (members) {
       // get full filtered members
       const filteredOthers = members
-        .filter(
-          (m) =>
-            m.role !== "owner" && m.role !== "teacher" && m.status !== "pending"
-        )
+        .filter((m) => m.role !== "owner" && m.role !== "teacher" && m.status !== "pending")
         .map((m) => ({
           ...m,
         }));
@@ -53,22 +44,14 @@ export default function MemberSelector({
       <div className="bg-white rounded-lg p-4 max-w-[calc(100%_-_20px)] w-[750px]">
         <h2>Select members to share this assignment with</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-5">
-          <div
-            className="flex items-center w-full cursor-pointer"
-            onClick={() => setSelectedMembers([])}
-          >
+          <div className="flex items-center w-full cursor-pointer" onClick={() => setSelectedMembers([])}>
             <div
               className={`shadow-lg rounded-lg px-4 py-2 border-2 w-full h-full grid justify-center content-center border-success-500`}
             >
-              <p className="py-1 text-center font-medium font-exo h-full">
-                Teachers
-              </p>
+              <p className="py-1 text-center font-medium font-exo h-full">Teachers</p>
             </div>
           </div>
-          <div
-            className="flex items-center w-full cursor-pointer"
-            onClick={() => setSelectedMembers(["*"])}
-          >
+          <div className="flex items-center w-full cursor-pointer" onClick={() => setSelectedMembers(["*"])}>
             <div
               className={`shadow-lg rounded-lg px-4 py-2 border-2 w-full h-full grid justify-center content-center ${
                 selectedMembers.length !== 0 && selectedMembers[0] == "*"
@@ -76,9 +59,7 @@ export default function MemberSelector({
                   : "border-gray-200 dark:border-gray-700"
               }`}
             >
-              <p className="py-1 text-center font-medium font-exo h-full">
-                All
-              </p>
+              <p className="py-1 text-center font-medium font-exo h-full">All</p>
             </div>
           </div>
           {filteredMembers.map((m) => {
@@ -90,8 +71,7 @@ export default function MemberSelector({
               >
                 <div
                   className={`shadow-lg rounded-lg px-4 py-2 border-2 w-full h-full grid content-center ${
-                    selectedMembers.includes(m.user.id) ||
-                    selectedMembers[0] == "*"
+                    selectedMembers.includes(m.user.id) || selectedMembers[0] == "*"
                       ? "border-success-500"
                       : "border-gray-200 dark:border-gray-700"
                   }`}
@@ -100,11 +80,11 @@ export default function MemberSelector({
                     avatarProps={{
                       src: m.user.avatar,
                     }}
-                    description={
-                      <h4 className="text-sm text-gray-500 dark:text-gray-400">
-                        {m.user.email}
-                      </h4>
-                    }
+                    // description={
+                    //   <h4 className="text-sm text-gray-500 dark:text-gray-400">
+                    //     {m.user.email}
+                    //   </h4>
+                    // }
                     name={m.user.name}
                     size="md"
                   />
@@ -117,9 +97,8 @@ export default function MemberSelector({
         <div>
           <p className="italic text-xs text-gray-500 dark:text-gray-400">
             <span className="text-danger-500 text-sm">*</span>
-            Though you have choosen to share this assignment with selected
-            members, the assignment will still be visible to all the teachers
-            and owners of the classroom.
+            Though you have choosen to share this assignment with selected members, the assignment will still be visible
+            to all the teachers and owners of the classroom.
           </p>
         </div>
 

@@ -283,37 +283,45 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
               {questions.length > 0 ? (
                 <div className="div">
                   {questions.map((question, index) => (
-                    <div key={index} className="my-5 bg-content2 p-5 rounded-xl">
+                    <div key={index} className="my-5 bg-content2 p-5 rounded-xl relative pb-14 lg:pb-5">
                       <div>
-                        <div className="flex justify-between items-center mb-2">
+                        <div className="lg:flex justify-between items-center mb-2 ">
                           <p className="text-base font-exo font-medium text-gray-500 dark:text-neutral-300">
                             Question {index + 1}
                           </p>
-                          <div className="flex gap-2 pl-5">
+                          <div className="bottom-4 left-0 right-0 absolute lg:static flex justify-center lg:justify-normal gap-2 lg:pl-5 ">
                             <Button
+                              isIconOnly
                               variant="text"
-                              className="bg-gray-200 dark:bg-neutral-700 rounded-lg font-medium"
+                              disableAnimation={true}
+                              className="bg-gray-200 dark:bg-neutral-700 rounded-lg font-medium w-10"
                               onPress={() => handleQuestionIndexChange(index, -1)}
                             >
                               <Icon icon="akar-icons:arrow-up" className="text-lg" />
                             </Button>
                             <Button
+                              isIconOnly
                               variant="text"
-                              className="bg-gray-200 dark:bg-neutral-700 rounded-lg font-medium"
+                              disableAnimation={true}
+                              className="bg-gray-200 dark:bg-neutral-700 rounded-lg font-medium w-10"
                               onPress={() => handleQuestionIndexChange(index, 1)}
                             >
                               <Icon icon="akar-icons:arrow-down" className="text-lg" />
                             </Button>
                             <Button
+                              isIconOnly
                               variant="text"
-                              className="bg-gray-200 dark:bg-neutral-700 rounded-lg font-medium"
+                              disableAnimation={true}
+                              className="bg-gray-200 dark:bg-neutral-700 rounded-lg font-medium w-10"
                               onPress={() => setOpenQUpdater(index)}
                             >
                               <Icon icon="akar-icons:edit" className="text-lg" />
                             </Button>
                             <Button
+                              isIconOnly
                               variant="text"
-                              className="bg-gray-200 dark:bg-neutral-700 rounded-lg font-medium"
+                              disableAnimation={true}
+                              className="bg-gray-200 dark:bg-neutral-700 rounded-lg font-medium w-10"
                               onPress={() => handleRemoveQuestion(index)}
                             >
                               <Icon icon="akar-icons:trash-can" className="text-lg" />
@@ -331,7 +339,7 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
                       </div>
                       <div className="my-5">
                         <div className="">
-                          <div className="flex flex-1 gap-2 font-exo text-sm">
+                          <div className="flex flex-col lg:flex-row flex-1 gap-2 font-exo text-sm">
                             <p className="border-2 border-gray-300 dark:border-neutral-800 px-3 py-2 rounded-lg border-dotted">
                               <span className="font-medium">Question Type:</span> {question.question_type}
                             </p>
@@ -350,7 +358,7 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
                                 <h3 className="text-sm font-medium">
                                   <span className="font-medium">Options:</span>
                                 </h3>
-                                <ol className="mt-1 list-decimal flex gap-2">
+                                <ol className="mt-1 list-decimal flex flex-col gap-2">
                                   {question.options.map((option, i) => (
                                     <li key={i} className="flex gap-2">
                                       <p>
@@ -401,7 +409,7 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
           </div>
 
           {/* bottom */}
-          <div className="my-5 flex gap-5">
+          <div className="my-5 flex flex-col 2xl:flex-row gap-5">
             <div className="flex-1 grid items-center">
               <div
                 className="flex-1  bg-content2 hover:bg-gray-200 dark:hover:bg-neutral-700 p-3 rounded-xl h-full relative cursor-pointer max-h-[55px]"
@@ -415,7 +423,7 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
             </div>
             <div className="flex-1 grid items-center">
               <Select
-                label="Set Starts At (Optional)"
+                label="Set Starts At"
                 className="w-full"
                 placeholder="Do you want to set a start date?"
                 selectedKeys={[dStart]}
@@ -449,7 +457,7 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
             {dStart !== "yes" && (
               <div className="flex-1 grid items-center">
                 <Select
-                  label="Set Exam Duration (Optional)"
+                  label="Set Exam Duration"
                   className="w-full"
                   placeholder="Do you want to set a start date?"
                   selectedKeys={[sDuration]}
@@ -464,7 +472,7 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
             {sDuration === "yes" && (
               <div className="flex-1 grid items-center">
                 <Input
-                  label="Exam Duration (in minutes)"
+                  label="Duration (minutes)"
                   className="w-full"
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
@@ -473,12 +481,12 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
             )}
             <div className="flex-1">
               <div className="my-5 grid items-center">
-                <div className="flex gap-2 justify-end">
+                <div className="flex flex-col sm:flex-row gap-2 justify-end">
                   <Button
                     variant="text"
                     isLoading={loading === "draft"}
                     isDisabled={loading === "published"}
-                    className="bg-primary-500 text-background rounded-none font-medium"
+                    className="w-full 2xl:w-auto bg-primary-500 text-background rounded-none font-medium"
                     onPress={() => {
                       handleCreateExam("draft");
                     }}
@@ -489,7 +497,7 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
                     variant="text"
                     isLoading={loading === "published"}
                     isDisabled={loading === "draft"}
-                    className="bg-black dark:bg-white text-background rounded-none font-medium"
+                    className="w-full 2xl:w-auto bg-black dark:bg-white text-background rounded-none font-medium"
                     onPress={() => {
                       handleCreateExam("published");
                     }}
