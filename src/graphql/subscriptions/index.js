@@ -15,6 +15,8 @@ import SUB_LIST_ASSIGNMENTS from "./subListAssignments";
 import SUB_LIST_SUBMISSIONS from "./subListSubmissions";
 import SUB_GET_MY_SUBMISSIONS from "./subGetMySubmissions";
 import SUB_GET_CLASSROOM_NOTES from "./subGetClassroomNotes";
+import SUB_GET_ROOM_LATEST_MESSAGE from "./subGetRoomLatestMessage";
+import SUB_LIST_MESSAGE_RECEIPIENTS from "./subListMessageReceipents";
 
 export {
   SUB_PARENT,
@@ -34,4 +36,6 @@ export {
   SUB_LIST_SUBMISSIONS,
   SUB_GET_MY_SUBMISSIONS,
   SUB_GET_CLASSROOM_NOTES,
+  SUB_GET_ROOM_LATEST_MESSAGE,
+  SUB_LIST_MESSAGE_RECEIPIENTS,
 };

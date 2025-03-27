@@ -30,6 +30,9 @@ export default function ClassroomHeader({ id, img, name, subject, section, room,
   if (split_path.includes("assignments") || split_path.includes("assignment")) {
     selected_key = `/classroom/${id}/assignments`;
   }
+  if (split_path.includes("messages") || split_path.includes("message")) {
+    selected_key = `/classroom/${id}/messages`;
+  }
   if (split_path.includes("settings")) {
     selected_key = `/classroom/${id}/settings`;
   }
@@ -74,6 +77,7 @@ export default function ClassroomHeader({ id, img, name, subject, section, room,
             {currentUser?.role === "student" && <Tab key={`/classroom/${id}/results`} title="Results" />}
             <Tab key={`/classroom/${id}/notes`} title="Notes" />
             <Tab key={`/classroom/${id}/assignments`} title="Assignments" />
+            <Tab key={`/classroom/${id}/messages`} title="Messages" />
             {(currentUser?.role === "owner" || currentUser?.role === "teacher") && (
               <Tab key={`/classroom/${id}/settings`} title="Settings" />
             )}

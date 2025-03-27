@@ -92,13 +92,13 @@ export default function Header() {
         <div className="flex-initial px-4">
           <div className="flex justify-end items-center h-full">
             {slots.specificHeader && <div className="md:hidden flex-initial pr-3">{slots.specificHeader}</div>}
-            <div className="flex-initial pr-3">
+            {/* <div className="flex-initial pr-3">
               <Badge color="danger" shape="circle" content="" size="sm">
                 <button className="flex w-11 h-11 bg-gray-800 dark:bg-white rounded-full justify-center items-center">
                   <Icon icon="solar:chat-round-line-bold" className="w-6 h-6 text-white dark:text-gray-700" />
                 </button>
               </Badge>
-            </div>
+            </div> */}
             <div className="flex-initial">
               <Badge color="danger" shape="circle" content="" size="sm">
                 <button className="flex w-11 h-11 bg-gray-100 dark:bg-white/10 rounded-full justify-center items-center">

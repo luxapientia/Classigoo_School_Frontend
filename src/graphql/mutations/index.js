@@ -1,4 +1,5 @@
 import EDIT_NOTE from "./editNote";
+import START_CHAT from "./startChat";
 import CREATE_NOTE from "./createNote";
 import DELETE_NOTE from "./deleteNote";
 import DELETE_POST from "./deletePost";
@@ -6,6 +7,7 @@ import ADD_COMMENT from "./addComment";
 import CREATE_EXAM from "./createExam";
 import DELETE_EXAM from "./deleteExam";
 import UPDATE_EXAM from "./updateExam";
+import SEND_MESSAGE from "./sendMessage";
 import INVITE_CHILD from "./inviteChild";
 import DELETE_COMMENT from "./deleteComment";
 import UPDATE_ADDRESS from "./updateAddress";
@@ -35,6 +37,7 @@ import UPDATE_EXAM_SUBMISSION_MARKINGS from "./updateExamSubmissionMarkings";
 
 export {
   EDIT_NOTE,
+  START_CHAT,
   CREATE_NOTE,
   DELETE_NOTE,
   DELETE_POST,
@@ -42,6 +45,7 @@ export {
   CREATE_EXAM,
   DELETE_EXAM,
   UPDATE_EXAM,
+  SEND_MESSAGE,
   INVITE_CHILD,
   DELETE_COMMENT,
   UPDATE_ADDRESS,
