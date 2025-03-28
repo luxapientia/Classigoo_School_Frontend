@@ -546,9 +546,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
               >
                 <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8 mb-2">
                   <Icon icon="akar-icons:upload" className="h-8 w-8 text-default-400" />
-                  <p className="text-sm text-default-400">
-                    Drag and drop your profile picture here or click to upload.
-                  </p>
+                  <p className="text-sm text-default-400">Drag and drop your {filePicker} here or click to upload</p>
                 </div>
                 {filePicker === "image" && (
                   <p className="text-xs text-default-400">

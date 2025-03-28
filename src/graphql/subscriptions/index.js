@@ -13,6 +13,7 @@ import SUB_LIST_CLASSROOMS from "./subListClassrooms";
 import SUB_LIST_EXAM_GRADES from "./subListExamGrades";
 import SUB_LIST_ASSIGNMENTS from "./subListAssignments";
 import SUB_LIST_SUBMISSIONS from "./subListSubmissions";
+import SUB_GET_ROOM_MESSAGES from "./subGetRoomMessages";
 import SUB_GET_MY_SUBMISSIONS from "./subGetMySubmissions";
 import SUB_GET_CLASSROOM_NOTES from "./subGetClassroomNotes";
 import SUB_GET_ROOM_LATEST_MESSAGE from "./subGetRoomLatestMessage";
@@ -34,6 +35,7 @@ export {
   SUB_LIST_EXAM_GRADES,
   SUB_LIST_ASSIGNMENTS,
   SUB_LIST_SUBMISSIONS,
+  SUB_GET_ROOM_MESSAGES,
   SUB_GET_MY_SUBMISSIONS,
   SUB_GET_CLASSROOM_NOTES,
   SUB_GET_ROOM_LATEST_MESSAGE,

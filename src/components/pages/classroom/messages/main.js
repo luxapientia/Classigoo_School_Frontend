@@ -159,12 +159,15 @@ export default function ClassroomMessagesMain({ id, session }) {
         {receipients.length !== 0 && (
           <section className="p-5 rounded-2xl border-2 border-dotted border-content2">
             <h2 className="text-lg font-semibold mb-2">Recent Messages</h2>
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
               {receipients.map((r) => {
                 if (r.type === "all") {
+                  if (sub_data?.classrooms_by_pk?.child_only) {
+                    return null;
+                  }
                   return (
                     <Link key={r.id} href={`/classroom/${id}/message/${r.id}`}>
-                      <div className="p-5 bg-content2 rounded-2xl cursor-pointer flex">
+                      <div className="p-5 bg-content2 rounded-2xl cursor-pointer flex h-full">
                         <div className="flex-initial h-10 w-10 bg-gray-200 dark:bg-neutral-700 rounded-full grid place-items-center">
                           <Icon icon="mingcute:group-3-fill" className="h-6 w-6" />
                         </div>
@@ -179,7 +182,7 @@ export default function ClassroomMessagesMain({ id, session }) {
 
                 return (
                   <Link key={r.id} href={`/classroom/${id}/message/${r.id}`}>
-                    <div className="p-5 bg-content2 rounded-2xl cursor-pointer">
+                    <div className="p-5 bg-content2 rounded-2xl cursor-pointer h-full">
                       <div className="flex items-center">
                         <User
                           size="lg"
@@ -203,7 +206,7 @@ export default function ClassroomMessagesMain({ id, session }) {
         {newRecipients.length !== 0 && (
           <section className="p-5 rounded-2xl border-2 border-dotted border-content2 mt-5">
             <h2 className="text-lg font-semibold mb-2">Start a new conversation</h2>
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
               {newRecipients.map((r) => (
                 <button
                   key={r.id}

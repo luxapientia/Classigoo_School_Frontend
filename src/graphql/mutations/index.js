@@ -9,6 +9,7 @@ import DELETE_EXAM from "./deleteExam";
 import UPDATE_EXAM from "./updateExam";
 import SEND_MESSAGE from "./sendMessage";
 import INVITE_CHILD from "./inviteChild";
+import DELETE_MESSAGE from "./deleteMessage";
 import DELETE_COMMENT from "./deleteComment";
 import UPDATE_ADDRESS from "./updateAddress";
 import UPDATE_PROFILE from "./updateProfile";
@@ -47,6 +48,7 @@ export {
   UPDATE_EXAM,
   SEND_MESSAGE,
   INVITE_CHILD,
+  DELETE_MESSAGE,
   DELETE_COMMENT,
   UPDATE_ADDRESS,
   UPDATE_PROFILE,
