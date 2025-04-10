@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 import "./globals.css";
 import clsx from "clsx";
 import { Providers } from "./providers";

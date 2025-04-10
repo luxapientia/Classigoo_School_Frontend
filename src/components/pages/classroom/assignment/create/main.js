@@ -357,6 +357,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
                 // autosave_restore_when_empty: true,
                 paste_data_images: true,
                 image_uploadtab: true,
+                quickbars_insert_toolbar: false,
                 menu: {
                   view: {
                     title: "View",

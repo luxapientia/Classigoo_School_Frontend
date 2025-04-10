@@ -105,22 +105,10 @@ export default function NoteCreateMainComponent({ user }) {
         />
       )}
 
-      {success && (
-        <Alert
-          color="success"
-          className="mb-5"
-          title={success}
-          onClose={() => setSuccess(null)}
-        />
-      )}
+      {success && <Alert color="success" className="mb-5" title={success} onClose={() => setSuccess(null)} />}
       <div>
         <div className="my-4">
-          <Input
-            label="Note Title"
-            className="w-full"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <Input label="Note Title" className="w-full" value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <div>
           <TinyEditor
@@ -131,14 +119,14 @@ export default function NoteCreateMainComponent({ user }) {
               branding: false,
               toolbar:
                 "undo redo | fontselect fontsizeselect | bold italic underline strikethrough | forecolor backcolor | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | link image table codesample emoticons | removeformat",
-              content_style:
-                "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
+              content_style: "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
               // autosave_ask_before_unload: true,
               // autosave_interval: "30s",
               // autosave_prefix: "classigoo-note-autosave-{path}{query}-{id}-",
               // autosave_restore_when_empty: true,
               paste_data_images: true,
               image_uploadtab: true,
+              quickbars_insert_toolbar: false,
               menu: {
                 view: {
                   title: "View",

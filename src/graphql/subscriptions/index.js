@@ -9,6 +9,7 @@ import SUB_GET_COMMENTS from "./subGetComments";
 import SUB_GET_CLASSROOM from "./subGetClassroom";
 import SUB_GET_SUBMISSION from "./subGetSubmission";
 import SUB_GET_ASSIGNMENT from "./subGetAssignment";
+import SUB_LIST_SCHEDULES from "./subListSchedules";
 import SUB_LIST_CLASSROOMS from "./subListClassrooms";
 import SUB_LIST_EXAM_GRADES from "./subListExamGrades";
 import SUB_LIST_ASSIGNMENTS from "./subListAssignments";
@@ -31,6 +32,7 @@ export {
   SUB_GET_CLASSROOM,
   SUB_GET_SUBMISSION,
   SUB_GET_ASSIGNMENT,
+  SUB_LIST_SCHEDULES,
   SUB_LIST_CLASSROOMS,
   SUB_LIST_EXAM_GRADES,
   SUB_LIST_ASSIGNMENTS,

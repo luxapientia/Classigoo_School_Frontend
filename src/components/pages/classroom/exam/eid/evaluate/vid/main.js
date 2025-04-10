@@ -5,6 +5,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import moment, { duration } from "moment";
+import DOMPurify from "dompurify";
 import { FileUploader } from "react-drag-drop-files";
 import { Button, Alert, CheckboxGroup, Checkbox, Radio, RadioGroup, Input, Textarea } from "@heroui/react";
 import { GET_EXAM_SUBMISSION } from "@graphql/queries";
@@ -318,7 +319,10 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                         </div>
                         <div
                           className="flex-auto rounded-lg p-4 text-lg"
-                          dangerouslySetInnerHTML={{ __html: xss(q.question) }}
+                          dangerouslySetInnerHTML={{
+                            //  __html: xss(q.question)
+                            __html: DOMPurify.sanitize(q.question),
+                          }}
                         ></div>
                       </div>
                       <div className="px-5">
@@ -383,7 +387,10 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                         </div>
                         <div
                           className="flex-auto rounded-lg p-4 text-lg"
-                          dangerouslySetInnerHTML={{ __html: xss(q.question) }}
+                          dangerouslySetInnerHTML={{
+                            // __html: xss(q.question)
+                            __html: DOMPurify.sanitize(q.question),
+                          }}
                         ></div>
                       </div>
                       <div className="px-5">
@@ -461,7 +468,10 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                         </div>
                         <div
                           className="flex-auto rounded-lg p-4 text-lg"
-                          dangerouslySetInnerHTML={{ __html: xss(q.question) }}
+                          dangerouslySetInnerHTML={{
+                            // __html: xss(q.question)
+                            __html: DOMPurify.sanitize(q.question),
+                          }}
                         ></div>
                       </div>
                       <div className="px-5">
@@ -530,7 +540,10 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                         </div>
                         <div
                           className="flex-auto rounded-lg p-4 text-lg"
-                          dangerouslySetInnerHTML={{ __html: xss(q.question) }}
+                          dangerouslySetInnerHTML={{
+                            // __html: xss(q.question)
+                            __html: DOMPurify.sanitize(q.question),
+                          }}
                         ></div>
                       </div>
                       <div className="px-5">

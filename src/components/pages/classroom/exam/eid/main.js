@@ -4,19 +4,19 @@ import axios from "axios";
 import React from "react";
 import moment from "moment";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import NotFoundPage from "@app/not-found";
-import "@components/common/tinymce.css";
-import { Alert, Button, User, Table, TableHeader, TableBody, TableColumn, TableCell, TableRow } from "@heroui/react";
 import DOMPurify from "dompurify";
-import Loading from "@components/common/loading";
-import DeleteExamAction from "./delete-exam-action";
-import ClassroomLayout from "../../layout/layout";
 import { Icon } from "@iconify/react";
+import "@components/common/tinymce.css";
+import NotFoundPage from "@app/not-found";
+import { useRouter } from "next/navigation";
+import Loading from "@components/common/loading";
+import ClassroomLayout from "../../layout/layout";
+import DeleteExamAction from "./delete-exam-action";
 import { FileUploader } from "react-drag-drop-files";
 import { useMutation, useSubscription } from "@apollo/client";
-import { SUB_GET_EXAM, SUB_GET_CLASSROOM, SUB_GET_MY_SUBMISSIONS, SUB_LIST_SUBMISSIONS } from "@graphql/subscriptions";
 import { DELETE_EXAM, ADD_EXAM_SUBMISSION_ENTRY } from "@graphql/mutations";
+import { Alert, Button, User, Table, TableHeader, TableBody, TableColumn, TableCell, TableRow } from "@heroui/react";
+import { SUB_GET_EXAM, SUB_GET_CLASSROOM, SUB_GET_MY_SUBMISSIONS, SUB_LIST_SUBMISSIONS } from "@graphql/subscriptions";
 
 export default function ExamPageMainComponent({ user, cid, eid }) {
   const router = useRouter();
@@ -269,7 +269,8 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
                 >
                   <div
                     dangerouslySetInnerHTML={{
-                      __html: xss(sub_exams_data?.exams_by_pk?.content),
+                      // __html: xss(sub_exams_data?.exams_by_pk?.content),
+                      __html: DOMPurify.sanitize(sub_exams_data?.exams_by_pk?.content),
                     }}
                   ></div>
                 </article>

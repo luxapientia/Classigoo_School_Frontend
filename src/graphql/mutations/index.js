@@ -14,6 +14,7 @@ import DELETE_COMMENT from "./deleteComment";
 import UPDATE_ADDRESS from "./updateAddress";
 import UPDATE_PROFILE from "./updateProfile";
 import JOIN_CLASSROOM from "./joinClassroom";
+import CREATE_SCHEDULE from "./createSchedule";
 import EDIT_ASSIGNMENT from "./editAssignment";
 import CREATE_CLASSROOM from "./createClassroom";
 import UPDATE_CLASSROOM from "./updateClassroom";
@@ -53,6 +54,7 @@ export {
   UPDATE_ADDRESS,
   UPDATE_PROFILE,
   JOIN_CLASSROOM,
+  CREATE_SCHEDULE,
   EDIT_ASSIGNMENT,
   CREATE_CLASSROOM,
   UPDATE_CLASSROOM,

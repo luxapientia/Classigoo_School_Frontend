@@ -372,6 +372,7 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                   toolbar:
                     "undo redo | fontselect fontsizeselect | bold italic underline strikethrough | forecolor backcolor | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | link image table codesample emoticons | removeformat",
                   content_style: "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
+                  quickbars_insert_toolbar: false,
                   // autosave_ask_before_unload: true,
                   // autosave_interval: "30s",
                   // autosave_prefix: "classigoo-note-autosave-{path}{query}-{id}-",

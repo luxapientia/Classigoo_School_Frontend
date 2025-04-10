@@ -4,6 +4,7 @@ import axios from "axios";
 import React from "react";
 import moment from "moment";
 import Link from "next/link";
+import DOMPurify from 'dompurify';
 import NotFoundPage from "@app/not-found";
 import "@components/common/tinymce.css";
 import { Alert, Button, User, Table, TableHeader, TableBody, TableColumn, TableCell, TableRow } from "@heroui/react";
@@ -375,7 +376,10 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                 >
                   <div
                     dangerouslySetInnerHTML={{
-                      __html: xss(sub_assignment_data?.assignments_by_pk?.content),
+                      // __html: xss(sub_assignment_data?.assignments_by_pk?.content),
+                      __html: DOMPurify.sanitize(sub_assignment_data?.assignments_by_pk?.content, {
+                        USE_PROFILES: { html: true },
+                      }),
                     }}
                   ></div>
                 </article>

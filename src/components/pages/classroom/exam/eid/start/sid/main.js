@@ -2,18 +2,19 @@
 import xss from "xss";
 import axios from "axios";
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import DOMPurify from "dompurify";
 import { Icon } from "@iconify/react";
+import NotFoundPage from "@app/not-found";
 import moment, { duration } from "moment";
+import { useRouter } from "next/navigation";
+import Loading from "@components/common/loading";
 import { FileUploader } from "react-drag-drop-files";
-import { Button, Alert, CheckboxGroup, Checkbox, Radio, RadioGroup, Input, Textarea } from "@heroui/react";
 import { GET_EXAM_SUBMISSION } from "@graphql/queries";
 import { UPDATE_MY_SUBMISSION } from "@graphql/mutations";
-import { SUB_GET_CLASSROOM, SUB_GET_EXAM, SUB_GET_SUBMISSION } from "@graphql/subscriptions";
 import { useSubscription, useMutation, useQuery } from "@apollo/client";
-import Loading from "@components/common/loading";
-import NotFoundPage from "@app/not-found";
-import Link from "next/link";
+import { SUB_GET_CLASSROOM, SUB_GET_EXAM, SUB_GET_SUBMISSION } from "@graphql/subscriptions";
+import { Button, Alert, CheckboxGroup, Checkbox, Radio, RadioGroup, Input, Textarea } from "@heroui/react";
 
 export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
   const router = useRouter();
@@ -472,7 +473,10 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                       </div>
                       <div
                         className="flex-auto rounded-lg p-4 text-lg"
-                        dangerouslySetInnerHTML={{ __html: xss(q.question) }}
+                        dangerouslySetInnerHTML={{
+                          // __html: xss(q.question)
+                          __html: DOMPurify.sanitize(q.question),
+                        }}
                       ></div>
                     </div>
                     <div className="px-5">
@@ -511,7 +515,10 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                       </div>
                       <div
                         className="flex-auto rounded-lg p-4 text-lg"
-                        dangerouslySetInnerHTML={{ __html: xss(q.question) }}
+                        dangerouslySetInnerHTML={{
+                          // __html: xss(q.question)
+                          __html: DOMPurify.sanitize(q.question),
+                        }}
                       ></div>
                     </div>
                     <div className="px-5">
@@ -558,7 +565,10 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                       </div>
                       <div
                         className="flex-auto rounded-lg p-4 text-lg"
-                        dangerouslySetInnerHTML={{ __html: xss(q.question) }}
+                        dangerouslySetInnerHTML={{
+                          // __html: xss(q.question)
+                          __html: DOMPurify.sanitize(q.question),
+                        }}
                       ></div>
                     </div>
                     <div className="px-5">
@@ -591,7 +601,10 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                       </div>
                       <div
                         className="flex-auto rounded-lg p-4 text-lg"
-                        dangerouslySetInnerHTML={{ __html: xss(q.question) }}
+                        dangerouslySetInnerHTML={{
+                          // __html: xss(q.question)
+                          __html: DOMPurify.sanitize(q.question),
+                        }}
                       ></div>
                     </div>
                     <div className="px-5">
