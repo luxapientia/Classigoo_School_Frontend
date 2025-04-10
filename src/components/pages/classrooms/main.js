@@ -216,7 +216,7 @@ export default function MainClassroomsComponent({ user }) {
           <Alert
             hideIconWrapper
             color="success"
-            title="Successfully declined the invitation"
+            title={redirectSuccess}
             variant="bordered"
             isClosable={true}
             classNames={{

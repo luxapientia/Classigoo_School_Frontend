@@ -3,6 +3,11 @@ import { redirect } from "next/navigation";
 import Loading from "@components/common/loading";
 import LeaveClassRoomMain from "@components/pages/classroom/leave/main";
 
+export const metadata = {
+  title: "Leave Classroom - Classigoo",
+  description: "Leave your classroom",
+};
+
 export default async function LeaveClassRoom({ params }) {
   const session = await auth0.getSession();
   const { id } = await params;

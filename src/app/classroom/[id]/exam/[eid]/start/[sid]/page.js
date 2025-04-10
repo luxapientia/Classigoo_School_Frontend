@@ -2,6 +2,11 @@ import { auth0 } from "@lib/auth0";
 import { redirect } from "next/navigation";
 import ExamTakerMainComponent from "@components/pages/classroom/exam/eid/start/sid/main";
 
+export const metadata = {
+  title: "Take Exam - Classigoo",
+  description: "Take your exam",
+};
+
 export default async function ClassroomSingleExam({ params }) {
   const session = await auth0.getSession();
   const { id, eid, sid } = await params;

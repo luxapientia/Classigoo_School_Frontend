@@ -2,6 +2,11 @@ import { auth0 } from "@lib/auth0";
 import { redirect } from "next/navigation";
 import ClassroomResultsMain from "@components/pages/classroom/results/main";
 
+export const metadata = {
+  title: "Results - Classigoo",
+  description: "View and manage your results",
+};
+
 export default async function ClassroomHomePage({ params }) {
   const session = await auth0.getSession();
   const { id } = await params;

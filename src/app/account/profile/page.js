@@ -7,6 +7,11 @@ import { getClient } from "@lib/apolloServer";
 import Loading from "@components/common/loading";
 import ErrorPage from "@components/common/error";
 
+export const metadata = {
+  title: "Profile - Classigoo",
+  description: "Manage your profile",
+};
+
 export default async function ProfilePage() {
   const session = await auth0.getSession();
 
