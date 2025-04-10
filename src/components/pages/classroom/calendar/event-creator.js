@@ -64,14 +64,9 @@ export default function EventCreator({ cid, setEventCreator }) {
     setInit(true);
   }, []);
 
-  React.useEffect(() => {
-    console.log("startDate", startDate);
-    console.log("endDate", endDate);
-  }, [startDate, endDate]);
-
   const handleEventTimechange = (range) => {
-    const start = moment(range.start).subtract(1, "month").toISOString();
-    const end = moment(range.end).subtract(1, "month").toISOString();
+    const start = range.start.toAbsoluteString();
+    const end = range.end.toAbsoluteString();
     setStartDate(start);
     setEndDate(end);
   };
@@ -90,7 +85,7 @@ export default function EventCreator({ cid, setEventCreator }) {
       className="fixed top-0 left-0 right-0 bottom-0 bg-black/10 backdrop-blur-lg grid justify-center content-center z-[999]"
       suppressHydrationWarning
     >
-      <div className="w-[750px] max-w-[calc(100vw_-_20px)] p-5 bg-white dark:bg-black rounded-xl">
+      <div className="w-[750px] max-w-[calc(100vw_-_20px)] max-h-[calc(100vh_-_120px)] p-5 bg-white dark:bg-black rounded-xl overflow-x-hidden overflow-y-auto">
         {init ? (
           <div>
             <Alert
@@ -156,14 +151,15 @@ export default function EventCreator({ cid, setEventCreator }) {
                 onChange={(q) => setDescription(q)}
               />
             </div>
-            <div className="my-3">
+            <div className="my-3 bg-content2 rounded-xl">
               <DateRangePicker
-                fullWidth
                 label="Even time"
+                className="overflow-y-hidden overflow-x-auto"
                 defaultValue={{
                   start: parseAbsoluteToLocal(startDate),
                   end: parseAbsoluteToLocal(endDate),
                 }}
+                // selectorButtonPlacement="start"
                 onChange={handleEventTimechange}
               />
             </div>

@@ -8,6 +8,8 @@ const SUB_LIST_SCHEDULES = gql`
       description
       start_time
       end_time
+      created_at
+      updated_at
       owner {
         id
         name

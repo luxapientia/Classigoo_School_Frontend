@@ -3,21 +3,37 @@ import React from "react";
 import moment from "moment";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
+import EvenViewer from "./even-viewer";
+import EventEditor from "./event-editor";
 import NotFoundPage from "@app/not-found";
 import EventCreator from "./event-creator";
+import DeleteEventAction from "./delete-event";
 import ClassroomLayout from "../layout/layout";
-import { useSubscription } from "@apollo/client";
 import { Button, Tooltip, User } from "@heroui/react";
 import { HeaderSlot } from "@components/layout/header";
 import parseAbsoluteToLocal from "@internationalized/date";
+
+// graphql imports
+import { DELETE_SCHEDULE } from "@graphql/mutations";
+import { useSubscription, useMutation } from "@apollo/client";
 import { SUB_GET_CLASSROOM, SUB_LIST_SCHEDULES } from "@graphql/subscriptions";
 
 export default function ClassroomCalendarMain({ id, session }) {
   const [eventCreator, setEventCreator] = React.useState(false);
 
+  const [showEvent, setShowEvent] = React.useState({});
+  const [showEventEditor, setShowEventEditor] = React.useState({});
+  const [showDeleteEvent, setShowDeleteEvent] = React.useState("");
+
   const [pastEvents, setPastEvents] = React.useState([]);
   const [todayEvents, setTodayEvents] = React.useState([]);
   const [upcommingEvents, setUpcomingEvents] = React.useState([]);
+
+  const [error, setError] = React.useState(null);
+  const [success, setSuccess] = React.useState(null);
+  const [deleting, setDeleting] = React.useState(false);
+
+  const [deleteSchedule] = useMutation(DELETE_SCHEDULE);
 
   const {
     data: sub_data,
@@ -78,6 +94,35 @@ export default function ClassroomCalendarMain({ id, session }) {
     }
   }, [sub_data_schedules]);
 
+  const handleDeleteEvent = async () => {
+    setDeleting(true);
+    try {
+      const { data } = await deleteSchedule({
+        variables: {
+          eid: showDeleteEvent,
+        },
+      });
+      if (data.delete_schedules_by_pk?.id) {
+        setSuccess("Event deleted successfully");
+        setShowDeleteEvent("");
+        setShowEvent({});
+        setShowEventEditor({});
+      } else {
+        setError("Error deleting event");
+        setShowDeleteEvent("");
+        setShowEvent({});
+        setShowEventEditor({});
+      }
+    } catch (error) {
+      console.log(error);
+      setError(error.message);
+      setShowDeleteEvent("");
+      setShowEvent({});
+      setShowEventEditor({});
+    }
+    setDeleting(false);
+  };
+
   // Check if the current user is a member of the classroom
   const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find((cr) => cr.user.id === session.user.sub);
 
@@ -114,7 +159,112 @@ export default function ClassroomCalendarMain({ id, session }) {
         )}
 
         <div className="w-[750px] max-w-[calc(100%_-_20px)] mx-auto">
+          {/* ongoing */}
           <div className="p-5 rounded-3xl border-2 border-dotted">
+            <div>
+              <h1 className="text-xl font-bold text-left">On Going Events</h1>
+              <p className="text-sm text-left text-gray-500 dark:text-gray-400 mt-2">
+                Events that are currently happening.
+              </p>
+            </div>
+            <div className="grid grid-rows-1 gap-4 mt-5">
+              {todayEvents.length > 0 ? (
+                todayEvents.map((e) => (
+                  <div className="" key={e.id}>
+                    <div className="flex flex-col lg:flex-row bg-gray-50 dark:bg-neutral-800 p-2 rounded-2xl lg:items-center">
+                      <div className="flex-auto flex flex-col sm:flex-row">
+                        <div className="flex-initial grid content-center justify-center sm:justify-normal my-5 sm:my-0">
+                          <div className="bg-gray-200 dark:bg-neutral-700 w-24 p-2 rounded-xl">
+                            <div className="flex flex-col">
+                              <div className="text-sm flex-initial font-medium text-center text-gray-600 dark:text-gray-300">
+                                {moment(e.start_time).format("MMMM")}
+                              </div>
+                              <div className="py-2 text-4xl flex-initial font-black text-center">
+                                {moment(e.start_time).format("DD")}
+                              </div>
+
+                              <div className="text-sm flex-initial font-medium text-center text-gray-600 dark:text-gray-300">
+                                {moment(e.start_time).format("YYYY")}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex-auto px-4 grid content-center">
+                          <div className="">
+                            <h2 className="text-base md:text-sm lg:text-base text-center sm:text-left font-semibold font-exo">
+                              {e.title}
+                            </h2>
+                          </div>
+                          <div>
+                            <p className="text-xs sm:text-sm text-left text-gray-500 dark:text-gray-300 mt-2 flex justify-center sm:justify-start">
+                              <Icon
+                                icon="duo-icons:clock"
+                                className="w-4 h-4 text-gray-500 dark:text-gray-300 mr-1 sm:mt-0.5"
+                              />
+                              Starts at: {moment(e.start_time).format("DD MMM YYYY, h:mm A")}
+                            </p>
+                            <p className="text-xs sm:text-sm text-left text-gray-500 dark:text-gray-300 mt-2 flex justify-center sm:justify-start">
+                              <Icon
+                                icon="duo-icons:clock"
+                                className="w-4 h-4 text-gray-500 dark:text-gray-300 mr-1 sm:mt-0.5"
+                              />
+                              Ends at: {moment(e.end_time).format("DD MMM YYYY, h:mm A")}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex-initial flex-row w-full lg:flex-col flex lg:w-24 mt-5 lg:mt-0 gap-1 content-center h-full">
+                        <Button
+                          variant="text"
+                          color="primary"
+                          onClick={() => setShowEvent(todayEvents.find((ev) => ev.id === e.id))}
+                          className="bg-gray-200 dark:bg-neutral-600 w-full lg:w-auto flex rounded-xl font-semibold px-2"
+                        >
+                          <Icon icon="solar:eye-bold-duotone" className="w-4 h-4" /> View
+                        </Button>
+                        {currentUser?.role !== "student" && (
+                          <>
+                            <Button
+                              variant="text"
+                              color="primary"
+                              className="bg-yellow-500 w-full lg:w-auto flex rounded-xl text-white font-semibold px-2"
+                              onClick={() => {
+                                setShowEventEditor(todayEvents.find((ev) => ev.id === e.id));
+                              }}
+                            >
+                              <Icon icon="solar:pen-new-round-bold-duotone" className="w-4 h-4" />
+                              Edit
+                            </Button>
+                            <Button
+                              variant="text"
+                              color="primary"
+                              onClick={() => setShowDeleteEvent(e.id)}
+                              className="bg-red-500 w-full lg:w-auto flex rounded-xl text-white font-semibold px-2"
+                            >
+                              <Icon icon="solar:trash-bin-2-bold-duotone" className="w-4 h-4" />
+                              Delete
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="">
+                  <div className="flex bg-content1 rounded-2xl border-2 border-dotted p-5">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                      <Icon icon="duo-icons:clock" className="w-4 h-4 mr-1 text-gray-500" />
+                      No ongoing events
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* upcomming */}
+          <div className="p-5 rounded-3xl border-2 border-dotted mt-5">
             <div>
               <h1 className="text-xl font-bold text-left">Upcoming Events</h1>
               <p className="text-sm text-left text-gray-500 dark:text-gray-400 mt-2">
@@ -171,6 +321,7 @@ export default function ClassroomCalendarMain({ id, session }) {
                         <Button
                           variant="text"
                           color="primary"
+                          onClick={() => setShowEvent(upcommingEvents.find((ev) => ev.id === e.id))}
                           className="bg-gray-200 dark:bg-neutral-600 w-full lg:w-auto flex rounded-xl font-semibold px-2"
                         >
                           <Icon icon="solar:eye-bold-duotone" className="w-4 h-4" /> View
@@ -181,6 +332,9 @@ export default function ClassroomCalendarMain({ id, session }) {
                               variant="text"
                               color="primary"
                               className="bg-yellow-500 w-full lg:w-auto flex rounded-xl text-white font-semibold px-2"
+                              onClick={() => {
+                                setShowEventEditor(upcommingEvents.find((ev) => ev.id === e.id));
+                              }}
                             >
                               <Icon icon="solar:pen-new-round-bold-duotone" className="w-4 h-4" />
                               Edit
@@ -188,6 +342,7 @@ export default function ClassroomCalendarMain({ id, session }) {
                             <Button
                               variant="text"
                               color="primary"
+                              onClick={() => setShowDeleteEvent(e.id)}
                               className="bg-red-500 w-full lg:w-auto flex rounded-xl text-white font-semibold px-2"
                             >
                               <Icon icon="solar:trash-bin-2-bold-duotone" className="w-4 h-4" />
@@ -201,15 +356,115 @@ export default function ClassroomCalendarMain({ id, session }) {
                 ))
               ) : (
                 <div className="">
-                  <div className="flex bg-content1 p-2 rounded-2xl">
-                    <div className="flex-initial">
-                      <div className="bg-gray-100">
-                        <Icon icon="solar:airbuds-case-minimalistic-bold-duotone" className="w-8 h-8 text-gray-500" />
+                  <div className="flex bg-content1 rounded-2xl border-2 border-dotted p-5">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                      <Icon icon="duo-icons:clock" className="w-4 h-4 mr-1 text-gray-500" />
+                      No upcoming events
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* past */}
+          <div className="p-5 rounded-3xl border-2 border-dotted mt-5">
+            <div>
+              <h1 className="text-xl font-bold text-left">Past Events</h1>
+              <p className="text-sm text-left text-gray-500 dark:text-gray-400 mt-2">
+                Events that have already happened.
+              </p>
+            </div>
+            <div className="grid grid-rows-1 gap-4 mt-5">
+              {pastEvents.length > 0 ? (
+                pastEvents.map((e) => (
+                  <div className="" key={e.id}>
+                    <div className="flex flex-col lg:flex-row bg-gray-50 dark:bg-neutral-800 p-2 rounded-2xl lg:items-center">
+                      <div className="flex-auto flex flex-col sm:flex-row">
+                        <div className="flex-initial grid content-center justify-center sm:justify-normal my-5 sm:my-0">
+                          <div className="bg-gray-200 dark:bg-neutral-700 w-24 p-2 rounded-xl">
+                            <div className="flex flex-col">
+                              <div className="text-sm flex-initial font-medium text-center text-gray-600 dark:text-gray-300">
+                                {moment(e.start_time).format("MMMM")}
+                              </div>
+                              <div className="py-2 text-4xl flex-initial font-black text-center">
+                                {moment(e.start_time).format("DD")}
+                              </div>
+
+                              <div className="text-sm flex-initial font-medium text-center text-gray-600 dark:text-gray-300">
+                                {moment(e.start_time).format("YYYY")}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex-auto px-4 grid content-center">
+                          <div className="">
+                            <h2 className="text-base md:text-sm lg:text-base text-center sm:text-left font-semibold font-exo">
+                              {e.title}
+                            </h2>
+                          </div>
+                          <div>
+                            <p className="text-xs sm:text-sm text-left text-gray-500 dark:text-gray-300 mt-2 flex justify-center sm:justify-start">
+                              <Icon
+                                icon="duo-icons:clock"
+                                className="w-4 h-4 text-gray-500 dark:text-gray-300 mr-1 sm:mt-0.5"
+                              />
+                              Starts at: {moment(e.start_time).format("DD MMM YYYY, h:mm A")}
+                            </p>
+                            <p className="text-xs sm:text-sm text-left text-gray-500 dark:text-gray-300 mt-2 flex justify-center sm:justify-start">
+                              <Icon
+                                icon="duo-icons:clock"
+                                className="w-4 h-4 text-gray-500 dark:text-gray-300 mr-1 sm:mt-0.5"
+                              />
+                              Ends at: {moment(e.end_time).format("DD MMM YYYY, h:mm A")}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex-initial flex-row w-full lg:flex-col flex lg:w-24 mt-5 lg:mt-0 gap-1 content-center h-full">
+                        <Button
+                          variant="text"
+                          color="primary"
+                          onClick={() => setShowEvent(todayEvents.find((ev) => ev.id === e.id))}
+                          className="bg-gray-200 dark:bg-neutral-600 w-full lg:w-auto flex rounded-xl font-semibold px-2"
+                        >
+                          <Icon icon="solar:eye-bold-duotone" className="w-4 h-4" /> View
+                        </Button>
+                        {currentUser?.role !== "student" && (
+                          <>
+                            <Button
+                              variant="text"
+                              color="primary"
+                              className="bg-yellow-500 w-full lg:w-auto flex rounded-xl text-white font-semibold px-2"
+                              onClick={() => {
+                                setShowEventEditor(todayEvents.find((ev) => ev.id === e.id));
+                              }}
+                            >
+                              <Icon icon="solar:pen-new-round-bold-duotone" className="w-4 h-4" />
+                              Edit
+                            </Button>
+                            <Button
+                              variant="text"
+                              color="primary"
+                              onClick={() => setShowDeleteEvent(e.id)}
+                              className="bg-red-500 w-full lg:w-auto flex rounded-xl text-white font-semibold px-2"
+                            >
+                              <Icon icon="solar:trash-bin-2-bold-duotone" className="w-4 h-4" />
+                              Delete
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
-                    <div className="flex-auto">
-                      <p className="text-sm text-left text-gray-500 dark:text-gray-400 mt-2">No upcoming events</p>
-                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="">
+                  <div className="flex bg-content1 rounded-2xl border-2 border-dotted p-5">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                      <Icon icon="duo-icons:clock" className="w-4 h-4 mr-1 text-gray-500" />
+                      No past events
+                    </p>
                   </div>
                 </div>
               )}
@@ -219,6 +474,16 @@ export default function ClassroomCalendarMain({ id, session }) {
       </ClassroomLayout>
 
       {eventCreator && <EventCreator cid={id} setEventCreator={setEventCreator} />}
+      {showEvent?.id && <EvenViewer event={showEvent} setEventViewer={setShowEvent} />}
+      {showEventEditor?.id && <EventEditor event={showEventEditor} setEventEditor={setShowEventEditor} />}
+      {showDeleteEvent && (
+        <DeleteEventAction
+          handleClose={() => setShowDeleteEvent("")}
+          handleSubmit={handleDeleteEvent}
+          error={error}
+          loading={deleting}
+        />
+      )}
     </>
   );
 }
