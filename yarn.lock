@@ -40,10 +40,10 @@
   dependencies:
     "@apollo/client-react-streaming" "0.11.8"
 
-"@auth0/nextjs-auth0@^4.0.2":
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/@auth0/nextjs-auth0/-/nextjs-auth0-4.0.2.tgz#050a2a9b70ffedb48c0c8535e678758fc79a1656"
-  integrity sha512-vi2hE3OaFz2KzR/VFwC8VVzbfqmyoTMYpjM9gjGg2jFKGzHnE6T6+7T0ecv3XBpF5NeO9CE36V3d5Xgn2HedhQ==
+"@auth0/nextjs-auth0@^4.4.2":
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/@auth0/nextjs-auth0/-/nextjs-auth0-4.4.2.tgz#8af5622164709bec35f744c6ee3f1cea68ba28b8"
+  integrity sha512-vLz6C+b1jxbxpYg63+JpcoRF+w287w0YzyWj2kANHMDLFzwVx7hTooqAGdiywNONxiMLQbc2vFDpGeSA0FjSjA==
   dependencies:
     "@edge-runtime/cookies" "^5.0.1"
     "@panva/hkdf" "^1.2.1"
