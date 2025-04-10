@@ -3,7 +3,7 @@ import "./globals.css";
 import clsx from "clsx";
 import { Providers } from "./providers";
 import NextTopLoader from "nextjs-toploader";
-import Layout from "../components/layout/layout";
+import Layout from "@components/layout/layout";
 
 export default function RootLayout({ children }) {
   return (
@@ -21,9 +21,7 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning
       >
         <NextTopLoader showSpinner={false} height={3} color="#e74c3c" />
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <Layout>{children}</Layout>
-        </Providers>
+        {children}
       </body>
     </html>
   );
