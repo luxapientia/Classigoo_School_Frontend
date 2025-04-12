@@ -7,7 +7,16 @@ import { Icon } from "@iconify/react";
 import moment, { duration } from "moment";
 import DOMPurify from "dompurify";
 import { FileUploader } from "react-drag-drop-files";
-import { Button, Alert, CheckboxGroup, Checkbox, Radio, RadioGroup, Input, Textarea } from "@heroui/react";
+import {
+  Button,
+  Alert,
+  CheckboxGroup,
+  Checkbox,
+  Radio,
+  RadioGroup,
+  Input,
+  Textarea,
+} from "@heroui/react";
 import { GET_EXAM_SUBMISSION } from "@graphql/queries";
 import { UPDATE_EXAM_SUBMISSION_MARKINGS } from "@graphql/mutations";
 import { SUB_GET_CLASSROOM, SUB_GET_EXAM } from "@graphql/subscriptions";
@@ -16,7 +25,12 @@ import Loading from "@components/common/loading";
 import NotFoundPage from "@app/not-found";
 import Link from "next/link";
 
-export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user }) {
+export default function ExamEvaluaterMainComponent({
+  cid,
+  eid,
+  vid: sid,
+  user,
+}) {
   const router = useRouter();
   const imageTypes = ["png", "jpg", "jpeg", "heic", "webp"];
 
@@ -73,7 +87,9 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
       });
       setSuccess("Evaluation saved successfully!");
     } catch (err) {
-      setError("Failed to save evaluation! Check if you have awarded valid points to all questions.");
+      setError(
+        "Failed to save evaluation! Check if you have awarded valid points to all questions."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -89,10 +105,15 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
         return;
       }
 
-      const totalPointsAwarded = markings.reduce((acc, curr) => acc + curr.marking, 0);
+      const totalPointsAwarded = markings.reduce(
+        (acc, curr) => acc + curr.marking,
+        0
+      );
       const totalPoints = questions.reduce((acc, curr) => acc + curr.points, 0);
       if (totalPointsAwarded > totalPoints) {
-        setError("Total points awarded exceeds total question points! Please correct the points.");
+        setError(
+          "Total points awarded exceeds total question points! Please correct the points."
+        );
         return;
       }
 
@@ -128,15 +149,18 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
         let mrking = [];
         // check for each question if making is already there if not for objective auto evaluate marking by checking the answer
         exam_data.exams_by_pk.questions.forEach((q) => {
-          let marking = submission_data?.exam_submissions_by_pk.markings?.find((m) => m.question_id === q.id);
+          let marking = submission_data?.exam_submissions_by_pk.markings?.find(
+            (m) => m.question_id === q.id
+          );
           if (marking) {
             mrking.push(marking);
           } else {
             if (q.question_type === "objective") {
               if (q.answer_type === "single") {
-                let answer = submission_data?.exam_submissions_by_pk.answers?.find(
-                  (a) => a.question_id === q.id
-                )?.answer;
+                let answer =
+                  submission_data?.exam_submissions_by_pk.answers?.find(
+                    (a) => a.question_id === q.id
+                  )?.answer;
 
                 let fullMark = q.answer === answer;
                 let marking = fullMark ? q.points : 0;
@@ -144,9 +168,10 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                 mrking.push({ question_id: q.id, marking: marking, notes: "" });
               }
               if (q.answer_type === "multiple") {
-                let answer = submission_data?.exam_submissions_by_pk.answers?.find(
-                  (a) => a.question_id === q.id
-                )?.answer;
+                let answer =
+                  submission_data?.exam_submissions_by_pk.answers?.find(
+                    (a) => a.question_id === q.id
+                  )?.answer;
                 // check if this answer is correct by matching with the options array with the answer array
                 let fullMark = true;
                 answer.forEach((ans) => {
@@ -165,7 +190,14 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
         setMarkings(mrking);
       }
     }
-  }, [submission_data, exam_data, sub_data, submission_loading, exam_loading, sub_loading]);
+  }, [
+    submission_data,
+    exam_data,
+    sub_data,
+    submission_loading,
+    exam_loading,
+    sub_loading,
+  ]);
 
   React.useEffect(() => {
     if (autoUpdateError) {
@@ -237,7 +269,9 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
   }, [markings]);
 
   // current user
-  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find((cr) => cr.user.id === user.sub);
+  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find(
+    (cr) => cr.user.id === user.sub
+  );
 
   if (sub_loading || submission_loading || exam_loading) return <Loading />;
   // not found page
@@ -246,7 +280,7 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
   if (submission_data?.exam_submissions_by_pk === null) return <NotFoundPage />;
 
   // if student is not allowed to evaluate
-  if (currentUser.role !== "teacher" && currentUser.role !== "owner") {
+  if (currentUser?.role !== "teacher" && currentUser?.role !== "owner") {
     return <NotFoundPage />;
   }
 
@@ -281,7 +315,9 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
 
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
-            <h1 className="text-2xl font-bold text-center">{exam_data.exams_by_pk.title}</h1>
+            <h1 className="text-2xl font-bold text-center">
+              {exam_data.exams_by_pk.title}
+            </h1>
           </div>
         </div>
 
@@ -297,7 +333,13 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
               />
             )}
             {success && (
-              <Alert className="my-5" color="success" title={"Success!"} variant={"faded"} description={success} />
+              <Alert
+                className="my-5"
+                color="success"
+                title={"Success!"}
+                variant={"faded"}
+                description={success}
+              />
             )}
           </div>
           {questions.length !== 0 &&
@@ -307,14 +349,19 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
               if (q.question_type === "objective") {
                 if (q.answer_type === "single") {
                   return (
-                    <div key={q.id} className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative">
+                    <div
+                      key={q.id}
+                      className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative"
+                    >
                       <div className="absolute top-1.5 right-1.5 bg-gray-200 dark:bg-neutral-700 rounded-lg text-sm font-medium px-3 py-1">
                         {q.points} Points
                       </div>
                       <div className="flex gap-2">
                         <div className="flex-initial flex justify-center items-center">
                           <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex justify-center items-center py-2 px-1">
-                            <span className="font-bold text-gray-700 dark:text-gray-200">#{index + 1}</span>
+                            <span className="font-bold text-gray-700 dark:text-gray-200">
+                              #{index + 1}
+                            </span>
                           </div>
                         </div>
                         <div
@@ -326,9 +373,19 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                         ></div>
                       </div>
                       <div className="px-5">
-                        <RadioGroup name={q.id} orientation="vertical" defaultValue={ans} isDisabled isReadOnly>
+                        <RadioGroup
+                          name={q.id}
+                          orientation="vertical"
+                          defaultValue={ans}
+                          isDisabled
+                          isReadOnly
+                        >
                           {q.options.map((option) => (
-                            <Radio key={option} value={option} className="text-lg">
+                            <Radio
+                              key={option}
+                              value={option}
+                              className="text-lg"
+                            >
                               {option}
                             </Radio>
                           ))}
@@ -337,7 +394,8 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                       <hr />
                       <div>
                         <p className="text-sm font-medium">
-                          Correct Answer: <span className="font-bold">{q?.answer}</span>
+                          Correct Answer:{" "}
+                          <span className="font-bold">{q?.answer}</span>
                         </p>
                       </div>
                       <div>
@@ -348,21 +406,30 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                           label="Point Awarded"
                           isReadOnly
                           isDisabled
-                          value={markings.find((m) => m.question_id === q.id)?.marking}
+                          value={
+                            markings.find((m) => m.question_id === q.id)
+                              ?.marking
+                          }
                         />
 
                         <Textarea
                           className="mt-4"
                           placeholder="Type your notes here..."
                           label="Additional Notes"
-                          value={markings.find((m) => m.question_id === q.id)?.notes}
+                          value={
+                            markings.find((m) => m.question_id === q.id)?.notes
+                          }
                           onChange={(e) => {
-                            const allMarkingsExceptCurrent = markings.filter((m) => m.question_id !== q.id);
+                            const allMarkingsExceptCurrent = markings.filter(
+                              (m) => m.question_id !== q.id
+                            );
                             setMarkings([
                               ...allMarkingsExceptCurrent,
                               {
                                 question_id: q.id,
-                                marking: markings.find((m) => m.question_id === q.id)?.marking,
+                                marking: markings.find(
+                                  (m) => m.question_id === q.id
+                                )?.marking,
                                 notes: e.target.value,
                               },
                             ]);
@@ -375,14 +442,19 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
 
                 if (q.answer_type === "multiple") {
                   return (
-                    <div key={q.id} className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative">
+                    <div
+                      key={q.id}
+                      className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative"
+                    >
                       <div className="absolute top-1.5 right-1.5 bg-gray-200 dark:bg-neutral-700 rounded-lg text-sm font-medium px-3 py-1">
                         {q.points} Points
                       </div>
                       <div className="flex gap-2">
                         <div className="flex-initial flex justify-center items-center">
                           <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex justify-center items-center py-2 px-1">
-                            <span className="font-bold text-gray-700 dark:text-gray-200">#{index + 1}</span>
+                            <span className="font-bold text-gray-700 dark:text-gray-200">
+                              #{index + 1}
+                            </span>
                           </div>
                         </div>
                         <div
@@ -396,7 +468,10 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                       <div className="px-5">
                         <CheckboxGroup
                           name={q.id}
-                          defaultValue={answers?.find((a) => a.question_id === q.id)?.answer || []}
+                          defaultValue={
+                            answers?.find((a) => a.question_id === q.id)
+                              ?.answer || []
+                          }
                           isReadOnly
                           isDisabled
                         >
@@ -406,7 +481,9 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                               value={option}
                               className="text-lg"
                               isSelected={(option) =>
-                                answers.find((a) => a.question_id === q.id)?.answer?.includes(option)
+                                answers
+                                  .find((a) => a.question_id === q.id)
+                                  ?.answer?.includes(option)
                               }
                             >
                               {option}
@@ -417,7 +494,10 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                       <hr />
                       <div>
                         <p className="text-sm font-medium">
-                          Correct Answer(s): <span className="font-bold">{q?.answer?.join(", ")}</span>
+                          Correct Answer(s):{" "}
+                          <span className="font-bold">
+                            {q?.answer?.join(", ")}
+                          </span>
                         </p>
                       </div>
                       <div>
@@ -428,21 +508,30 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                           label="Point Awarded"
                           isReadOnly
                           isDisabled
-                          value={markings.find((m) => m.question_id === q.id)?.marking}
+                          value={
+                            markings.find((m) => m.question_id === q.id)
+                              ?.marking
+                          }
                         />
 
                         <Textarea
                           className="mt-4"
                           placeholder="Type your notes here..."
                           label="Additional Notes"
-                          value={markings.find((m) => m.question_id === q.id)?.notes}
+                          value={
+                            markings.find((m) => m.question_id === q.id)?.notes
+                          }
                           onChange={(e) => {
-                            const allMarkingsExceptCurrent = markings.filter((m) => m.question_id !== q.id);
+                            const allMarkingsExceptCurrent = markings.filter(
+                              (m) => m.question_id !== q.id
+                            );
                             setMarkings([
                               ...allMarkingsExceptCurrent,
                               {
                                 question_id: q.id,
-                                marking: markings.find((m) => m.question_id === q.id)?.marking,
+                                marking: markings.find(
+                                  (m) => m.question_id === q.id
+                                )?.marking,
                                 notes: e.target.value,
                               },
                             ]);
@@ -456,14 +545,19 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
               if (q.question_type === "subjective") {
                 if (q.answer_type === "text") {
                   return (
-                    <div key={q.id} className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative">
+                    <div
+                      key={q.id}
+                      className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative"
+                    >
                       <div className="absolute top-1.5 right-1.5 bg-gray-200 dark:bg-neutral-700 rounded-lg text-sm font-medium px-3 py-1">
                         {q.points} Points
                       </div>
                       <div className="flex gap-2">
                         <div className="flex-initial flex justify-center items-center">
                           <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex justify-center items-center py-2 px-1">
-                            <span className="font-bold text-gray-700 dark:text-gray-200">#{index + 1}</span>
+                            <span className="font-bold text-gray-700 dark:text-gray-200">
+                              #{index + 1}
+                            </span>
                           </div>
                         </div>
                         <div
@@ -478,7 +572,9 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                         <Textarea
                           name={q.id}
                           placeholder="Type your answer here..."
-                          value={answers.find((a) => a.question_id === q.id)?.answer}
+                          value={
+                            answers.find((a) => a.question_id === q.id)?.answer
+                          }
                           isReadOnly
                           isDisabled
                           className="bg-white dark:bg-gray-700"
@@ -491,15 +587,22 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                           type="number"
                           name={q.id}
                           label="Point Awarded"
-                          value={markings.find((m) => m.question_id === q.id)?.marking}
+                          value={
+                            markings.find((m) => m.question_id === q.id)
+                              ?.marking
+                          }
                           onChange={(e) => {
-                            const allMarkingsExceptCurrent = markings.filter((m) => m.question_id !== q.id);
+                            const allMarkingsExceptCurrent = markings.filter(
+                              (m) => m.question_id !== q.id
+                            );
                             setMarkings([
                               ...allMarkingsExceptCurrent,
                               {
                                 question_id: q.id,
                                 marking: e.target.value,
-                                notes: markings.find((m) => m.question_id === q.id)?.notes,
+                                notes: markings.find(
+                                  (m) => m.question_id === q.id
+                                )?.notes,
                               },
                             ]);
                           }}
@@ -509,14 +612,20 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                           className="mt-4"
                           placeholder="Type your notes here..."
                           label="Additional Notes"
-                          value={markings.find((m) => m.question_id === q.id)?.notes}
+                          value={
+                            markings.find((m) => m.question_id === q.id)?.notes
+                          }
                           onChange={(e) => {
-                            const allMarkingsExceptCurrent = markings.filter((m) => m.question_id !== q.id);
+                            const allMarkingsExceptCurrent = markings.filter(
+                              (m) => m.question_id !== q.id
+                            );
                             setMarkings([
                               ...allMarkingsExceptCurrent,
                               {
                                 question_id: q.id,
-                                marking: markings.find((m) => m.question_id === q.id)?.marking,
+                                marking: markings.find(
+                                  (m) => m.question_id === q.id
+                                )?.marking,
                                 notes: e.target.value,
                               },
                             ]);
@@ -528,14 +637,19 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                 }
                 if (q.answer_type === "image") {
                   return (
-                    <div key={q.id} className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative">
+                    <div
+                      key={q.id}
+                      className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative"
+                    >
                       <div className="absolute top-1.5 right-1.5 bg-gray-200 dark:bg-neutral-700 rounded-lg text-sm font-medium px-3 py-1">
                         {q.points} Points
                       </div>
                       <div className="flex gap-2">
                         <div className="flex-initial flex justify-center items-center">
                           <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex justify-center items-center py-2 px-1">
-                            <span className="font-bold text-gray-700 dark:text-gray-200">#{index + 1}</span>
+                            <span className="font-bold text-gray-700 dark:text-gray-200">
+                              #{index + 1}
+                            </span>
                           </div>
                         </div>
                         <div
@@ -549,7 +663,8 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                       <div className="px-5">
                         <div className="py-5">
                           {answers.find((a) => a.question_id === q.id) &&
-                            answers.find((a) => a.question_id === q.id)?.answer?.length > 0 && (
+                            answers.find((a) => a.question_id === q.id)?.answer
+                              ?.length > 0 && (
                               <div className="grid grid-cols-2 gap-4">
                                 {answers
                                   .find((a) => a.question_id === q.id)
@@ -588,15 +703,22 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                           type="number"
                           name={q.id}
                           label="Point Awarded"
-                          value={markings.find((m) => m.question_id === q.id)?.marking}
+                          value={
+                            markings.find((m) => m.question_id === q.id)
+                              ?.marking
+                          }
                           onChange={(e) => {
-                            const allMarkingsExceptCurrent = markings.filter((m) => m.question_id !== q.id);
+                            const allMarkingsExceptCurrent = markings.filter(
+                              (m) => m.question_id !== q.id
+                            );
                             setMarkings([
                               ...allMarkingsExceptCurrent,
                               {
                                 question_id: q.id,
                                 marking: e.target.value,
-                                notes: markings.find((m) => m.question_id === q.id)?.notes,
+                                notes: markings.find(
+                                  (m) => m.question_id === q.id
+                                )?.notes,
                               },
                             ]);
                           }}
@@ -606,14 +728,20 @@ export default function ExamEvaluaterMainComponent({ cid, eid, vid: sid, user })
                           className="mt-4"
                           placeholder="Type your notes here..."
                           label="Additional Notes"
-                          value={markings.find((m) => m.question_id === q.id)?.notes}
+                          value={
+                            markings.find((m) => m.question_id === q.id)?.notes
+                          }
                           onChange={(e) => {
-                            const allMarkingsExceptCurrent = markings.filter((m) => m.question_id !== q.id);
+                            const allMarkingsExceptCurrent = markings.filter(
+                              (m) => m.question_id !== q.id
+                            );
                             setMarkings([
                               ...allMarkingsExceptCurrent,
                               {
                                 question_id: q.id,
-                                marking: markings.find((m) => m.question_id === q.id)?.marking,
+                                marking: markings.find(
+                                  (m) => m.question_id === q.id
+                                )?.marking,
                                 notes: e.target.value,
                               },
                             ]);
