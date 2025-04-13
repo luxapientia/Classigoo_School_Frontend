@@ -7,6 +7,7 @@ frontend:
     build:
       commands:
         - env | grep -e AUTH0_ >> .env.production
+        - env | grep -e APP_BASE_URL >> .env.production
         - yarn run build
   artifacts:
     baseDirectory: .next
