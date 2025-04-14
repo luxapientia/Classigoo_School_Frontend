@@ -1,7 +1,16 @@
 "use client";
 import { v4 as uuidv4 } from "uuid";
 import TinyEditor from "@components/common/editor";
-import { Alert, Button, Checkbox, Input, Radio, RadioGroup, Select, SelectItem } from "@heroui/react";
+import {
+  Alert,
+  Button,
+  Checkbox,
+  Input,
+  Radio,
+  RadioGroup,
+  Select,
+  SelectItem,
+} from "@heroui/react";
 import { useState, useRef, useEffect } from "react";
 
 export default function QuestionBuilder({ addQuestion, cancleQuestion }) {
@@ -55,7 +64,10 @@ export default function QuestionBuilder({ addQuestion, cancleQuestion }) {
       });
     }
 
-    if (questionType === "objective" && (answerType === "single" || answerType === "multiple")) {
+    if (
+      questionType === "objective" &&
+      (answerType === "single" || answerType === "multiple")
+    ) {
       setErrorKeys((e) => [...e, "options"]);
       if (options.length < 2) {
         errors.push({
@@ -82,7 +94,11 @@ export default function QuestionBuilder({ addQuestion, cancleQuestion }) {
       }
     }
 
-    if (questionType === "objective" && answerType !== "single" && answerType !== "multiple") {
+    if (
+      questionType === "objective" &&
+      answerType !== "single" &&
+      answerType !== "multiple"
+    ) {
       setErrorKeys((e) => [...e, "answerType"]);
       errors.push({
         type: "answerType",
@@ -90,7 +106,11 @@ export default function QuestionBuilder({ addQuestion, cancleQuestion }) {
       });
     }
 
-    if (questionType === "subjective" && answerType !== "text" && answerType !== "image") {
+    if (
+      questionType === "subjective" &&
+      answerType !== "text" &&
+      answerType !== "image"
+    ) {
       setErrorKeys((e) => [...e, "answerType"]);
       errors.push({
         type: "answerType",
@@ -150,8 +170,10 @@ export default function QuestionBuilder({ addQuestion, cancleQuestion }) {
   return (
     <>
       <div className="fixed top-0 bottom-0 left-0 right-0 z-50 w-full h-full bg-black bg-opacity-50 backdrop-blur-md grid justify-center content-center">
-        <div className="bg-white dark:bg-neutral-700 rounded-lg p-5 max-w-[calc(100vw_-_30px)] w-[750px] max-h-[calc(100vh_-_100px)] sm:max-h-[calc(100vh_-_150px)] md:max-h-[calc(100vh_-_50px)] mb-[50px] md:mb-0 overflow-y-auto">
-          <h1 className="text-2xl font-bold text-center font-exo my-4 mb-8">Question Builder</h1>
+        <div className="bg-white dark:bg-neutral-900 rounded-lg p-5 max-w-[calc(100vw_-_30px)] w-[750px] max-h-[calc(100vh_-_100px)] sm:max-h-[calc(100vh_-_150px)] md:max-h-[calc(100vh_-_50px)] mb-[50px] md:mb-0 overflow-y-auto">
+          <h1 className="text-2xl font-bold text-center font-exo my-4 mb-8">
+            Question Builder
+          </h1>
           {error?.length > 0 && (
             <Alert
               color="danger"
@@ -181,7 +203,8 @@ export default function QuestionBuilder({ addQuestion, cancleQuestion }) {
                 height: 750,
                 autoresize_bottom_margin: 50,
                 placeholder: "Write your question here...",
-                content_style: "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
+                content_style:
+                  "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
                 paste_data_images: true,
                 // autosave_ask_before_unload: true,
                 // autosave_interval: "30s",
@@ -268,77 +291,87 @@ export default function QuestionBuilder({ addQuestion, cancleQuestion }) {
             )}
           </div>
 
-          {questionType === "objective" && (answerType == "single" || answerType == "multiple") && (
-            <div className="my-5">
-              <div className="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4 border-dashed">
-                <h2 className="text-lg font-semibold">Options</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  {answerType === "single" &&
-                    // radio group but editable input and at last select one as answer 2 data can't be same
-                    options.map((option, index) => {
-                      return (
-                        <div key={index} className="flex items-center w-full">
-                          <RadioGroup value={answer} onChange={(e) => setAnswer(e.target.value)} className="mr-2">
-                            <Radio value={option} />
-                          </RadioGroup>
-                          <Input
-                            value={option}
-                            isInvalid={
-                              options.filter((opt) => opt === option).length > 1 || option === "" ? true : false
-                            }
-                            onChange={(e) => {
-                              options[index] = e.target.value;
-                              setOptions([...options]);
-                            }}
-                          />
-                        </div>
-                      );
-                    })}
+          {questionType === "objective" &&
+            (answerType == "single" || answerType == "multiple") && (
+              <div className="my-5">
+                <div className="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4 border-dashed">
+                  <h2 className="text-lg font-semibold">Options</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    {answerType === "single" &&
+                      // radio group but editable input and at last select one as answer 2 data can't be same
+                      options.map((option, index) => {
+                        return (
+                          <div key={index} className="flex items-center w-full">
+                            <RadioGroup
+                              value={answer}
+                              onChange={(e) => setAnswer(e.target.value)}
+                              className="mr-2"
+                            >
+                              <Radio value={option} />
+                            </RadioGroup>
+                            <Input
+                              value={option}
+                              isInvalid={
+                                options.filter((opt) => opt === option).length >
+                                  1 || option === ""
+                                  ? true
+                                  : false
+                              }
+                              onChange={(e) => {
+                                options[index] = e.target.value;
+                                setOptions([...options]);
+                              }}
+                            />
+                          </div>
+                        );
+                      })}
 
-                  {answerType === "multiple" &&
-                    // checkbox group but editable input and at last select one as answer 2 data can be same
-                    options.map((option, index) => {
-                      return (
-                        <div key={index} className="flex items-center w-full">
-                          {/* <RadioGroup value={answer} onChange={(e) => setAnswer(e.target.value)} className="mr-4">
+                    {answerType === "multiple" &&
+                      // checkbox group but editable input and at last select one as answer 2 data can be same
+                      options.map((option, index) => {
+                        return (
+                          <div key={index} className="flex items-center w-full">
+                            {/* <RadioGroup value={answer} onChange={(e) => setAnswer(e.target.value)} className="mr-4">
                             <Radio value={option} />
                           </RadioGroup> */}
-                          <Checkbox
-                            value={option}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setAnswer([...answer, option]);
-                              } else {
-                                setAnswer(answer.filter((ans) => ans !== option));
-                              }
-                            }}
-                          />
-                          <Input
-                            value={option}
-                            isInvalid={option === "" ? true : false}
-                            onChange={(e) => {
-                              options[index] = e.target.value;
-                              setOptions([...options]);
-                            }}
-                          />
-                        </div>
-                      );
-                    })}
-                </div>
-                <div className="flex items-center w-full">
-                  <Button
-                    variant="text"
-                    onClick={() => {
-                      setOptions([...options, ""]);
-                    }}
-                    className="w-full text-center border-2 border-dotted border-gray-200 dark:border-gray-700 mt-4"
-                  >
-                    Add Option
-                  </Button>
+                            <Checkbox
+                              value={option}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setAnswer([...answer, option]);
+                                } else {
+                                  setAnswer(
+                                    answer.filter((ans) => ans !== option)
+                                  );
+                                }
+                              }}
+                            />
+                            <Input
+                              value={option}
+                              isInvalid={option === "" ? true : false}
+                              onChange={(e) => {
+                                options[index] = e.target.value;
+                                setOptions([...options]);
+                              }}
+                            />
+                          </div>
+                        );
+                      })}
+                  </div>
+                  <div className="flex items-center w-full">
+                    <Button
+                      variant="text"
+                      onClick={() => {
+                        setOptions([...options, ""]);
+                      }}
+                      className="w-full text-center border-2 border-dotted border-gray-200 dark:border-gray-700 mt-4"
+                    >
+                      Add Option
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
           <div className="mt-5 flex justify-end">
             <Button

@@ -2862,12 +2862,27 @@
     dompurify "^3.0.10"
     uuid "^8.3.2"
 
+"@wiris/mathtype-html-integration-devkit@1.17.8":
+  version "1.17.8"
+  resolved "https://registry.yarnpkg.com/@wiris/mathtype-html-integration-devkit/-/mathtype-html-integration-devkit-1.17.8.tgz#08b4172474391621cbf255a9f9a8cdaf7827cd72"
+  integrity sha512-2JfnUbukybnGdD4waDuXfjqZFQOGVbJKY0QwYHBwxdF2rNPG6d3R0Skh9rjv7UERRyyrCQv3FVbsAeP8J5YcsQ==
+  dependencies:
+    dompurify "^3.0.10"
+    uuid "^8.3.2"
+
 "@wiris/mathtype-tinymce6@^8.12.0":
   version "8.12.0"
   resolved "https://registry.yarnpkg.com/@wiris/mathtype-tinymce6/-/mathtype-tinymce6-8.12.0.tgz#05b6494eaf44530d6b4f247dae613a142e4f38a0"
   integrity sha512-YEXnPbvqJ+P1zCiISV86BSseb7AQHOIm4WsvWGSF4Z+m2HJKjaqPkSRzkst/Y0u3+2Bja39twKObkNtDN87Gww==
   dependencies:
     "@wiris/mathtype-html-integration-devkit" "1.17.6"
+
+"@wiris/mathtype-tinymce7@^8.13.1":
+  version "8.13.1"
+  resolved "https://registry.yarnpkg.com/@wiris/mathtype-tinymce7/-/mathtype-tinymce7-8.13.1.tgz#77cac359b80be4c622c34ccd4484c432478d31c3"
+  integrity sha512-SzTyzqi2BmGhYhq8MPBB9svmZbFlvvIH+LppsPcj5+1k8l/ENQrLxcUUbMfN1nCDuCwojTKIzOhoe1ZVQ2drhg==
+  dependencies:
+    "@wiris/mathtype-html-integration-devkit" "1.17.8"
 
 "@wry/caches@^1.0.0":
   version "1.0.1"
@@ -3479,6 +3494,11 @@ jose@^5.9.6:
   version "5.9.6"
   resolved "https://registry.yarnpkg.com/jose/-/jose-5.9.6.tgz#77f1f901d88ebdc405e57cce08d2a91f47521883"
   integrity sha512-AMlnetc9+CV9asI19zHmrgS/WYsWUwCn2R7RzlbJWD7F9eWYUTGyBmU9o6PxngtLGOiDGPRu+Uc4fhKzbpteZQ==
+
+jquery@^3.7.1:
+  version "3.7.1"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.7.1.tgz#083ef98927c9a6a74d05a6af02806566d16274de"
+  integrity sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg==
 
 "js-tokens@^3.0.0 || ^4.0.0":
   version "4.0.0"

@@ -66,9 +66,20 @@ export default function TinyEditor(props) {
       licenseKey="gpl"
       promotion={false}
       init={{
-        extended_valid_elements: "*[.*]",
+        custom_elements:
+          "math,mi,mn,mo,mrow,msqrt,msup,msub,msubsup,mfrac,mtable,mtr,mtd,ms,mtext,menclose,annotation,semantics,math",
+        extended_valid_elements:
+          "math[*],mi[*],mn[*],mo[*],mrow[*],msqrt[*],msup[*],msub[*],msubsup[*],mfrac[*],mtable[*],mtr[*],mtd[*],ms[*],mtext[*],menclose[*],annotation[*],semantics[*]",
+
+        // Optional: if content is still getting stripped, allow all elements and attributes
+        valid_children: "+body[math]",
+        valid_elements: "*[*]",
+
+        // Avoid cleanup removing math
+        verify_html: false,
+        content_css: false,
         external_plugins: {
-          tiny_mce_wiris: `${process.env.APP_BASE_URL}/tinymce-plugins/mathtype/plugin.min.js`,
+          tiny_mce_wiris: `${process.env.APP_BASE_URL}/tinymce-plugins/mathtype6/plugin.min.js`,
         },
         plugins:
           "advlist anchor autolink autoresize autosave charmap code codesample directionality emoticons fullscreen help image importcss insertdatetime link lists media nonbreaking pagebreak preview quickbars save searchreplace table visualblocks visualchars wordcount",
