@@ -13,8 +13,21 @@ import { FileUploader } from "react-drag-drop-files";
 import { GET_EXAM_SUBMISSION } from "@graphql/queries";
 import { UPDATE_MY_SUBMISSION } from "@graphql/mutations";
 import { useSubscription, useMutation, useQuery } from "@apollo/client";
-import { SUB_GET_CLASSROOM, SUB_GET_EXAM, SUB_GET_SUBMISSION } from "@graphql/subscriptions";
-import { Button, Alert, CheckboxGroup, Checkbox, Radio, RadioGroup, Input, Textarea } from "@heroui/react";
+import {
+  SUB_GET_CLASSROOM,
+  SUB_GET_EXAM,
+  SUB_GET_SUBMISSION,
+} from "@graphql/subscriptions";
+import {
+  Button,
+  Alert,
+  CheckboxGroup,
+  Checkbox,
+  Radio,
+  RadioGroup,
+  Input,
+  Textarea,
+} from "@heroui/react";
 
 export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
   const router = useRouter();
@@ -89,11 +102,15 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
       formData.append("image", tempFile);
 
       // post form data image
-      const response = await axios.post("/api/proxy/upload/posts/image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        "/api/proxy/upload/posts/image",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       let fileSize;
 
@@ -107,15 +124,24 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
 
       if (response.data.status === "success") {
         // add the file to the answer
-        const existingAnswer = answers.find((a) => a.question_id === filePicker);
+        const existingAnswer = answers.find(
+          (a) => a.question_id === filePicker
+        );
         if (existingAnswer) {
-          const currentAnswer = [...existingAnswer.answer, response.data.data.location];
-          const newAnswers = answers.filter((a) => a.question_id !== filePicker);
+          const currentAnswer = [
+            ...existingAnswer.answer,
+            response.data.data.location,
+          ];
+          const newAnswers = answers.filter(
+            (a) => a.question_id !== filePicker
+          );
           newAnswers.push({ question_id: filePicker, answer: currentAnswer });
 
           setAnswers(newAnswers);
         } else {
-          const newAnswers = answers.filter((a) => a.question_id !== filePicker);
+          const newAnswers = answers.filter(
+            (a) => a.question_id !== filePicker
+          );
           newAnswers.push({
             question_id: filePicker,
             answer: [response.data.data.location],
@@ -164,7 +190,10 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
 
           console.log(oldAnswerFiles);
 
-          filteredAnswers.push({ question_id: quid, answer: oldAnswerFiles || [] });
+          filteredAnswers.push({
+            question_id: quid,
+            answer: oldAnswerFiles || [],
+          });
 
           setAnswers(filteredAnswers);
           setAutoUpdate(true);
@@ -221,10 +250,21 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
 
     if (exam?.duration) {
       setTimer(true);
-      if (exam.start_once && !moment().isBefore(moment(exam.start_at).add(exam.duration, "minutes"))) {
-        setTimeLeft(moment(exam.start_at).add(exam.duration, "minutes").diff(moment(), "seconds"));
+      if (
+        exam.start_once &&
+        !moment().isBefore(moment(exam.start_at).add(exam.duration, "minutes"))
+      ) {
+        setTimeLeft(
+          moment(exam.start_at)
+            .add(exam.duration, "minutes")
+            .diff(moment(), "seconds")
+        );
       } else {
-        setTimeLeft(moment(submission.created_at).add(exam.duration, "minutes").diff(moment(), "seconds"));
+        setTimeLeft(
+          moment(submission.created_at)
+            .add(exam.duration, "minutes")
+            .diff(moment(), "seconds")
+        );
       }
     }
 
@@ -335,10 +375,15 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
   }
 
   // if start once and the exam is not started yet
-  if (exam_data.exams_by_pk.start_once && !moment().isBefore(moment(exam_data.exams_by_pk.start_once))) {
+  if (
+    exam_data.exams_by_pk.start_once &&
+    !moment().isBefore(moment(exam_data.exams_by_pk.start_once))
+  ) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-100px)]">
-        <p className="text-2xl font-bold text-center">Exam has not started yet!</p>
+        <p className="text-2xl font-bold text-center">
+          Exam has not started yet!
+        </p>
       </div>
     );
   }
@@ -347,7 +392,12 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
   if (exam_data.exams_by_pk.duration !== 0) {
     if (
       exam_data.exams_by_pk.start_once &&
-      moment().isAfter(moment(exam_data.exams_by_pk.start_once).add(exam_data.exams_by_pk.duration, "minutes"))
+      moment().isAfter(
+        moment(exam_data.exams_by_pk.start_once).add(
+          exam_data.exams_by_pk.duration,
+          "minutes"
+        )
+      )
     ) {
       return (
         <div className="flex flex-col justify-center items-center h-[calc(100vh-100px)]">
@@ -370,7 +420,10 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
     else if (
       !exam_data.exams_by_pk.start_once &&
       moment().isAfter(
-        moment(submission_data.exam_submissions_by_pk.created_at).add(exam_data.exams_by_pk.duration, "minutes")
+        moment(submission_data.exam_submissions_by_pk.created_at).add(
+          exam_data.exams_by_pk.duration,
+          "minutes"
+        )
       )
     ) {
       return (
@@ -423,13 +476,24 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
 
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
-            <h1 className="text-2xl font-bold text-center">{exam_data.exams_by_pk.title}</h1>
+            <h1 className="text-2xl font-bold text-center">
+              {exam_data.exams_by_pk.title}
+            </h1>
             {timer && (
               <>
                 <p className="text-center">
                   <span>
-                    Duration: {duration(exam_data.exams_by_pk.duration, "minutes").hours()}h :{" "}
-                    {duration(exam_data.exams_by_pk.duration, "minutes").minutes()}m
+                    Duration:{" "}
+                    {duration(
+                      exam_data.exams_by_pk.duration,
+                      "minutes"
+                    ).hours()}
+                    h :{" "}
+                    {duration(
+                      exam_data.exams_by_pk.duration,
+                      "minutes"
+                    ).minutes()}
+                    m
                   </span>
                 </p>
 
@@ -437,8 +501,9 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                   <div className="md:hidden grid justify-center items-center">
                     <p className="text-xs text-gray-500 font-exo px-3 py-2 border-2 rounded-lg border-dotted">
                       <span className="text-sm font-exo font-medium text-black dark:text-gray-200">
-                        Time left: {duration(timeLeft, "seconds").hours()}h : {duration(timeLeft, "seconds").minutes()}m
-                        : {duration(timeLeft, "seconds").seconds()}s
+                        Time left: {duration(timeLeft, "seconds").hours()}h :{" "}
+                        {duration(timeLeft, "seconds").minutes()}m :{" "}
+                        {duration(timeLeft, "seconds").seconds()}s
                       </span>
                     </p>
                   </div>
@@ -446,7 +511,10 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                 {timeLeft <= 0 && (
                   <div className=" justify-center items-center grid">
                     <p className="border-2 border-dashed border-gray-500 rounded-lg flex gap-2 px-2 py-1 w-fit justify-center items-center">
-                      <Icon icon="fluent:timer-20-regular" className="h-6 w-6" />
+                      <Icon
+                        icon="fluent:timer-20-regular"
+                        className="h-6 w-6"
+                      />
                       <span>Time's up!</span>
                     </p>
                   </div>
@@ -461,37 +529,56 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
             if (q.question_type === "objective") {
               if (q.answer_type === "single") {
                 return (
-                  <div key={q.id} className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative">
+                  <div
+                    key={q.id}
+                    className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative"
+                  >
                     <div className="absolute top-1.5 right-1.5 bg-gray-200 dark:bg-neutral-700 rounded-lg text-sm font-medium px-3 py-1">
                       {q.points} Points
                     </div>
                     <div className="flex gap-2">
                       <div className="flex-initial flex justify-center items-center">
                         <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex justify-center items-center py-2 px-1">
-                          <span className="font-bold text-gray-700 dark:text-gray-200">#{index + 1}</span>
+                          <span className="font-bold text-gray-700 dark:text-gray-200">
+                            #{index + 1}
+                          </span>
                         </div>
                       </div>
-                      <div
-                        className="flex-auto rounded-lg p-4 text-lg"
-                        dangerouslySetInnerHTML={{
-                          // __html: xss(q.question)
-                          __html: DOMPurify.sanitize(q.question),
-                        }}
-                      ></div>
+                      <div className="flex-auto rounded-lg p-4 text-lg">
+                        <article
+                          className="prose max-w-none prose-lg prose-headings:text-gray-800 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:italic prose-img:rounded-lg prose-img:shadow-md prose-ul:list-disc prose-ol:list-decimal prose-table:border-collapse prose-table:border prose-table:border-gray-300 prose-th:border prose-th:p-2 prose-th:bg-gray-100 prose-td:border prose-td:p-2 prose-td:text-gray-700 prose-strong:text-gray-800 dark:prose-headings:text-gray-100 dark:prose-p:text-gray-300 dark:prose-a:text-blue-400 dark:prose-blockquote:border-gray-600 dark:prose-th:bg-gray-800 dark:prose-td:text-gray-300 dark:prose-table:border-gray-600 dark:prose-strong:text-gray-100"
+                          dangerouslySetInnerHTML={{
+                            // __html: xss(q.question)
+                            __html: DOMPurify.sanitize(q.question),
+                          }}
+                        ></article>
+                      </div>
                     </div>
                     <div className="px-5">
                       <RadioGroup
                         name={q.id}
-                        defaultValue={answers.find((a) => a.question_id === q.id)?.answer || ""}
+                        defaultValue={
+                          answers.find((a) => a.question_id === q.id)?.answer ||
+                          ""
+                        }
                         orientation="vertical"
                         onChange={(e) => {
-                          const newAnswers = answers.filter((a) => a.question_id !== q.id);
-                          newAnswers.push({ question_id: q.id, answer: e.target.value });
+                          const newAnswers = answers.filter(
+                            (a) => a.question_id !== q.id
+                          );
+                          newAnswers.push({
+                            question_id: q.id,
+                            answer: e.target.value,
+                          });
                           setAnswers(newAnswers);
                         }}
                       >
                         {q.options.map((option) => (
-                          <Radio key={option} value={option} className="text-lg">
+                          <Radio
+                            key={option}
+                            value={option}
+                            className="text-lg"
+                          >
                             {option}
                           </Radio>
                         ))}
@@ -503,14 +590,19 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
 
               if (q.answer_type === "multiple") {
                 return (
-                  <div key={q.id} className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative">
+                  <div
+                    key={q.id}
+                    className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative"
+                  >
                     <div className="absolute top-1.5 right-1.5 bg-gray-200 dark:bg-neutral-700 rounded-lg text-sm font-medium px-3 py-1">
                       {q.points} Points
                     </div>
                     <div className="flex gap-2">
                       <div className="flex-initial flex justify-center items-center">
                         <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex justify-center items-center py-2 px-1">
-                          <span className="font-bold text-gray-700 dark:text-gray-200">#{index + 1}</span>
+                          <span className="font-bold text-gray-700 dark:text-gray-200">
+                            #{index + 1}
+                          </span>
                         </div>
                       </div>
                       <div
@@ -524,11 +616,19 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                     <div className="px-5">
                       <CheckboxGroup
                         name={q.id}
-                        defaultValue={answers?.find((a) => a.question_id === q.id)?.answer || []}
+                        defaultValue={
+                          answers?.find((a) => a.question_id === q.id)
+                            ?.answer || []
+                        }
                         onChange={(e) => {
                           console.log(e);
-                          const newAnswers = answers.filter((a) => a.question_id !== q.id);
-                          newAnswers.push({ question_id: q.id, answer: [...e] });
+                          const newAnswers = answers.filter(
+                            (a) => a.question_id !== q.id
+                          );
+                          newAnswers.push({
+                            question_id: q.id,
+                            answer: [...e],
+                          });
                           setAnswers(newAnswers);
                         }}
                       >
@@ -538,7 +638,9 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                             value={option}
                             className="text-lg"
                             isSelected={(option) =>
-                              answers.find((a) => a.question_id === q.id)?.answer.includes(option)
+                              answers
+                                .find((a) => a.question_id === q.id)
+                                ?.answer.includes(option)
                             }
                           >
                             {option}
@@ -553,14 +655,19 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
             if (q.question_type === "subjective") {
               if (q.answer_type === "text") {
                 return (
-                  <div key={q.id} className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative">
+                  <div
+                    key={q.id}
+                    className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative"
+                  >
                     <div className="absolute top-1.5 right-1.5 bg-gray-200 dark:bg-neutral-700 rounded-lg text-sm font-medium px-3 py-1">
                       {q.points} Points
                     </div>
                     <div className="flex gap-2">
                       <div className="flex-initial flex justify-center items-center">
                         <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex justify-center items-center py-2 px-1">
-                          <span className="font-bold text-gray-700 dark:text-gray-200">#{index + 1}</span>
+                          <span className="font-bold text-gray-700 dark:text-gray-200">
+                            #{index + 1}
+                          </span>
                         </div>
                       </div>
                       <div
@@ -575,10 +682,17 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                       <Textarea
                         name={q.id}
                         placeholder="Type your answer here..."
-                        value={answers.find((a) => a.question_id === q.id)?.answer}
+                        value={
+                          answers.find((a) => a.question_id === q.id)?.answer
+                        }
                         onChange={(e) => {
-                          const newAnswers = answers.filter((a) => a.question_id !== q.id);
-                          newAnswers.push({ question_id: q.id, answer: e.target.value });
+                          const newAnswers = answers.filter(
+                            (a) => a.question_id !== q.id
+                          );
+                          newAnswers.push({
+                            question_id: q.id,
+                            answer: e.target.value,
+                          });
                           setAnswers(newAnswers);
                         }}
                         className="bg-white dark:bg-gray-700"
@@ -589,14 +703,19 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
               }
               if (q.answer_type === "image") {
                 return (
-                  <div key={q.id} className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative">
+                  <div
+                    key={q.id}
+                    className="flex flex-col gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl relative"
+                  >
                     <div className="absolute top-1.5 right-1.5 bg-gray-200 dark:bg-neutral-700 rounded-lg text-sm font-medium px-3 py-1">
                       {q.points} Points
                     </div>
                     <div className="flex gap-2">
                       <div className="flex-initial flex justify-center items-center">
                         <div className="w-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex justify-center items-center py-2 px-1">
-                          <span className="font-bold text-gray-700 dark:text-gray-200">#{index + 1}</span>
+                          <span className="font-bold text-gray-700 dark:text-gray-200">
+                            #{index + 1}
+                          </span>
                         </div>
                       </div>
                       <div
@@ -610,7 +729,8 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                     <div className="px-5">
                       <div className="py-5">
                         {answers.find((a) => a.question_id === q.id) &&
-                          answers.find((a) => a.question_id === q.id)?.answer?.length > 0 && (
+                          answers.find((a) => a.question_id === q.id)?.answer
+                            ?.length > 0 && (
                             <div className="grid grid-cols-2 gap-4">
                               {answers
                                 .find((a) => a.question_id === q.id)
@@ -639,7 +759,9 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                                         className="p-0 w-7 h-7 bg-white rounded-full grid justify-center items-center"
                                         size="sm"
                                         variant="text"
-                                        onPress={() => handleDeleteFile([answer], q.id)}
+                                        onPress={() =>
+                                          handleDeleteFile([answer], q.id)
+                                        }
                                         isDisabled={deleting}
                                         isIconOnly
                                       >
@@ -681,7 +803,8 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
               {timer > 0 && (
                 <p className="text-xs text-gray-500 font-exo">
                   <span className="text-sm font-exo font-medium text-black dark:text-gray-200">
-                    Time left: {duration(timeLeft, "seconds").hours()}h : {duration(timeLeft, "seconds").minutes()}m :{" "}
+                    Time left: {duration(timeLeft, "seconds").hours()}h :{" "}
+                    {duration(timeLeft, "seconds").minutes()}m :{" "}
                     {duration(timeLeft, "seconds").seconds()}s
                   </span>
                 </p>
@@ -724,7 +847,10 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
               filePicker === "file" ? (
                 <div className="">
                   <div className="flex justify-center content-center">
-                    <Icon icon="akar-icons:file" className="h-full w-36 text-default-400 py-5" />
+                    <Icon
+                      icon="akar-icons:file"
+                      className="h-full w-36 text-default-400 py-5"
+                    />
                   </div>
                   <p className="text-center text-xs text-gray-500">
                     {tempFile.name} - {tempFile.size / 1000000}MB
@@ -732,7 +858,11 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                 </div>
               ) : (
                 <div className="flex justify-center content-center">
-                  <img src={tempFilePreview} alt="Profile" className="h-48 w-auto object-cover rounded-lg" />
+                  <img
+                    src={tempFilePreview}
+                    alt="Profile"
+                    className="h-48 w-auto object-cover rounded-lg"
+                  />
                 </div>
               )
             ) : (
@@ -744,7 +874,10 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                 overRide
               >
                 <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8 mb-2">
-                  <Icon icon="akar-icons:upload" className="h-8 w-8 text-default-400" />
+                  <Icon
+                    icon="akar-icons:upload"
+                    className="h-8 w-8 text-default-400"
+                  />
                   <p className="text-sm text-default-400">
                     Drag and drop your profile picture here or click to upload.
                   </p>
@@ -767,7 +900,14 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
               </FileUploader>
             )}
 
-            {fileError && <Alert className="my-2" color="danger" title="Error" description={fileError} />}
+            {fileError && (
+              <Alert
+                className="my-2"
+                color="danger"
+                title="Error"
+                description={fileError}
+              />
+            )}
 
             <div className="flex justify-end w-full">
               <Button

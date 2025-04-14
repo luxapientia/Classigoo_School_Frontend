@@ -41,7 +41,7 @@ export default function MemberSelector({ my_id, members, setOpenPicker, audience
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000] flex items-center justify-center">
-      <div className="bg-white rounded-lg p-4 max-w-[calc(100%_-_20px)] w-[750px]">
+      <div className="bg-white dark:bg-neutral-700 rounded-lg p-4 max-w-[calc(100%_-_20px)] w-[750px]">
         <h2>Select members to share this assignment with</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-5">
           <div className="flex items-center w-full cursor-pointer" onClick={() => setSelectedMembers([])}>

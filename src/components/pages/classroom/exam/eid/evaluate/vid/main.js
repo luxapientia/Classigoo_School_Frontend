@@ -105,11 +105,17 @@ export default function ExamEvaluaterMainComponent({
         return;
       }
 
+      // check total points awared by a loop
       const totalPointsAwarded = markings.reduce(
-        (acc, curr) => acc + curr.marking,
+        (acc, curr) => parseInt(acc) + parseInt(curr.marking),
         0
       );
-      const totalPoints = questions.reduce((acc, curr) => acc + curr.points, 0);
+      const totalPoints = questions.reduce(
+        (acc, curr) => parseInt(acc) + parseInt(curr.points),
+        0
+      );
+      console.log("totalPointsAwarded", totalPointsAwarded);
+      console.log("totalPoints", totalPoints);
       if (totalPointsAwarded > totalPoints) {
         setError(
           "Total points awarded exceeds total question points! Please correct the points."
@@ -148,7 +154,7 @@ export default function ExamEvaluaterMainComponent({
       if (submission_data?.exam_submissions_by_pk?.markings) {
         let mrking = [];
         // check for each question if making is already there if not for objective auto evaluate marking by checking the answer
-        exam_data.exams_by_pk.questions.forEach((q) => {
+        exam_data.exams_by_pk.questions?.forEach((q) => {
           let marking = submission_data?.exam_submissions_by_pk.markings?.find(
             (m) => m.question_id === q.id
           );
@@ -174,11 +180,16 @@ export default function ExamEvaluaterMainComponent({
                   )?.answer;
                 // check if this answer is correct by matching with the options array with the answer array
                 let fullMark = true;
-                answer.forEach((ans) => {
-                  if (!q.answer.includes(ans)) {
-                    fullMark = false;
-                  }
-                });
+                if (q.answer?.length !== answer?.length) {
+                  fullMark = false;
+                }
+                if (fullMark) {
+                  answer?.forEach((ans) => {
+                    if (!q.answer?.includes(ans)) {
+                      fullMark = false;
+                    }
+                  });
+                }
                 let marking = fullMark ? q.points : 0;
                 mrking.push({ question_id: q.id, marking: marking, notes: "" });
               }

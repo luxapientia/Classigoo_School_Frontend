@@ -15,8 +15,23 @@ import DeleteExamAction from "./delete-exam-action";
 import { FileUploader } from "react-drag-drop-files";
 import { useMutation, useSubscription } from "@apollo/client";
 import { DELETE_EXAM, ADD_EXAM_SUBMISSION_ENTRY } from "@graphql/mutations";
-import { Alert, Button, User, Table, TableHeader, TableBody, TableColumn, TableCell, TableRow } from "@heroui/react";
-import { SUB_GET_EXAM, SUB_GET_CLASSROOM, SUB_GET_MY_SUBMISSIONS, SUB_LIST_SUBMISSIONS } from "@graphql/subscriptions";
+import {
+  Alert,
+  Button,
+  User,
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableCell,
+  TableRow,
+} from "@heroui/react";
+import {
+  SUB_GET_EXAM,
+  SUB_GET_CLASSROOM,
+  SUB_GET_MY_SUBMISSIONS,
+  SUB_LIST_SUBMISSIONS,
+} from "@graphql/subscriptions";
 
 export default function ExamPageMainComponent({ user, cid, eid }) {
   const router = useRouter();
@@ -68,7 +83,9 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
     variables: { eid: eid },
   });
 
-  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find((cr) => cr.user.id === user.sub);
+  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find(
+    (cr) => cr.user.id === user.sub
+  );
 
   const handleDeleteExam = async () => {
     setDeleteLoading(true);
@@ -92,7 +109,9 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
     try {
       if (currentUser?.role === "student") {
         if (sub_my_submission_data?.exam_submissions?.length !== 0) {
-          router.push(`/classroom/${cid}/exam/${eid}/start/${sub_my_submission_data?.exam_submissions[0].id}`);
+          router.push(
+            `/classroom/${cid}/exam/${eid}/start/${sub_my_submission_data?.exam_submissions[0].id}`
+          );
         } else {
           const newSubmission = await addSubmissionEntry({
             variables: {
@@ -100,7 +119,9 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
               status: "draft",
             },
           });
-          router.push(`/classroom/${cid}/exam/${eid}/start/${newSubmission.data.insert_exam_submissions_one.id}`);
+          router.push(
+            `/classroom/${cid}/exam/${eid}/start/${newSubmission.data.insert_exam_submissions_one.id}`
+          );
         }
       }
     } catch (error) {
@@ -114,14 +135,21 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
   const handleViewSubmission = async () => {
     setStarting(true);
     if (currentUser?.role === "student") {
-      router.push(`/classroom/${cid}/exam/${eid}/submission/${sub_my_submission_data?.exam_submissions[0].id}`);
+      router.push(
+        `/classroom/${cid}/exam/${eid}/submission/${sub_my_submission_data?.exam_submissions[0].id}`
+      );
     }
     setStarting(false);
   };
 
   // caluclate submission status
   React.useEffect(() => {
-    if (!sub_loading && !sub_exams_loading && !sub_my_submission_loading && !sub_list_submissions_loading) {
+    if (
+      !sub_loading &&
+      !sub_exams_loading &&
+      !sub_my_submission_loading &&
+      !sub_list_submissions_loading
+    ) {
       const start_time = moment(sub_exams_data?.exams_by_pk?.start_once).add(
         sub_exams_data?.exams_by_pk?.duration,
         "minutes"
@@ -129,10 +157,9 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
 
       if (currentUser?.role === "student") {
         if (sub_my_submission_data?.exam_submissions?.length !== 0) {
-          const duration_time = moment(sub_my_submission_data?.exam_submissions[0].created_at).add(
-            sub_exams_data?.exams_by_pk?.duration,
-            "minutes"
-          );
+          const duration_time = moment(
+            sub_my_submission_data?.exam_submissions[0].created_at
+          ).add(sub_exams_data?.exams_by_pk?.duration, "minutes");
           if (sub_my_submission_data?.exam_submissions[0].status === "draft") {
             if (sub_exams_data?.exams_by_pk?.start_once) {
               if (start_time.isAfter(moment())) {
@@ -203,7 +230,9 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
               subs.push(submission);
             } else if (
               !sub_exams_data?.exams_by_pk?.start_once &&
-              moment(submission.created_at).add(sub_exams_data?.exams_by_pk?.duration, "minutes").isBefore(moment())
+              moment(submission.created_at)
+                .add(sub_exams_data?.exams_by_pk?.duration, "minutes")
+                .isBefore(moment())
             ) {
               subs.push(submission);
             }
@@ -214,7 +243,12 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
     setSubmissions(subs);
   }, [sub_list_submissions_data, currentUser, sub_exams_data]);
 
-  if (!sub_loading && !sub_exams_loading && !sub_my_submission_loading && !sub_list_submissions_loading) {
+  if (
+    !sub_loading &&
+    !sub_exams_loading &&
+    !sub_my_submission_loading &&
+    !sub_list_submissions_loading
+  ) {
     // if not found
     if (!sub_data?.classrooms_by_pk && !sub_exams_data?.exams_by_pk) {
       return <NotFoundPage />;
@@ -230,7 +264,10 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
     }
 
     // if draft
-    if (sub_exams_data?.exams_by_pk?.status === "draft" && currentUser?.role === "student") {
+    if (
+      sub_exams_data?.exams_by_pk?.status === "draft" &&
+      currentUser?.role === "student"
+    ) {
       return <NotFoundPage />;
     }
   }
@@ -244,7 +281,11 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
           loading={deleteLoading}
         />
       )}
-      <ClassroomLayout id={cid} loading={sub_loading || sub_exams_loading} classroom={sub_data?.classrooms_by_pk}>
+      <ClassroomLayout
+        id={cid}
+        loading={sub_loading || sub_exams_loading}
+        classroom={sub_data?.classrooms_by_pk}
+      >
         {success && (
           <div className="mb-4">
             <Alert color="success" title={success} />
@@ -253,7 +294,11 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
         <div className="flex flex-col gap-4">
           {d_error && (
             <div className="mb-4">
-              <Alert color="danger" title="Something went wrong!" description={d_error.message} />
+              <Alert
+                color="danger"
+                title="Something went wrong!"
+                description={d_error.message}
+              />
             </div>
           )}
 
@@ -263,14 +308,12 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
           <div className="flex flex-col xl:flex-row gap-4 max-w-full w-full">
             <div className="flex-auto flex flex-col overflow-x-auto">
               <div className="flex-auto px-10 py-4 bg-content2 rounded-xl h-full overflow-x-auto">
-                <article
-                  id="editor_rendered"
-                  className="prose max-w-none prose-lg prose-headings:text-gray-800 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:italic prose-img:rounded-lg prose-img:shadow-md prose-ul:list-disc prose-ol:list-decimal prose-table:border-collapse prose-table:border prose-table:border-gray-300 prose-th:border prose-th:p-2 prose-th:bg-gray-100 prose-td:border prose-td:p-2 prose-td:text-gray-700"
-                >
+                <article className="prose max-w-none prose-lg prose-headings:text-gray-800 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:italic prose-img:rounded-lg prose-img:shadow-md prose-ul:list-disc prose-ol:list-decimal prose-table:border-collapse prose-table:border prose-table:border-gray-300 prose-th:border prose-th:p-2 prose-th:bg-gray-100 prose-td:border prose-td:p-2 prose-td:text-gray-700 prose-strong:text-gray-800 dark:prose-headings:text-gray-100 dark:prose-p:text-gray-300 dark:prose-a:text-blue-400 dark:prose-blockquote:border-gray-600 dark:prose-th:bg-gray-800 dark:prose-td:text-gray-300 dark:prose-table:border-gray-600 dark:prose-strong:text-gray-100">
                   <div
                     dangerouslySetInnerHTML={{
                       // __html: xss(sub_exams_data?.exams_by_pk?.content),
-                      __html: DOMPurify.sanitize(sub_exams_data?.exams_by_pk?.content),
+                      // __html: DOMPurify.sanitize(sub_exams_data?.exams_by_pk?.content),
+                      __html: sub_exams_data?.exams_by_pk?.content,
                     }}
                   ></div>
                 </article>
@@ -292,31 +335,42 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
 
               <div className="p-5 bg-content2 w-full xl:w-72 rounded-xl">
                 <h2 className="text-sm">
-                  Status: <span className="font-semibold">{sub_exams_data?.exams_by_pk?.status.toUpperCase()}</span>
+                  Status:{" "}
+                  <span className="font-semibold">
+                    {sub_exams_data?.exams_by_pk?.status.toUpperCase()}
+                  </span>
                 </h2>
                 <h2 className="text-sm">
                   Last Updated:{" "}
-                  <span className="font-semibold">{moment(sub_exams_data?.exams_by_pk?.updated_at).fromNow()}</span>
+                  <span className="font-semibold">
+                    {moment(sub_exams_data?.exams_by_pk?.updated_at).fromNow()}
+                  </span>
                 </h2>
                 {sub_exams_data?.exams_by_pk?.start_once !== null && (
                   <h2 className="text-sm text-danger-500 dark:text-danger-400">
                     Starts on:{" "}
                     <span className="font-semibold">
-                      {moment(sub_exams_data?.exams_by_pk?.start_once).format("MMM DD, YYYY hh:mm A")}
+                      {moment(sub_exams_data?.exams_by_pk?.start_once).format(
+                        "MMM DD, YYYY hh:mm A"
+                      )}
                     </span>
                   </h2>
                 )}
 
-                {sub_exams_data?.exams_by_pk?.duration !== 0 && sub_exams_data?.exams_by_pk?.duration !== null && (
-                  <h2 className="text-sm">
-                    Exam Duration:{" "}
-                    <span className="font-semibold">{sub_exams_data?.exams_by_pk?.duration} minutes</span>
-                  </h2>
-                )}
+                {sub_exams_data?.exams_by_pk?.duration !== 0 &&
+                  sub_exams_data?.exams_by_pk?.duration !== null && (
+                    <h2 className="text-sm">
+                      Exam Duration:{" "}
+                      <span className="font-semibold">
+                        {sub_exams_data?.exams_by_pk?.duration} minutes
+                      </span>
+                    </h2>
+                  )}
 
                 {currentUser?.role === "student" && (
                   <h2 className="text-sm">
-                    Submission Status: <span className="font-semibold">{submissionStatus}</span>
+                    Submission Status:{" "}
+                    <span className="font-semibold">{submissionStatus}</span>
                   </h2>
                 )}
               </div>
@@ -371,7 +425,10 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
                     <p className="text-sm text-center pt-1">
                       <span className="text-danger-500 dark:text-danger-400 italic text-xs font-medium">
                         Exam is scheduled to start at <br />
-                        {moment(sub_exams_data?.exams_by_pk?.start_once).format("MMM DD, YYYY hh:mm A")} <br />
+                        {moment(sub_exams_data?.exams_by_pk?.start_once).format(
+                          "MMM DD, YYYY hh:mm A"
+                        )}{" "}
+                        <br />
                         Please wait for the exam to start.
                       </span>
                     </p>
@@ -389,7 +446,8 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
               )}
 
               {/* if current user is the owner or teacher */}
-              {(currentUser?.role === "owner" || currentUser?.role === "teacher") && (
+              {(currentUser?.role === "owner" ||
+                currentUser?.role === "teacher") && (
                 <div className="p-5 bg-content2 w-full xl:w-72 rounded-xl">
                   <div className="w-full">
                     <Link href={`/classroom/${cid}/exam/${eid}/edit`}>
@@ -415,7 +473,9 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
 
           {currentUser?.role !== "student" && (
             <div className="mt-16 pt-10 border-t-2 border-gray-200 dark:border-gray-700 border-dotted">
-              <h1 className="text-2xl font-bold font-exo  text-gray-700 dark:text-gray-200">Student Submissions</h1>
+              <h1 className="text-2xl font-bold font-exo  text-gray-700 dark:text-gray-200">
+                Student Submissions
+              </h1>
               <div className="mt-5">
                 <Table aria-label="Example empty table">
                   <TableHeader>
@@ -436,7 +496,9 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
                               src: submission.user.avatar,
                             }}
                             description={
-                              <h4 className="text-sm text-gray-500 dark:text-gray-400">{submission.user.email}</h4>
+                              <h4 className="text-sm text-gray-500 dark:text-gray-400">
+                                {submission.user.email}
+                              </h4>
                             }
                             name={submission.user.name}
                             size="md"
@@ -454,9 +516,13 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
                           </span>
                         </TableCell>
 
-                        <TableCell>{moment(submission.updated_at).fromNow()}</TableCell>
                         <TableCell>
-                          <Link href={`/classroom/${cid}/exam/${eid}/evaluate/${submission.id}`}>
+                          {moment(submission.updated_at).fromNow()}
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            href={`/classroom/${cid}/exam/${eid}/evaluate/${submission.id}`}
+                          >
                             <Button
                               variant="text"
                               className="bg-primary-500 text-background rounded-lg font-medium w-full py-2"
