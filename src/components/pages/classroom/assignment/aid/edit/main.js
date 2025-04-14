@@ -6,8 +6,16 @@ import { Icon } from "@iconify/react";
 import { redirect } from "next/navigation";
 import MemberSelector from "./member-selector";
 import Loading from "@components/common/loading";
+import { useRouter } from "nextjs-toploader/app";
 import TinyEditor from "@components/common/editor";
-import { Input, Button, Select, SelectItem, Alert, DatePicker } from "@heroui/react";
+import {
+  Input,
+  Button,
+  Select,
+  SelectItem,
+  Alert,
+  DatePicker,
+} from "@heroui/react";
 
 import {
   CalendarDateTime,
@@ -25,6 +33,7 @@ import { FileUploader } from "react-drag-drop-files";
 import NotFoundPage from "@app/not-found";
 
 export default function AssignmentEditMainComponent({ cid, aid, user }) {
+  const router = useRouter();
   const imageTypes = ["JPEG", "JPG", "PNG", "GIF"];
 
   const editorRef = React.useRef(null);
@@ -92,11 +101,15 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
         formData.append("image", tempFile);
 
         // post form data image
-        const response = await axios.post("/api/proxy/upload/posts/image", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        const response = await axios.post(
+          "/api/proxy/upload/posts/image",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
         let fileSize;
 
@@ -137,11 +150,15 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
         formData.append("file", tempFile);
 
         // post form data image
-        const response = await axios.post("/api/proxy/upload/posts/file", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        const response = await axios.post(
+          "/api/proxy/upload/posts/file",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
         let fileSize;
 
@@ -247,7 +264,10 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
         setSuccess("Assignment updated successfully.");
 
         // redirect the user to the note
-        window.location.href = `/classroom/${cid}/assignment/${data.update_assignments_by_pk.id}`;
+        // window.location.href = `/classroom/${cid}/assignment/${data.update_assignments_by_pk.id}`;
+        router.push(
+          `/classroom/${cid}/assignment/${data.update_assignments_by_pk.id}`
+        );
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -267,7 +287,9 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
       setAudience(sub_data_assignment.assignments_by_pk.audience);
 
       // 2025-03-28T16:10:06+00:00 to ISO string
-      const parsedDeadline = parseAbsoluteToLocal(sub_data_assignment.assignments_by_pk.deadline);
+      const parsedDeadline = parseAbsoluteToLocal(
+        sub_data_assignment.assignments_by_pk.deadline
+      );
 
       setDeadline(parsedDeadline);
     }
@@ -321,9 +343,12 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
   if (sub_loading) return <Loading />;
   if (!sub_loading_assignment) {
     // current user
-    const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find((cr) => cr.user.id === user.sub);
+    const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find(
+      (cr) => cr.user.id === user.sub
+    );
     if (!sub_data_assignment?.assignments_by_pk) return <NotFoundPage />;
-    if (currentUser?.role !== "owner" && currentUser?.role !== "teacher") return <NotFoundPage />;
+    if (currentUser?.role !== "owner" && currentUser?.role !== "teacher")
+      return <NotFoundPage />;
   }
 
   return (
@@ -340,7 +365,14 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
           />
         )}
 
-        {success && <Alert color="success" className="mb-5" title={success} onClose={() => setSuccess(null)} />}
+        {success && (
+          <Alert
+            color="success"
+            className="mb-5"
+            title={success}
+            onClose={() => setSuccess(null)}
+          />
+        )}
 
         {openPicker && (
           <MemberSelector
@@ -371,7 +403,8 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                   placeholder: "Write your assignment's instructions here...",
                   toolbar:
                     "undo redo | fontselect fontsizeselect | bold italic underline strikethrough | forecolor backcolor | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | link image table codesample emoticons | removeformat",
-                  content_style: "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
+                  content_style:
+                    "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
                   quickbars_insert_toolbar: false,
                   // autosave_ask_before_unload: true,
                   // autosave_interval: "30s",
@@ -417,7 +450,10 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
               />
             ) : (
               <div className="border-2 rounded-xl border-gray-300 h-48 border-dashed grid content-center justify-center">
-                <Icon icon="eos-icons:three-dots-loading" className="text-success-500 text-5xl" />
+                <Icon
+                  icon="eos-icons:three-dots-loading"
+                  className="text-success-500 text-5xl"
+                />
               </div>
             )}
           </div>
@@ -428,7 +464,10 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
               <div className="border-2 border-dashed border-content2 p-5 rounded-lg mb-5">
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
                   {files.map((file, index) => (
-                    <div key={index} className="bg-content2 p-3 rounded-lg flex items-center justify-between w-full">
+                    <div
+                      key={index}
+                      className="bg-content2 p-3 rounded-lg flex items-center justify-between w-full"
+                    >
                       <div className="flex-initial pr-2">
                         <div className="w-24 h-24 grid justify-center content-center border-2 border-default-200 rounded-lg">
                           {file.type === "image" ? (
@@ -438,7 +477,10 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                               className="h-16 w-auto object-cover"
                             />
                           ) : (
-                            <Icon icon="akar-icons:file" className="h-16 w-auto object-cover" />
+                            <Icon
+                              icon="akar-icons:file"
+                              className="h-16 w-auto object-cover"
+                            />
                           )}
                         </div>
                       </div>
@@ -448,11 +490,21 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                         </p>
                       </div>
                       <div className="flex-initial pr-2">
-                        <button className="" onClick={() => handleDeleteFile([file.location])} disabled={deleting}>
+                        <button
+                          className=""
+                          onClick={() => handleDeleteFile([file.location])}
+                          disabled={deleting}
+                        >
                           {deleting ? (
-                            <Icon icon="eos-icons:three-dots-loading" className="text-danger-500 text-xl" />
+                            <Icon
+                              icon="eos-icons:three-dots-loading"
+                              className="text-danger-500 text-xl"
+                            />
                           ) : (
-                            <Icon icon="mingcute:delete-2-fill" className="text-danger-500 text-xl" />
+                            <Icon
+                              icon="mingcute:delete-2-fill"
+                              className="text-danger-500 text-xl"
+                            />
                           )}
                         </button>
                       </div>
@@ -471,7 +523,10 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                     onPress={() => setFilePicker("image")}
                     isIconOnly={true}
                   >
-                    <Icon icon="stash:image-plus-duotone" className="text-3xl" />
+                    <Icon
+                      icon="stash:image-plus-duotone"
+                      className="text-3xl"
+                    />
                   </Button>
                 </div>
                 <div className="flex-initial ml-2">
@@ -497,9 +552,15 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                   className="flex-1  bg-content2 hover:bg-gray-200 dark:hover:bg-neutral-700 p-3 rounded-xl h-full relative cursor-pointer max-h-[55px]"
                   onClick={() => setOpenPicker(true)}
                 >
-                  <label className="text-xs text-gray-600 dark:text-neutral-300 absolute top-2">Audience</label>
+                  <label className="text-xs text-gray-600 dark:text-neutral-300 absolute top-2">
+                    Audience
+                  </label>
                   <p className="text-small pt-3">
-                    {audience.length === 0 ? "Teachers" : audience[0] == "*" ? "All" : "Custom"}
+                    {audience.length === 0
+                      ? "Teachers"
+                      : audience[0] == "*"
+                      ? "All"
+                      : "Custom"}
                   </p>
                 </div>
               </div>
@@ -558,7 +619,10 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
               filePicker === "file" ? (
                 <div className="">
                   <div className="flex justify-center content-center">
-                    <Icon icon="akar-icons:file" className="h-full w-36 text-default-400 py-5" />
+                    <Icon
+                      icon="akar-icons:file"
+                      className="h-full w-36 text-default-400 py-5"
+                    />
                   </div>
                   <p className="text-center text-xs text-gray-500">
                     {tempFile.name} - {tempFile.size / 1000000}MB
@@ -566,7 +630,11 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                 </div>
               ) : (
                 <div className="flex justify-center content-center">
-                  <img src={tempFilePreview} alt="Profile" className="h-48 w-auto object-cover rounded-lg" />
+                  <img
+                    src={tempFilePreview}
+                    alt="Profile"
+                    className="h-48 w-auto object-cover rounded-lg"
+                  />
                 </div>
               )
             ) : (
@@ -578,9 +646,14 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                 overRide
               >
                 <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8 mb-2">
-                  <Icon icon="akar-icons:upload" className="h-8 w-8 text-default-400" />
+                  <Icon
+                    icon="akar-icons:upload"
+                    className="h-8 w-8 text-default-400"
+                  />
                   <p className="text-sm text-default-400">
-                    Drag and drop your {filePicker === "image" ? "image" : "file"} here or click to upload
+                    Drag and drop your{" "}
+                    {filePicker === "image" ? "image" : "file"} here or click to
+                    upload
                   </p>
                 </div>
                 {filePicker === "image" && (
@@ -602,7 +675,14 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
               </FileUploader>
             )}
 
-            {fileError && <Alert className="my-2" color="danger" title="Error" description={fileError} />}
+            {fileError && (
+              <Alert
+                className="my-2"
+                color="danger"
+                title="Error"
+                description={fileError}
+              />
+            )}
 
             <div className="flex justify-end w-full">
               <Button

@@ -1,7 +1,8 @@
 "use client";
 import React from "react";
+import { Icon } from "@iconify/react";
 import NotFoundPage from "@app/not-found";
-import ReactDomServer from "react-dom/server";
+import { useRouter } from "nextjs-toploader/app";
 import Loading from "@components/common/loading";
 import TinyEditor from "@components/common/editor";
 import { Input, Button, Select, SelectItem, Alert } from "@heroui/react";
@@ -11,9 +12,10 @@ import { GET_NOTE, GET_CLASSROOM_NAMES } from "@graphql/queries";
 import { useQuery, useMutation } from "@apollo/client";
 
 export default function NoteEditMainComponent({ user, id }) {
+  const router = useRouter();
   const editorRef = React.useRef(null);
   const [title, setTitle] = React.useState("");
-  const [content, setContent] = React.useState(undefined);
+  const [content, setContent] = React.useState("loading...........");
   const [classrooms, setClassrooms] = React.useState([]);
 
   const [error, setError] = React.useState(null);
@@ -61,12 +63,13 @@ export default function NoteEditMainComponent({ user, id }) {
 
       if (data.editNote.status === "success") {
         setSuccess(data.editNote.message);
-        setTitle("");
-        setContent("");
-        setClassrooms([]);
+        // setTitle("");
+        // setContent("");
+        // setClassrooms([]);
 
         // redirect the user to the note
-        window.location.href = `/note/${data.editNote.id}`;
+        // window.location.href = `/note/${data.editNote.id}`;
+        router.push(`/note/${data.editNote.id}`);
       } else {
         setError(data.editNote.message);
       }
@@ -106,7 +109,11 @@ export default function NoteEditMainComponent({ user, id }) {
     if (noteData?.notes_by_pk) {
       setTitle(noteData.notes_by_pk.title);
       setContent(noteData.notes_by_pk.content);
-      setClassrooms(noteData.notes_by_pk.classroom_notes.map(({ classroom }) => classroom.id));
+      setClassrooms(
+        noteData.notes_by_pk.classroom_notes.map(
+          ({ classroom }) => classroom.id
+        )
+      );
     }
   }, [noteData]);
 
@@ -126,13 +133,25 @@ export default function NoteEditMainComponent({ user, id }) {
         />
       )}
 
-      {success && <Alert color="success" className="mb-5" title={success} onClose={() => setSuccess(null)} />}
+      {success && (
+        <Alert
+          color="success"
+          className="mb-5"
+          title={success}
+          onClose={() => setSuccess(null)}
+        />
+      )}
       <div>
         <div className="my-4">
-          <Input label="Note Title" className="w-full" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Input
+            label="Note Title"
+            className="w-full"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </div>
         <div>
-          {noteData.notes_by_pk.content && (
+          {content !== "loading..........." ? (
             <TinyEditor
               onInit={(evt, editor) => (editorRef.current = editor)}
               init={{
@@ -141,7 +160,8 @@ export default function NoteEditMainComponent({ user, id }) {
                 branding: false,
                 toolbar:
                   "undo redo | fontselect fontsizeselect | bold italic underline strikethrough | forecolor backcolor | tiny_mce_wiris_formulaEditor tiny_mce_wiris_formulaEditorChemistry | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | link image table codesample emoticons | removeformat",
-                content_style: "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
+                content_style:
+                  "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
                 // autosave_ask_before_unload: true,
                 // autosave_interval: "30s",
                 // autosave_prefix: "classigoo-note-autosave-{path}{query}-{id}-",
@@ -180,6 +200,13 @@ export default function NoteEditMainComponent({ user, id }) {
               // onChange={(content) => void 0}
               suppressHydrationWarning
             />
+          ) : (
+            <div className="border-2 rounded-xl border-gray-300 h-48 border-dashed grid content-center justify-center">
+              <Icon
+                icon="eos-icons:three-dots-loading"
+                className="text-success-500 text-5xl"
+              />
+            </div>
           )}
         </div>
         <div className="my-5 flex flex-col lg:flex-row gap-5">

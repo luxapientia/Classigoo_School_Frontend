@@ -4,15 +4,27 @@ import React from "react";
 import moment from "moment";
 import DOMPurify from "dompurify";
 import { Icon } from "@iconify/react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import MemberSelector from "./member-selector";
+import { useRouter } from "nextjs-toploader/app";
 import Loading from "@components/common/loading";
 import TinyEditor from "@components/common/editor";
 import QuestionBuilder from "./question-builder";
 import QuestionUpdater from "./question-updater";
-import { Input, Button, Select, SelectItem, Alert, DatePicker } from "@heroui/react";
+import {
+  Input,
+  Button,
+  Select,
+  SelectItem,
+  Alert,
+  DatePicker,
+} from "@heroui/react";
 
-import { now, getLocalTimeZone, parseAbsoluteToLocal } from "@internationalized/date";
+import {
+  now,
+  getLocalTimeZone,
+  parseAbsoluteToLocal,
+} from "@internationalized/date";
 
 import { UPDATE_EXAM } from "@graphql/mutations";
 import { SUB_GET_EXAM } from "@graphql/subscriptions";
@@ -71,7 +83,9 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
 
   // current user
   const currentUser = user.sub;
-  const userRole = sub_data?.classrooms_by_pk?.classroom_relation.find((m) => m.user.id === currentUser)?.role;
+  const userRole = sub_data?.classrooms_by_pk?.classroom_relation.find(
+    (m) => m.user.id === currentUser
+  )?.role;
 
   // check if user is a student
   if (userRole === "student") return <NotFoundPage />;
@@ -192,15 +206,27 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
     console.log(exam_data);
     if (exam_data) {
       setTitle(exam_data.exams_by_pk.title ? exam_data.exams_by_pk.title : "");
-      setContent(exam_data.exams_by_pk.content ? exam_data.exams_by_pk.content : "");
-      setAudience(exam_data.exams_by_pk.audience?.length > 0 ? exam_data.exams_by_pk.audience : []);
-      setDuration(exam_data.exams_by_pk.duration ? exam_data.exams_by_pk.duration : 0);
+      setContent(
+        exam_data.exams_by_pk.content ? exam_data.exams_by_pk.content : ""
+      );
+      setAudience(
+        exam_data.exams_by_pk.audience?.length > 0
+          ? exam_data.exams_by_pk.audience
+          : []
+      );
+      setDuration(
+        exam_data.exams_by_pk.duration ? exam_data.exams_by_pk.duration : 0
+      );
       setStartAt(
         exam_data.exams_by_pk.start_once
           ? parseAbsoluteToLocal(exam_data.exams_by_pk.start_once)
           : now(getLocalTimeZone())
       );
-      setQuestions(exam_data?.exams_by_pk?.questions?.length > 0 ? exam_data.exams_by_pk.questions : []);
+      setQuestions(
+        exam_data?.exams_by_pk?.questions?.length > 0
+          ? exam_data.exams_by_pk.questions
+          : []
+      );
 
       if (exam_data.exams_by_pk.start_once) {
         setDStart("yes");
@@ -251,7 +277,14 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
           />
         )}
 
-        {success && <Alert color="success" className="mb-5" title={success} onClose={() => setSuccess(null)} />}
+        {success && (
+          <Alert
+            color="success"
+            className="mb-5"
+            title={success}
+            onClose={() => setSuccess(null)}
+          />
+        )}
 
         {openPicker && (
           <MemberSelector
@@ -264,7 +297,12 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
         )}
         <div>
           <div className="my-4">
-            <Input label="Exam Title" className="w-full" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <Input
+              label="Exam Title"
+              className="w-full"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
           </div>
           <div>
             {content !== "loading....." && (
@@ -279,7 +317,8 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
                   height: 750,
                   autoresize_bottom_margin: 50,
                   placeholder: "Write your exam details here...",
-                  content_style: "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
+                  content_style:
+                    "body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; }",
                   // autosave_ask_before_unload: true,
                   // autosave_interval: "30s",
                   // autosave_prefix: "classigoo-note-autosave-{path}{query}-{id}-",
@@ -317,7 +356,10 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
               {questions.length > 0 ? (
                 <div className="div">
                   {questions.map((question, index) => (
-                    <div key={index} className="my-5 bg-content2 p-5 rounded-xl relative pb-14 lg:pb-5">
+                    <div
+                      key={index}
+                      className="my-5 bg-content2 p-5 rounded-xl relative pb-14 lg:pb-5"
+                    >
                       <div>
                         <div className="lg:flex justify-between items-center mb-2 ">
                           <p className="text-base font-exo font-medium text-gray-500 dark:text-neutral-300">
@@ -329,18 +371,28 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
                               variant="text"
                               disableAnimation={true}
                               className="bg-gray-200 dark:bg-neutral-700 rounded-lg font-medium w-10"
-                              onPress={() => handleQuestionIndexChange(index, -1)}
+                              onPress={() =>
+                                handleQuestionIndexChange(index, -1)
+                              }
                             >
-                              <Icon icon="akar-icons:arrow-up" className="text-lg" />
+                              <Icon
+                                icon="akar-icons:arrow-up"
+                                className="text-lg"
+                              />
                             </Button>
                             <Button
                               isIconOnly
                               variant="text"
                               disableAnimation={true}
                               className="bg-gray-200 dark:bg-neutral-700 rounded-lg font-medium w-10"
-                              onPress={() => handleQuestionIndexChange(index, 1)}
+                              onPress={() =>
+                                handleQuestionIndexChange(index, 1)
+                              }
                             >
-                              <Icon icon="akar-icons:arrow-down" className="text-lg" />
+                              <Icon
+                                icon="akar-icons:arrow-down"
+                                className="text-lg"
+                              />
                             </Button>
                             <Button
                               isIconOnly
@@ -349,7 +401,10 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
                               className="bg-gray-200 dark:bg-neutral-700 rounded-lg font-medium w-10"
                               onPress={() => setOpenQUpdater(index)}
                             >
-                              <Icon icon="akar-icons:edit" className="text-lg" />
+                              <Icon
+                                icon="akar-icons:edit"
+                                className="text-lg"
+                              />
                             </Button>
                             <Button
                               isIconOnly
@@ -358,7 +413,10 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
                               className="bg-gray-200 dark:bg-neutral-700 rounded-lg font-medium w-10"
                               onPress={() => handleRemoveQuestion(index)}
                             >
-                              <Icon icon="akar-icons:trash-can" className="text-lg" />
+                              <Icon
+                                icon="akar-icons:trash-can"
+                                className="text-lg"
+                              />
                             </Button>
                           </div>
                         </div>
@@ -375,15 +433,20 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
                         <div className="">
                           <div className="flex flex-col lg:flex-row flex-1 gap-2 font-exo text-sm">
                             <p className="border-2 border-gray-300 dark:border-neutral-800 px-3 py-2 rounded-lg border-dotted">
-                              <span className="font-medium">Question Type:</span> {question.question_type}
+                              <span className="font-medium">
+                                Question Type:
+                              </span>{" "}
+                              {question.question_type}
                             </p>
 
                             <p className="border-2 border-gray-300 dark:border-neutral-800 px-3 py-2 rounded-lg border-dotted">
-                              <span className="font-medium">Points:</span> {question.points}
+                              <span className="font-medium">Points:</span>{" "}
+                              {question.points}
                             </p>
 
                             <p className="border-2 border-gray-300 dark:border-neutral-800 px-3 py-2 rounded-lg border-dotted">
-                              <span className="font-medium">Answer Type:</span> {question.answer_type}
+                              <span className="font-medium">Answer Type:</span>{" "}
+                              {question.answer_type}
                             </p>
                           </div>
                           {question.question_type === "objective" && (
@@ -396,10 +459,17 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
                                   {question.options.map((option, i) => (
                                     <li key={i} className="flex gap-2">
                                       <p>
-                                        <span className="font-medium pr-2">{i + 1})</span>
+                                        <span className="font-medium pr-2">
+                                          {i + 1})
+                                        </span>
                                         {option}
                                       </p>
-                                      {option.is_correct && <Icon icon="akar-icons:check" className="text-green-500" />}
+                                      {option.is_correct && (
+                                        <Icon
+                                          icon="akar-icons:check"
+                                          className="text-green-500"
+                                        />
+                                      )}
                                     </li>
                                   ))}
                                 </ol>
@@ -407,11 +477,16 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
                               <div className="mt-5">
                                 <h3 className="text-sm font-medium">
                                   <span className="font-medium">
-                                    {question.answer_type === "single" ? "Correct Option" : "Correct Options"}:
+                                    {question.answer_type === "single"
+                                      ? "Correct Option"
+                                      : "Correct Options"}
+                                    :
                                   </span>
                                 </h3>
                                 <p className="mt-1 list-decimal flex gap-2">
-                                  {question.answer_type === "single" ? question.answer : question.answer.join(", ")}
+                                  {question.answer_type === "single"
+                                    ? question.answer
+                                    : question.answer.join(", ")}
                                 </p>
                               </div>
                             </>
@@ -425,7 +500,8 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
                 <div>
                   <p className="text-lg font-bold">No Questions Added</p>
                   <p className="text-sm text-gray-500 dark:text-neutral-300">
-                    Click the button below to add questions to the exam. You can add multiple questions to the exam.
+                    Click the button below to add questions to the exam. You can
+                    add multiple questions to the exam.
                   </p>
                 </div>
               )}
@@ -449,9 +525,15 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
                 className="flex-1  bg-content2 hover:bg-gray-200 dark:hover:bg-neutral-700 p-3 rounded-xl h-full relative cursor-pointer max-h-[55px]"
                 onClick={() => setOpenPicker(true)}
               >
-                <label className="text-xs text-gray-600 dark:text-neutral-300 absolute top-2">Audience</label>
+                <label className="text-xs text-gray-600 dark:text-neutral-300 absolute top-2">
+                  Audience
+                </label>
                 <p className="text-small pt-3">
-                  {audience.length === 0 ? "Teachers" : audience[0] == "*" ? "All" : "Custom"}
+                  {audience.length === 0
+                    ? "Teachers"
+                    : audience[0] == "*"
+                    ? "All"
+                    : "Custom"}
                 </p>
               </div>
             </div>
@@ -558,7 +640,10 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
       </div>
 
       {openQBuilder && (
-        <QuestionBuilder addQuestion={handleAddQuestion} cancleQuestion={() => setOpenQBuilder(false)} />
+        <QuestionBuilder
+          addQuestion={handleAddQuestion}
+          cancleQuestion={() => setOpenQBuilder(false)}
+        />
       )}
 
       {openQUpdater !== false && (
