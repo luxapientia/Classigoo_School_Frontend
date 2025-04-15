@@ -51,7 +51,10 @@ export default function ClassroomHomeEditor({
   return (
     <>
       {!writting ? (
-        <div className="p-5 shadow-lg rounded-2xl dark:bg-gray-800 cursor-pointer" onClick={() => setWritting(true)}>
+        <div
+          className="p-5 shadow-lg rounded-2xl dark:bg-gray-800 cursor-pointer"
+          onClick={() => setWritting(true)}
+        >
           <div className="flex">
             <div className="flex-initial">
               <Avatar
@@ -68,7 +71,10 @@ export default function ClassroomHomeEditor({
               </h4>
             </div>
             <div className="flex-initial grid content-center">
-              <Icon icon="akar-icons:edit" className="w-6 h-6 text-gray-700 dark:text-gray-200 cursor-pointer" />
+              <Icon
+                icon="akar-icons:edit"
+                className="w-6 h-6 text-gray-700 dark:text-gray-200 cursor-pointer"
+              />
             </div>
           </div>
         </div>
@@ -81,8 +87,10 @@ export default function ClassroomHomeEditor({
             onInit={(evt, editor) => (editorRef.current = editor)}
             init={{
               menubar: false,
-              toolbar: "bold italic underline | bullist numlist | link image | removeformat",
+              toolbar:
+                "bold italic underline | bullist numlist | link image | removeformat",
               toolbar_location: "bottom",
+              quickbars_insert_toolbar: false,
               height: 200,
               autoresize_bottom_margin: 50,
             }}
@@ -99,11 +107,19 @@ export default function ClassroomHomeEditor({
                     className="flex relative w-full bg-content2 rounded-xl overflow-hidden border-3 dark:border-gray-700"
                   >
                     <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 grid justify-center content-center flex-initial">
-                      <img src={`${process.env.CLASSROOM_CDN_URL}/${file.location}`} className="w-full h-full" alt="" />
+                      <img
+                        src={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
+                        className="w-full h-full"
+                        alt=""
+                      />
                     </div>
                     <div className="flex-auto px-5 py-4 h-full">
-                      <p className="text-sm text-gray-700 dark:text-gray-200">{file.name}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-300 mt-2">{file?.size}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-200">
+                        {file.name}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300 mt-2">
+                        {file?.size}
+                      </p>
                     </div>
                     <div className="flex-initial">
                       <Button
@@ -112,7 +128,12 @@ export default function ClassroomHomeEditor({
                         onPress={() => handleRemoveFile([file.location])}
                         isLoading={deleting}
                       >
-                        {!deleting && <Icon icon="line-md:close" className="text-gray-500 w-6 h-6" />}
+                        {!deleting && (
+                          <Icon
+                            icon="line-md:close"
+                            className="text-gray-500 w-6 h-6"
+                          />
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -124,11 +145,18 @@ export default function ClassroomHomeEditor({
                     className="flex relative w-full bg-content2 rounded-xl overflow-hidden border-3 dark:border-gray-700"
                   >
                     <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 grid justify-center content-center flex-initial">
-                      <Icon icon="tabler:file" className="w-8 h-8 text-gray-800 dark:text-gray-200" />
+                      <Icon
+                        icon="tabler:file"
+                        className="w-8 h-8 text-gray-800 dark:text-gray-200"
+                      />
                     </div>
                     <div className="flex-auto px-5 py-4 h-full">
-                      <p className="text-sm text-gray-700 dark:text-gray-200">{file.name}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-300 mt-2">{file?.size}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-200">
+                        {file.name}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300 mt-2">
+                        {file?.size}
+                      </p>
                     </div>
                     <div className="flex-initial">
                       <Button
@@ -137,7 +165,12 @@ export default function ClassroomHomeEditor({
                         onPress={() => handleRemoveFile([file.location])}
                         isLoading={deleting}
                       >
-                        {!deleting && <Icon icon="line-md:close" className="text-gray-500 w-6 h-6" />}
+                        {!deleting && (
+                          <Icon
+                            icon="line-md:close"
+                            className="text-gray-500 w-6 h-6"
+                          />
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -151,7 +184,10 @@ export default function ClassroomHomeEditor({
               className="w-12 h-12 bg-gray-200 hover:outline-2 hover:outline-gray-700 text-sm rounded-full p-0 min-w-0"
               onPress={() => setFilePicker("image")}
             >
-              <Icon icon="tabler:photo-plus" className="w-6 h-6 text-gray-800" />
+              <Icon
+                icon="tabler:photo-plus"
+                className="w-6 h-6 text-gray-800"
+              />
             </Button>
             <Button
               variant="text"
@@ -179,9 +215,15 @@ export default function ClassroomHomeEditor({
                 className="flex-1  bg-content2 hover:bg-gray-200 dark:hover:bg-neutral-700 p-3 rounded-xl h-full relative cursor-pointer"
                 onClick={() => setOpenPicker(true)}
               >
-                <label className="text-xs text-gray-600 dark:text-neutral-300 absolute top-2">Audience</label>
+                <label className="text-xs text-gray-600 dark:text-neutral-300 absolute top-2">
+                  Audience
+                </label>
                 <p className="text-small pt-3">
-                  {audience.length === 0 ? "Teachers" : audience[0] == "*" ? "All" : "Custom"}
+                  {audience.length === 0
+                    ? "Teachers"
+                    : audience[0] == "*"
+                    ? "All"
+                    : "Custom"}
                 </p>
               </div>
             </div>

@@ -86,8 +86,10 @@ export default function TinyEditor(props) {
         promotion: false,
         branding: false,
         highlight_on_focus: false,
-        skin: theme === "dark" ? "oxide-dark" : "oxide",
-        content_css: theme === "dark" ? "dark" : "default",
+        // skin: theme === "dark" ? "oxide-dark" : "oxide",
+        // content_css: theme === "dark" ? "dark" : "default",
+        skin: "oxide",
+        content_css: "default",
         ...props.init,
       }}
       value={props?.value}
