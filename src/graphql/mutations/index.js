@@ -23,6 +23,7 @@ import UPDATE_CLASSROOM from "./updateClassroom";
 import DELETE_CLASSROOM from "./deleteClassroom";
 import CREATE_ASSIGNMENT from "./createAssignment";
 import DELETE_ASSIGNMENT from "./deleteAssignment";
+import CHAT_WITH_AI_BUDDY from "./chatWithAIBuddy";
 import ACCEPT_CHILD_CLAIM from "./acceptChildClaim";
 import DELETE_CHILD_CLAIM from "./deleteChildClaim";
 import CREATE_SUBSCRIPTION from "./createSubscription";
@@ -31,12 +32,14 @@ import UPDATE_MY_SUBMISSION from "./updateMySubmission";
 import CREATE_CLASSROOM_POST from "./createClassroomPost";
 import INVITE_CLASSROOM_MEMBER from "./inviteClassroomMember";
 import REMOVE_CLASSROOM_MEMBER from "./removeClassroomMember";
+import RETRIEVE_AI_BUDDY_HISTORY from "./retrieveAIBuddyHistroy";
 import ADD_EXAM_SUBMISSION_ENTRY from "./addExamSubmissionEntry";
 import CHANGE_CLASSROOM_USER_ROLE from "./changeClassroomUserRole";
 import ENABLE_CLASSROOM_INVITATION from "./enableClassroomInvitation";
 import DISABLE_CLASSROOM_INVITATION from "./disableClassroomInvitation";
 import CREATE_ASSIGNMENT_SUBMISSION from "./createAssignmentSubmission";
 import UPDATE_ASSIGNMENT_SUBMISSION from "./updateAssignmentSubmission";
+import RETRIEVE_SINGLE_AI_BUDDY_CHAT from "./retrieveSingleAIBuddyChat";
 import UPDATE_EXAM_SUBMISSION_MARKINGS from "./updateExamSubmissionMarkings";
 
 export {
@@ -65,6 +68,7 @@ export {
   DELETE_CLASSROOM,
   CREATE_ASSIGNMENT,
   DELETE_ASSIGNMENT,
+  CHAT_WITH_AI_BUDDY,
   ACCEPT_CHILD_CLAIM,
   DELETE_CHILD_CLAIM,
   CREATE_SUBSCRIPTION,
@@ -73,11 +77,13 @@ export {
   CREATE_CLASSROOM_POST,
   INVITE_CLASSROOM_MEMBER,
   REMOVE_CLASSROOM_MEMBER,
+  RETRIEVE_AI_BUDDY_HISTORY,
   ADD_EXAM_SUBMISSION_ENTRY,
   CHANGE_CLASSROOM_USER_ROLE,
   ENABLE_CLASSROOM_INVITATION,
   DISABLE_CLASSROOM_INVITATION,
   CREATE_ASSIGNMENT_SUBMISSION,
   UPDATE_ASSIGNMENT_SUBMISSION,
+  RETRIEVE_SINGLE_AI_BUDDY_CHAT,
   UPDATE_EXAM_SUBMISSION_MARKINGS,
 };

@@ -2,5 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
+@layer components {
+  .prose hr {
+    margin-top: 0.5rem; /* or any value you want */
+    margin-bottom: 0.5rem;
+  }
+}

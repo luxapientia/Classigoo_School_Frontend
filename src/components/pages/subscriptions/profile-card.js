@@ -24,7 +24,7 @@ export default function ProfileCard({ user, manageable }) {
   const handleCreateSubscription = React.useCallback(
     async (e) => {
       try {
-        e.preventDefault();
+        // e.preventDefault();
         setLoading(true);
         if (!user.is_plus) {
           const { data } = await createSubscription({
@@ -109,7 +109,7 @@ export default function ProfileCard({ user, manageable }) {
                 variant="text"
                 radius="none"
                 isLoading={loading}
-                onPress={handleManageSubscription}
+                onClick={handleManageSubscription}
                 className={`mt-4 px-4 py-2 text-white bg-primary w-full sm:w-auto`}
                 isDisabled={!manageable}
               >
@@ -120,7 +120,7 @@ export default function ProfileCard({ user, manageable }) {
                 variant="text"
                 radius="none"
                 isLoading={loading}
-                onPress={() => setShowModal(true)}
+                onClick={() => setShowModal(true)}
                 className={`mt-4 px-4 py-2 text-white bg-black w-full sm:w-auto`}
                 isDisabled={!manageable}
               >

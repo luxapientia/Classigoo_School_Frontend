@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
       </head>
       <body
         className={clsx(
-          "min-h-screen dark:bg-gray-900 bg-white antialiased font-poppins"
+          "min-h-screen dark:bg-gray-900 bg-white antialiased font-poppins overflow-hidden"
         )}
         suppressHydrationWarning
       >
