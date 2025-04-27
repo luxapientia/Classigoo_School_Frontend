@@ -30,6 +30,7 @@ import CREATE_SUBSCRIPTION from "./createSubscription";
 import MANAGE_SUBSCRIPTION from "./manageSubscription";
 import UPDATE_MY_SUBMISSION from "./updateMySubmission";
 import CREATE_CLASSROOM_POST from "./createClassroomPost";
+import RETRIEVE_AI_CHAT_SEARCH from "./retrieveAIChatSearch";
 import INVITE_CLASSROOM_MEMBER from "./inviteClassroomMember";
 import REMOVE_CLASSROOM_MEMBER from "./removeClassroomMember";
 import RETRIEVE_AI_BUDDY_HISTORY from "./retrieveAIBuddyHistroy";
@@ -75,6 +76,7 @@ export {
   MANAGE_SUBSCRIPTION,
   UPDATE_MY_SUBMISSION,
   CREATE_CLASSROOM_POST,
+  RETRIEVE_AI_CHAT_SEARCH,
   INVITE_CLASSROOM_MEMBER,
   REMOVE_CLASSROOM_MEMBER,
   RETRIEVE_AI_BUDDY_HISTORY,

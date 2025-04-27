@@ -145,11 +145,11 @@ export default function PhysicsMainComponent({ user }) {
           <p className="text-center text-neutral-800 dark:text-neutral-100 font-medium text-xs">
             You need to subscribe to classigoo plus to use this feature.
           </p>
-          <Link href="/account/subscribe">
+          <Link href="/subscriptions">
             <Button
               variant="text"
               className="mt-4 px-4 py-2 text-white bg-black w-full sm:w-auto"
-              onClick={() => router.push("/subscriptions")}
+              // onClick={() => router.push("/subscriptions")}
             >
               Subscribe Now
             </Button>

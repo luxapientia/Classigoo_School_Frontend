@@ -188,8 +188,11 @@ export default function PhysicsSingleMainComponent({ user, id }) {
         </div>
       ) : (
         <div className="flex flex-col overflow-hidden items-center h-full">
-          <div className="flex-auto basis-0 overflow-hidden w-full">
-            <div ref={chatRef} className="h-full overflow-y-auto">
+          <div className="flex-auto basis-0 overflow-hidden w-full max-w-[calc(100vw_-_10px)]">
+            <div
+              ref={chatRef}
+              className="h-full overflow-y-auto overflow-x-auto"
+            >
               {chatHistory.map((chat, index) => (
                 <div
                   key={index}
@@ -237,60 +240,61 @@ export default function PhysicsSingleMainComponent({ user, id }) {
                   {error}
                 </div>
               )}
-              <Textarea
-                variant="solid"
-                placeholder="Ask me anything about physics..."
-                rounded="md"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                classNames={{
-                  inputWrapper:
-                    "bg-gray-200 dark:bg-neutral-800 focus:bg-gray-200 dark:bg-neutral-800",
-                }}
-                rows={4}
-                maxRows={6}
-              />
-              <Button
-                variant="text"
-                className="text-black dark:text-white bg-white dark:bg-neutral-900 sm:w-auto absolute right-1 bottom-1 rounded-full"
-                rounded="full"
-                size="sm"
-                isIconOnly
-                isLoading={loading}
-                onClick={sendMessage}
-              >
-                <Icon
-                  icon="mynaui:send-solid"
-                  className="text-black dark:text-white"
-                  width="20"
-                  height="20"
-                />
-              </Button>
+
+              {user_data?.users_by_pk?.is_plus ? (
+                <React.Fragment>
+                  <Textarea
+                    variant="solid"
+                    placeholder="Ask me anything about physics..."
+                    rounded="md"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    classNames={{
+                      inputWrapper:
+                        "bg-gray-200 dark:bg-neutral-800 focus:bg-gray-200 dark:bg-neutral-800",
+                    }}
+                    rows={4}
+                    maxRows={6}
+                  />
+                  <Button
+                    variant="text"
+                    className="text-black dark:text-white bg-white dark:bg-neutral-900 sm:w-auto absolute right-1 bottom-1 rounded-full"
+                    rounded="full"
+                    size="sm"
+                    isIconOnly
+                    isLoading={loading}
+                    onClick={sendMessage}
+                  >
+                    <Icon
+                      icon="mynaui:send-solid"
+                      className="text-black dark:text-white"
+                      width="20"
+                      height="20"
+                    />
+                  </Button>
+                </React.Fragment>
+              ) : (
+                <div className="w-full bg-yellow-500/10 border-yellow-400 border text-xs mb-2 text-black dark:text-white p-2 rounded-md justify-center flex flex-col items-center">
+                  <p>
+                    You are using a free account. Please upgrade to Plus to
+                    unlock this feature.
+                  </p>
+                  <Link href="/subscriptions">
+                    <Button
+                      variant="text"
+                      className="mt-2 px-4 py-2 text-white bg-black w-full sm:w-auto
+                      rounded-full"
+                      // onClick={() => router.push("/settings/billing")}
+                    >
+                      Upgrade to Plus
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
-      {/* {user_data?.users_by_pk?.is_plus ? (
-        ""
-      ) : (
-        <div className="flex flex-col items-center justify-center h-full">
-          <h1 className="text-center text-neutral-800 dark:text-neutral-100 font-bold text-lg">
-            Oops! You found a premium feature!
-          </h1>
-          <p className="text-center text-neutral-800 dark:text-neutral-100 font-medium text-xs">
-            You need to subscribe to classigoo plus to use this feature.
-          </p>
-          <Link href="/account/subscribe">
-            <Button
-              variant="text"
-              className="mt-4 px-4 py-2 text-white bg-black w-full sm:w-auto"
-              onClick={() => router.push("/subscriptions")}
-            >
-              Subscribe Now
-            </Button>
-          </Link>
-        </div>
-      )} */}
     </PhysicsLayoutComponent>
   );
 }
