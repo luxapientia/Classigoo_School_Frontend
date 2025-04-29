@@ -1,13 +1,14 @@
 import { auth0 } from "@lib/auth0";
 import { redirect } from "next/navigation";
-import MathMainComponent from "@components/pages/buddy/math/main";
+import MathSingleMainComponent from "@components/pages/buddy/math/id/main";
 
 export const metadata = {
   title: "Math Buddy - Classigoo",
   description: "Your AI Math Study Buddy",
 };
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ params }) {
+  const { id } = await params;
   const session = await auth0.getSession();
 
   if (!session) {
@@ -16,7 +17,7 @@ export default async function SettingsPage() {
 
   return (
     <>
-      <MathMainComponent user={session.user} />
+      <MathSingleMainComponent user={session.user} id={id} />
     </>
   );
 }
