@@ -11,5 +11,7 @@ export default async function classroomsPage() {
 
   if (!user || (user.status === "error" && user.message === "Unauthorized")) {
     redirect("/api/logout");
+  } else {
+    redirect("/classrooms");
   }
 }

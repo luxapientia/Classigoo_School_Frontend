@@ -1,6 +1,6 @@
-import { auth0 } from "@lib/auth0";
 import { redirect } from "next/navigation";
 import CircuitSimulatorComponent from "@components/pages/tools/circuit-simulator/component";
+import { getUser } from "@lib/auth";
 
 export const metadata = {
   title: "Circuit Simulator - Classigoo",
@@ -8,10 +8,10 @@ export const metadata = {
 };
 
 export default async function CircuitSimulatorPage() {
-  const session = await auth0.getSession();
+  const user = await getUser();
 
-  if (!session) {
-    redirect("/auth/login");
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+    redirect("/api/logout");
   }
 
   return <CircuitSimulatorComponent />;
