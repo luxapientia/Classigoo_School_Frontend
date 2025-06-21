@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios";
 import moment from "moment";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
@@ -8,49 +9,100 @@ import ClassroomLayout from "../layout/layout";
 import { useRouter } from "nextjs-toploader/app";
 import { HeaderSlot } from "@components/layout/header";
 
-import { START_CHAT } from "@graphql/mutations";
-import { useSubscription, useMutation } from "@apollo/client";
-import { SUB_GET_CLASSROOM, SUB_LIST_MESSAGE_RECEIPIENTS } from "@graphql/subscriptions";
+// import { START_CHAT } from "@graphql/mutations";
+// import { useSubscription, useMutation } from "@apollo/client";
+// import { SUB_GET_CLASSROOM, SUB_LIST_MESSAGE_RECEIPIENTS } from "@graphql/subscriptions";
 import Loading from "@components/common/loading";
+import { useSocket } from "@hooks/useSocket";
 
-export default function ClassroomMessagesMain({ id, session }) {
+export default function ClassroomMessagesMain({ id, userInfo }) {
   const router = useRouter();
 
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [messageRecipients, setMessageRecipients] = React.useState([]);
+  const [messageRecipientsLoading, setMessageRecipientsLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
   const [receipients, setReceipients] = React.useState([]);
   const [newRecipients, setNewRecipients] = React.useState([]);
   const [loadingNewConversation, setLoadingNewConversation] = React.useState(false);
 
-  const [startChat] = useMutation(START_CHAT);
+  // const [startChat] = useMutation(START_CHAT);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id },
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id },
+  // });
+
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${id}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [id]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data.id === id) {
+      fetchClassroom();
+    }
   });
 
-  const {
-    data: sub_data_message_receipients,
-    loading: sub_loading_message_receipients,
-    error: sub_error_message_receipients,
-  } = useSubscription(SUB_LIST_MESSAGE_RECEIPIENTS, {
-    variables: { cid: id },
+  // const {
+  //   data: sub_data_message_receipients,
+  //   loading: sub_loading_message_receipients,
+  //   error: sub_error_message_receipients,
+  // } = useSubscription(SUB_LIST_MESSAGE_RECEIPIENTS, {
+  //   variables: { cid: id },
+  // });
+
+  // fetch recipients
+  const fetchMessageRecipients = React.useCallback(async () => {
+    setMessageRecipientsLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/message/recipients/${id}`);
+      setMessageRecipients(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load message recipients");
+    }
+
+    setMessageRecipientsLoading(false);
+  }, [id]);
+
+  React.useEffect(() => {
+    fetchMessageRecipients();
+  }, [fetchMessageRecipients]);
+
+  useSocket("classroom.member.updated", (payload) => {
+    if (payload.data.id === id) {
+      fetchMessageRecipients();
+    }
   });
 
   // Check if the current user is a member of the classroom
-  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find((cr) => cr.user.id === session.user.sub);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user._id === userInfo._id);
 
   React.useEffect(() => {
-    if (sub_data?.classrooms_by_pk && sub_data_message_receipients) {
+    if (classroom && messageRecipients) {
       let r = [];
       let u = [];
 
-      console.log(sub_data_message_receipients);
+      console.log(messageRecipients);
 
       // if type == all then name is Group Name but if single that case there will be 2 users in the array and name will be the name of other user in the array different from the current user
-      sub_data_message_receipients.message_rooms.forEach((mr) => {
+      messageRecipients.forEach((mr) => {
         //all and child only disabled
         if (mr.type === "all") {
           r.push({
@@ -62,11 +114,11 @@ export default function ClassroomMessagesMain({ id, session }) {
           r.push({
             id: mr.id,
             type: mr?.type,
-            name: mr?.users?.find((u) => u?.user?.id !== session?.user?.sub)?.user?.name,
-            image: mr?.users?.find((u) => u?.user?.id !== session?.user?.sub)?.user?.avatar,
-            uid: mr?.users?.find((u) => u?.user?.id !== session?.user?.sub)?.user?.id,
+            name: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.name,
+            image: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.avatar?.url,
+            uid: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.id,
             role:
-              mr?.users?.find((u) => u?.user?.id !== session?.user?.sub)?.user?.role === "student"
+              mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.role === "student"
                 ? "Student"
                 : "Teacher",
           });
@@ -74,14 +126,14 @@ export default function ClassroomMessagesMain({ id, session }) {
       });
 
       // get the users who are not in the receipients list
-      sub_data.classrooms_by_pk.classroom_relation.forEach((cr) => {
-        if (cr.user.id !== session.user.sub) {
-          if (!r.find((rr) => rr.uid === cr.user.id)) {
+      classroom.classroom_relation.forEach((cr) => {
+        if (cr.user._id !== userInfo._id) {
+          if (!r.find((rr) => rr.uid === cr.user._id)) {
             u.push({
-              id: cr.user.id,
+              id: cr.user._id,
               name: cr.user.name,
-              image: cr.user.avatar,
-              role: cr.user.role === "student" ? "Student" : "Teacher",
+              image: cr.user.avatar.url,
+              role: cr.role === "student" ? "Student" : "Teacher",
             });
           }
         }
@@ -90,23 +142,28 @@ export default function ClassroomMessagesMain({ id, session }) {
       setReceipients(r);
       setNewRecipients(u);
     }
-  }, [sub_data_message_receipients, sub_data]);
+  }, [messageRecipients, classroom]);
 
   const handleStartChat = async (uid) => {
     setLoadingNewConversation(true);
     try {
-      const res = await startChat({
-        variables: {
-          uid,
-          cid: id,
-        },
+      // const res = await startChat({
+      //   variables: {
+      //     uid,
+      //     cid: id,
+      //   },
+      // });
+
+      const { data } = await axios.post(`/v1/classroom/message/start-chat`, {
+        with_user: uid,
+        classroom_id: id,
       });
 
-      if (res.data.initiateChat.status === "success") {
+      if (data.status === "success") {
         // redirect to the chat page
-        router.push(`/classroom/${id}/message/${res.data.initiateChat.id}`);
+        router.push(`/classroom/${id}/message/${data.id}`);
       } else {
-        setError(res.data.initiateChat.message);
+        setError(data.message);
       }
     } catch (error) {
       setError(error.message);
@@ -119,8 +176,8 @@ export default function ClassroomMessagesMain({ id, session }) {
     <>
       <ClassroomLayout
         id={id}
-        loading={sub_loading || sub_loading_message_receipients}
-        classroom={sub_data?.classrooms_by_pk}
+        loading={classroomLoading || messageRecipientsLoading}
+        classroom={classroom}
       >
         {/* {(currentUser?.role === "owner" || currentUser?.role === "teacher") && (
           <HeaderSlot>
@@ -162,7 +219,7 @@ export default function ClassroomMessagesMain({ id, session }) {
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
               {receipients.map((r) => {
                 if (r.type === "all") {
-                  if (sub_data?.classrooms_by_pk?.child_only) {
+                  if (classroom?.child_only) {
                     return null;
                   }
                   return (

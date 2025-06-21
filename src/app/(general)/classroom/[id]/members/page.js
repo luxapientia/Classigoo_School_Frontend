@@ -1,6 +1,7 @@
-import { auth0 } from "@lib/auth0";
+import { getUser } from "@lib/auth";
 import { redirect } from "next/navigation";
 import ClassroomMembersMain from "@components/pages/classroom/members/main";
+
 
 export const metadata = {
   title: "Members - Classigoo",
@@ -8,16 +9,16 @@ export const metadata = {
 };
 
 export default async function ClassroomHomePage({ params }) {
-  const session = await auth0.getSession();
+  const user = await getUser();
   const { id } = await params;
 
-  if (!session) {
-    redirect("/auth/login");
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+    redirect("/api/logout");
   }
 
   return (
     <>
-      <ClassroomMembersMain id={id} session={session} />
+      <ClassroomMembersMain id={id} userInfo={user} />
     </>
   );
 }

@@ -1,33 +1,68 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios";
 import moment from "moment";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Tooltip } from "@heroui/react";
 import ClassroomLayout from "../layout/layout";
-import { useSubscription } from "@apollo/client";
-import { SUB_GET_CLASSROOM, SUB_GET_CLASSROOM_NOTES } from "@graphql/subscriptions";
+// import { useSubscription } from "@apollo/client";
+// import { SUB_GET_CLASSROOM, SUB_GET_CLASSROOM_NOTES } from "@graphql/subscriptions";
+import { useSocket } from "@hooks/useSocket";
 
-export default function ClassroomNotesMain({ id, session }) {
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id },
+export default function ClassroomNotesMain({ id, userInfo }) {
+
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id },
+  // });
+
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${id}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [id]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data.id === id) {
+      fetchClassroom();
+    }
   });
 
-  const {
-    data: sub_data_notes,
-    loading: sub_loading_notes,
-    error: sub_error_notes,
-  } = useSubscription(SUB_GET_CLASSROOM_NOTES, {
-    variables: { cid: id },
-  });
+  // const {
+  //   data: sub_data_notes,
+  //   loading: sub_loading_notes,
+  //   error: sub_error_notes,
+  // } = useSubscription(SUB_GET_CLASSROOM_NOTES, {
+  //   variables: { cid: id },
+  // });
+  
+  // Define mock values
+  const sub_data_notes = {
+    notes: []
+  };
+  const sub_loading_notes = false;
 
   return (
     <>
-      <ClassroomLayout id={id} loading={sub_loading || sub_loading_notes} classroom={sub_data?.classrooms_by_pk}>
+      <ClassroomLayout id={id} loading={classroomLoading || sub_loading_notes} classroom={classroom}>
         {sub_data_notes?.notes.length > 0 ? (
           <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
             {sub_data_notes?.notes.map((note) => (

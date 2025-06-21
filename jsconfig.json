@@ -3,6 +3,7 @@
     "baseUrl": "src/",
     "paths": {
       "@components/*": ["components/*"],
+      "@contexts/*": ["contexts/*"],
       "@lib/*": ["lib/*"],
       "@styles/*": ["styles/*"],
       "@utils/*": ["utils/*"],

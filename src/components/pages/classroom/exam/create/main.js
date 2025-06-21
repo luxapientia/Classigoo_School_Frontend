@@ -1,5 +1,5 @@
 "use client";
-import axios from "axios";
+import axios from "@lib/axios";
 import React from "react";
 import moment from "moment";
 import DOMPurify from "dompurify";
@@ -11,18 +11,22 @@ import TinyEditor from "@components/common/editor";
 import QuestionBuilder from "./question-builder";
 import QuestionUpdater from "./question-updater";
 import { Input, Button, Select, SelectItem, Alert, DatePicker } from "@heroui/react";
+import { useSocket } from "@hooks/useSocket";
 
 import { now, getLocalTimeZone } from "@internationalized/date";
 
-import { CREATE_EXAM } from "@graphql/mutations";
-import { GET_CLASSROOM_NAMES } from "@graphql/queries";
-import { SUB_GET_CLASSROOM } from "@graphql/subscriptions";
-import { useQuery, useMutation, useSubscription } from "@apollo/client";
+// import { CREATE_EXAM } from "@graphql/mutations";
+// import { GET_CLASSROOM_NAMES } from "@graphql/queries";
+// import { SUB_GET_CLASSROOM } from "@graphql/subscriptions";
+// import { useQuery, useMutation, useSubscription } from "@apollo/client";
 import NotFoundPage from "@app/not-found";
 
-export default function ExamCreateMainComponent({ id: classId, user }) {
+export default function ExamCreateMainComponent({ classId, userInfo }) {
   const router = useRouter();
   const editorRef = React.useRef(null);
+  
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
   const [questions, setQuestions] = React.useState([]);
@@ -43,24 +47,47 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
   const [openQBuilder, setOpenQBuilder] = React.useState(false);
   const [openQUpdater, setOpenQUpdater] = React.useState(false);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id: classId },
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id: classId },
+  // });
+
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${classId}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [classId]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data.id === classId) {
+      fetchClassroom();
+    }
   });
 
   // initiate mutations
-  const [createExam] = useMutation(CREATE_EXAM);
+  // const [createExam] = useMutation(CREATE_EXAM);
 
   // React.useEffect(() => {
   //   console.log(deadline);
   // }, [deadline]);
 
   // current user
-  const currentUser = user.sub;
-  const userRole = sub_data?.classrooms_by_pk?.classroom_relation.find((m) => m.user.id === currentUser)?.role;
+  const currentUser = userInfo._id;
+  const userRole = classroom?.classroom_relation.find((m) => m.user._id === currentUser)?.role;
 
   // check if user is a student
   if (userRole === "student") return <NotFoundPage />;
@@ -116,24 +143,36 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
         return;
       }
 
-      const { data } = await createExam({
-        variables: {
-          title,
-          content,
-          cid: classId,
-          status,
-          questions,
-          aud: fixedAudience,
-          duration: sDuration === "yes" ? duration : 0,
-          start_once: dStart === "yes" ? fixedStartAt : null,
-        },
+      // const { data } = await createExam({
+      //   variables: {
+      //     title,
+      //     content,
+      //     cid: classId,
+      //     status,
+      //     questions,
+      //     aud: fixedAudience,
+      //     duration: sDuration === "yes" ? duration : 0,
+      //     start_once: dStart === "yes" ? fixedStartAt : null,
+      //   },
+      // });
+
+      const { data: response } = await axios.post("/v1/classroom/exam/create", {
+        title,
+        content,
+        class_id: classId,
+        status,
+        audience: fixedAudience,
+        duration: sDuration === "yes" ? duration : 0,
+        start_once: dStart === "yes" ? fixedStartAt : null,
+        questions,
       });
-      if (data.insert_exams_one) {
+
+      if (response.status === "success") {
         setSuccess("Exam created successfully.");
-        console.log("data", data);
+        // console.log("data", response);
         // redirect(`/classroom/${classId}/exam/${data.insert_exams_one.id}/edit`);
         // window.location.href = `/classroom/${classId}/exam/${data.insert_exams_one.id}/edit`;
-        router.push(`/classroom/${classId}/exam/${data.insert_exams_one.id}`);
+        router.push(`/classroom/${classId}/exam/${response.data._id}`);
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -203,7 +242,7 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
     }
   }, [success]);
 
-  if (sub_loading) return <Loading />;
+  if (classroomLoading) return <Loading />;
 
   return (
     <>
@@ -223,8 +262,8 @@ export default function ExamCreateMainComponent({ id: classId, user }) {
 
         {openPicker && (
           <MemberSelector
-            my_id={user.sub}
-            members={sub_data?.classrooms_by_pk?.classroom_relation}
+            my_id={userInfo._id}
+            members={classroom?.classroom_relation}
             audience={audience}
             setAudience={setAudience}
             setOpenPicker={setOpenPicker}

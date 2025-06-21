@@ -1,18 +1,12 @@
 "use client";
 
 import * as React from "react";
+import axios from "@lib/axios";
 import { cn } from "@heroui/react";
 import countrylist from "./country.json";
 import { Button, Input, Spacer, Select, SelectItem, Alert } from "@heroui/react";
 
-// Apollo
-import { useMutation } from "@apollo/client";
-import { UPDATE_ADDRESS } from "@graphql/mutations";
-
 const AddressSetting = React.forwardRef(({ className, id, address, ...props }, ref) => {
-  // Graphql
-  //-> mutations
-  const [updateAddress] = useMutation(UPDATE_ADDRESS);
 
   // States
   // -> Database values
@@ -67,24 +61,18 @@ const AddressSetting = React.forwardRef(({ className, id, address, ...props }, r
       setUpdating(false);
       return;
     }
-
-    const data = await updateAddress({
-      variables: {
-        id: id,
-        address: {
-          address1,
-          address2,
-          city,
-          zip,
-          country,
-        },
-      },
+    const { data: response } = await axios.put(`/v1/account/address/${id}`, {
+      address1,
+      address2,
+      city,
+      zip,
+      country,
     });
 
     setUpdating(false);
 
-    if (data.data.update_users.affected_rows > 0) {
-      setSuccess("Profile updated successfully.");
+    if (response.status === "success") {
+      setSuccess("Address updated successfully.");
       setTimeout(() => setSuccess(false), 3000);
     } else {
       setError("Something went wrong. Please try again.");

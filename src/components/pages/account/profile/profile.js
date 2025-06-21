@@ -1,6 +1,6 @@
 "use client";
 
-import axios from "axios";
+import axios from "@lib/axios";
 import moment from "moment";
 import * as React from "react";
 import { Icon } from "@iconify/react";
@@ -22,8 +22,6 @@ import {
   Alert,
 } from "@heroui/react";
 
-import { useMutation } from "@apollo/client";
-import { UPDATE_PROFILE } from "@graphql/mutations";
 
 const ProfileSetting = React.forwardRef(
   (
@@ -45,14 +43,10 @@ const ProfileSetting = React.forwardRef(
     // constans
     const fileTypes = ["JPG", "JPEG", "PNG", "GIF"];
 
-    // Graphql
-    //-> mutations
-    const [updateProfile] = useMutation(UPDATE_PROFILE);
-
     // States
     // -> Database values
     const [nameValue, setNameValue] = React.useState(name || "");
-    const [avatarUrl, setAvatarUrl] = React.useState(avatar || "");
+    const [avatarUrl, setAvatarUrl] = React.useState(avatar?.url || "");
     const [emailValue, setEmailValue] = React.useState(email || "");
     const [phoneValue, setPhoneValue] = React.useState(phone || "");
     const [birthdayValue, setBirthdayValue] = React.useState(
@@ -131,25 +125,24 @@ const ProfileSetting = React.forwardRef(
         return;
       }
 
-      const data = await updateProfile({
-        variables: {
-          id,
-          name: nameValue,
-          avatar: avatarUrl,
-          email: emailValue,
-          phone: phoneValue,
-          //  to normal date
-          birthday: moment(
-            `${birthdayValue.year}-${birthdayValue.month}-${birthdayValue.day}`
-          ).format("YYYY-MM-DD"),
-          bio: bioValue,
-          institution: institutionValue,
-        },
+      const { data: response } = await axios.put(`/v1/account/profile/${id}`, {
+        name: nameValue,
+        // avatar: {
+        //   bucketKey: avatar.bucketKey,
+        //   url: avatarUrl,
+        // },
+        email: emailValue,
+        phone: phoneValue,
+        birthday: moment(
+          `${birthdayValue.year}-${birthdayValue.month}-${birthdayValue.day}`
+        ).format("YYYY-MM-DD"),
+        bio: bioValue,
+        institution: institutionValue,
       });
 
       setUpdating(false);
 
-      if (data.data.update_users.affected_rows > 0) {
+      if (response.status === "success") {
         setSuccess("Profile updated successfully.");
         setTimeout(() => setSuccess(false), 3000);
       } else {
@@ -187,17 +180,18 @@ const ProfileSetting = React.forwardRef(
     const handleFileUpload = React.useCallback(async () => {
       setUpdating(true);
       let formData = new FormData();
-      formData.append("profile_picture", profileFile);
+      formData.append("files", profileFile);
+      formData.append("fileFolder", "profile");
 
-      // post form data image
-      const data = await axios.post("/api/proxy/update-profile", formData, {
+      // // post form data image
+      const {data: response} = await axios.post("/v1/account/profile/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      if (data.data.status === "success") {
-        setAvatarUrl(data.data.avatar);
+      if (response.status === "success") {
+        setAvatarUrl(response.avatar.url);
         setSuccess("Profile picture updated successfully.");
         setTimeout(() => setSuccess(false), 3000);
       } else {

@@ -6,10 +6,11 @@ import Image from "next/image";
 import { Icon } from "@iconify/react";
 import menuItems from "./menu-items";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@contexts/AuthContext";
 
 export default function Sidebar() {
   const path = usePathname();
-
+  const { logout } = useAuth();
   const [open, setOpen] = React.useState(null);
   const [toggle, setToggle] = React.useState(false);
 
@@ -27,6 +28,11 @@ export default function Sidebar() {
   const handleToggle = React.useCallback(() => {
     setToggle(!toggle);
   }, [toggle]);
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    logout();
+  };
 
   return (
     <div
@@ -172,13 +178,10 @@ export default function Sidebar() {
                 <li
                   className={`flex-initial px-2 py-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl my-1 font-semibold`}
                 >
-                  {/* <Link href="/auth/logout" className="flex items-center p-3 text-gray-900 dark:text-white">
-                    <span className="flex-initial">
-                      <Icon icon="solar:logout-3-bold-duotone" className="w-5 h-5" />
-                    </span>
-                    <span className={`flex-auto pl-3`}>Logout</span>
-                  </Link> */}
-                  <a href="/auth/logout" className="">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full"
+                  >
                     <div className="flex items-center p-3 text-gray-900 dark:text-white">
                       <span className="flex-initial">
                         <Icon
@@ -186,9 +189,9 @@ export default function Sidebar() {
                           className="w-5 h-5"
                         />
                       </span>
-                      <span className={`flex-auto pl-3`}>Logout</span>
+                      <span className={`flex-auto pl-3 text-left`}>Logout</span>
                     </div>
-                  </a>
+                  </button>
                 </li>
               </ul>
             </nav>

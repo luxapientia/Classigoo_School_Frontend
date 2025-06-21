@@ -1,7 +1,8 @@
 "use client";
 import React from "react";
-import { useSubscription } from "@apollo/client";
-import { SUB_GET_CLASSROOM } from "@graphql/subscriptions";
+import axios from "@lib/axios";
+// import { useSubscription } from "@apollo/client";
+// import { SUB_GET_CLASSROOM } from "@graphql/subscriptions";
 import ClassroomLayout from "../layout/layout";
 import InviteMemberBlock from "./invite-block";
 import MembersTable from "./table-block";
@@ -11,9 +12,12 @@ import { CHANGE_CLASSROOM_USER_ROLE, REMOVE_CLASSROOM_MEMBER, INVITE_CLASSROOM_M
 import { Alert } from "@heroui/react";
 import RemoveMember from "./remove-action";
 import InvitationCard from "./invite-action";
+import { useSocket } from "@hooks/useSocket";
 
-export default function ClassroomMembersMain({ id, session }) {
+export default function ClassroomMembersMain({ id, userInfo }) {
   // states
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
   const [changeID, setChangeID] = React.useState(null);
   const [changeRole, setChangeRole] = React.useState([]);
   const [rmMemberID, setRmMemberID] = React.useState(null);
@@ -28,16 +32,39 @@ export default function ClassroomMembersMain({ id, session }) {
 
   // graphql
   // -> mutations
-  const [updateRole] = useMutation(CHANGE_CLASSROOM_USER_ROLE);
-  const [removeMember] = useMutation(REMOVE_CLASSROOM_MEMBER);
-  const [inviteMember] = useMutation(INVITE_CLASSROOM_MEMBER);
+  // const [updateRole] = useMutation(CHANGE_CLASSROOM_USER_ROLE);
+  // const [removeMember] = useMutation(REMOVE_CLASSROOM_MEMBER);
+  // const [inviteMember] = useMutation(INVITE_CLASSROOM_MEMBER);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id },
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id },
+  // });
+
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${id}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [id]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data.id === id) {
+      fetchClassroom();
+    }
   });
 
   const handleRoleChange = async () => {
@@ -47,13 +74,22 @@ export default function ClassroomMembersMain({ id, session }) {
     setSuccess(null);
 
     try {
-      await updateRole({
-        variables: {
-          id: changeID,
-          role: changeRole[0],
-        },
+      // await updateRole({
+      //   variables: {
+      //     id: changeID,
+      //     role: changeRole[0],
+      //   },
+      // });
+      const { data: response } = await axios.post(`/v1/classroom/member/change-role`, {
+        id: changeID,
+        role: changeRole[0],
       });
-      setSuccess("Role changed successfully");
+
+      if (response.status === "success") {
+        setSuccess(response.message);
+      } else {
+        setError(response.message);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -69,16 +105,19 @@ export default function ClassroomMembersMain({ id, session }) {
     setSuccess(null);
 
     try {
-      const result = await removeMember({
-        variables: {
-          id: changeID,
-        },
+      // const result = await removeMember({
+      //   variables: {
+      //     id: changeID,
+      //   },
+      // });
+      const { data: response } = await axios.post(`/v1/classroom/member/remove`, { 
+        relation_id: changeID,
       });
 
-      if (result.data.removeClassroomMember.status === "success") {
-        setSuccess(result.data.removeClassroomMember.message);
+      if (response.status === "success") {
+        setSuccess(response.message);
       } else {
-        setError(result.data.removeClassroomMember.message);
+        setError(response.message);
       }
     } catch (err) {
       setError(err.message);
@@ -105,18 +144,24 @@ export default function ClassroomMembersMain({ id, session }) {
     setSuccess(null);
 
     try {
-      const result = await inviteMember({
-        variables: {
-          cid: id,
-          email: inviteEmail,
-          role: inviteRole[0],
-        },
+      // const result = await inviteMember({
+      //   variables: {
+      //     cid: id,
+      //     email: inviteEmail,
+      //     role: inviteRole[0],
+      //   },
+      // });
+
+      const { data: response } = await axios.post(`/v1/classroom/member/invite`, {
+        class_id: id,
+        email: inviteEmail,
+        role: inviteRole[0],
       });
 
-      if (result.data.inviteClassroomMember.status === "success") {
-        setSuccess(result.data.inviteClassroomMember.message);
+      if (response.status === "success") {
+        setSuccess(response.message);
       } else {
-        setError(result.data.inviteClassroomMember.message);
+        setError(response.message);
       }
     } catch (err) {
       setError(err.message);
@@ -129,11 +174,11 @@ export default function ClassroomMembersMain({ id, session }) {
   };
 
   // get the current user's role
-  const userRole = sub_data?.classrooms_by_pk?.classroom_relation.find((r) => r.user.id === session.user.sub);
+  const userRole = classroom?.classroom_relation.find((r) => r.user._id === userInfo._id);
 
   return (
     <>
-      <ClassroomLayout id={id} loading={sub_loading} classroom={sub_data?.classrooms_by_pk}>
+      <ClassroomLayout id={id} loading={classroomLoading} classroom={classroom}>
         {success && (
           <div className="flex items-center justify-center w-full">
             <Alert
@@ -164,11 +209,11 @@ export default function ClassroomMembersMain({ id, session }) {
           </div>
         )}
         <div className="flex flex-col xl:flex-row gap-5">
-          {sub_data?.classrooms_by_pk?.invitation_code !== "" && (
+          {classroom?.invitation_code !== "" && (
             <div className="flex-initial">
               <InviteMemberBlock
                 id={id}
-                code={sub_data?.classrooms_by_pk?.invitation_code}
+                code={classroom?.invitation_code}
                 handleInviteEmail={handleShowInvite}
                 teacher={userRole?.role === "teacher" || userRole?.role === "owner"}
               />
@@ -176,8 +221,8 @@ export default function ClassroomMembersMain({ id, session }) {
           )}
           <div className="flex-auto">
             <MembersTable
-              user={session.user}
-              relations={sub_data?.classrooms_by_pk?.classroom_relation}
+              user={userInfo}
+              relations={classroom?.classroom_relation}
               changeID={changeID}
               changeRole={changeRole}
               setChangeID={setChangeID}
@@ -209,7 +254,7 @@ export default function ClassroomMembersMain({ id, session }) {
           handleSubmit={handleRemove}
           error={error}
           loading={loading}
-          self={session.user.sub === rmMemberID}
+          self={userInfo._id === rmMemberID}
         />
       )}
 

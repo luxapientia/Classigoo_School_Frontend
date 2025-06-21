@@ -28,8 +28,8 @@ export default function MembersTable({
   setShowRemove,
   setRmMemberID,
 }) {
-  // current user id is in user.sub
-  const currentUserRelation = relations.find((r) => r.user.id === user.sub);
+  // current user id is in user._id
+  const currentUserRelation = relations.find((r) => r.user._id === user._id);
 
   // sort relations like owner 1st then teacher then student
   const rltns = relations.sort((a, b) => {
@@ -70,10 +70,10 @@ export default function MembersTable({
         <TableBody>
           {rltns.map((r) => {
             return (
-              <TableRow key={r.id}>
+              <TableRow key={r._id}>
                 <TableCell>
                   <User
-                    avatarProps={{ radius: "lg", src: r.user.avatar }}
+                    avatarProps={{ radius: "lg", src: r.user.avatar.url }}
                     description={r.user.email}
                     name={r.user.name}
                   >
@@ -116,7 +116,7 @@ export default function MembersTable({
                           <button
                             onClick={() =>
                               setChangeData({
-                                id: r.id,
+                                id: r._id,
                                 role: [r.role.toLowerCase()],
                               })
                             }
@@ -134,18 +134,18 @@ export default function MembersTable({
                     ) : null}
                     {currentUserRelation.role === "owner" ||
                     currentUserRelation.role === "teacher" ||
-                    currentUserRelation.user.id === r.user.id ? (
+                    currentUserRelation.user._id === r.user._id ? (
                       r.role === "owner" ? null : (
                         <Tooltip
                           color="danger"
                           content={
-                            currentUserRelation.user.id === r.user.id
+                            currentUserRelation.user._id === r.user._id
                               ? "Leave"
                               : "Remove user"
                           }
                         >
                           <button
-                            onClick={() => setRemoveData(r.id, r.user.id)}
+                            onClick={() => setRemoveData(r._id, r.user._id)}
                           >
                             <span className="text-lg text-danger cursor-pointer active:opacity-50">
                               <Icon

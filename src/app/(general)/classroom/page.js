@@ -1,5 +1,5 @@
-import { auth0 } from "@lib/auth0";
 import { redirect } from "next/navigation";
+import { getUser } from "@lib/auth";
 
 export const metadata = {
   title: "Classrooms - Classigoo",
@@ -7,11 +7,9 @@ export const metadata = {
 };
 
 export default async function classroomsPage() {
-  const session = await auth0.getSession();
+  const user = await getUser();
 
-  if (!session) {
-    redirect("/auth/login");
-  } else {
-    redirect("/classrooms");
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+    redirect("/api/logout");
   }
 }

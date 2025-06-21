@@ -1,5 +1,5 @@
 "use client";
-import axios from "axios";
+import axios from "@lib/axios";
 import React from "react";
 import moment from "moment";
 import { Icon } from "@iconify/react";
@@ -24,19 +24,24 @@ import {
   getLocalTimeZone,
   parseAbsoluteToLocal,
 } from "@internationalized/date";
+import { useSocket } from "@hooks/useSocket";
 
-import { EDIT_ASSIGNMENT } from "@graphql/mutations";
-import { useMutation, useSubscription } from "@apollo/client";
-import { SUB_GET_ASSIGNMENT, SUB_GET_CLASSROOM } from "@graphql/subscriptions";
+// import { EDIT_ASSIGNMENT } from "@graphql/mutations";
+// import { useMutation, useSubscription } from "@apollo/client";
+// import { SUB_GET_ASSIGNMENT, SUB_GET_CLASSROOM } from "@graphql/subscriptions";
 
 import { FileUploader } from "react-drag-drop-files";
 import NotFoundPage from "@app/not-found";
 
-export default function AssignmentEditMainComponent({ cid, aid, user }) {
+export default function AssignmentEditMainComponent({ cid, aid, userInfo }) {
   const router = useRouter();
   const imageTypes = ["JPEG", "JPG", "PNG", "GIF"];
 
   const editorRef = React.useRef(null);
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [assignment, setAssignment] = React.useState(null);
+  const [assignmentLoading, setAssignmentLoading] = React.useState(false);
   const [title, setTitle] = React.useState("");
   const [files, setFiles] = React.useState([]);
   const [content, setContent] = React.useState("loading...........");
@@ -56,24 +61,69 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
   const [deleting, setDeleting] = React.useState(false);
   const [openPicker, setOpenPicker] = React.useState(false);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id: cid },
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id: cid },
+  // });
+
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${cid}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [cid]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data.id === cid) {
+      fetchClassroom();
+    }
   });
 
-  const {
-    data: sub_data_assignment,
-    loading: sub_loading_assignment,
-    error: sub_error_assignment,
-  } = useSubscription(SUB_GET_ASSIGNMENT, {
-    variables: { id: aid },
+  // const {
+  //   data: sub_data_assignment,
+  //   loading: sub_loading_assignment,
+  //   error: sub_error_assignment,
+  // } = useSubscription(SUB_GET_ASSIGNMENT, {
+  //   variables: { id: aid },
+  // });
+
+  // fetch assignment
+  const fetchAssignment = React.useCallback(async () => {
+    setAssignmentLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/assignment/${aid}`);
+      setAssignment(res.data);
+    } catch (err) {
+      setError(err?.message || "Failed to load assignment");
+    }
+    setAssignmentLoading(false);
+  }, [aid]);
+
+  React.useEffect(() => {
+    fetchAssignment();
+  }, [fetchAssignment]);
+
+  useSocket("assignment.updated", (payload) => {
+    if (payload.data.aid === aid) {
+      fetchAssignment();
+    }
   });
 
   // initiate mutations
-  const [editAssignment] = useMutation(EDIT_ASSIGNMENT);
+  // const [editAssignment] = useMutation(EDIT_ASSIGNMENT);
 
   // handles
   // handle actions
@@ -98,18 +148,25 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
         }
 
         let formData = new FormData();
-        formData.append("image", tempFile);
+        formData.append("files", tempFile);
+        formData.append("fileFolder", "assignment");
 
         // post form data image
-        const response = await axios.post(
-          "/api/proxy/upload/posts/image",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        // const response = await axios.post(
+        //   "/api/proxy/upload/posts/image",
+        //   formData,
+        //   {
+        //     headers: {
+        //       "Content-Type": "multipart/form-data",
+        //     },
+        //   }
+        // );
+
+        const { data: response } = await axios.post("/v1/classroom/assignment/file/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
         let fileSize;
 
@@ -121,14 +178,15 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
           fileSize = `${(tempFile.size / 1048576).toFixed(2)} MB`;
         }
 
-        if (response.data.status === "success") {
+        if (response.status === "success") {
           setFileSuccess("Image uploaded successfully.");
           setFiles((prev) =>
             prev.concat({
               type: "image",
-              name: response.data.data.name,
-              mimetype: response.data.data.type,
-              location: response.data.data.location,
+              name: response.data.name,
+              mimetype: response.data.type,
+              location: response.data.location,
+              bucketKey: response.data.bucketKey,
               size: fileSize,
             })
           );
@@ -137,7 +195,7 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
           setTempFilePreview(null);
           setFilePicker(false);
         } else {
-          setFileError(response.data.message);
+          setFileError(response.message);
         }
         setLoading(false);
       } else if (filePicker === "file") {
@@ -147,18 +205,25 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
         }
 
         let formData = new FormData();
-        formData.append("file", tempFile);
+        formData.append("files", tempFile);
+        formData.append("fileFolder", "assignment");
 
         // post form data image
-        const response = await axios.post(
-          "/api/proxy/upload/posts/file",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        // const response = await axios.post(
+        //   "/api/proxy/upload/posts/file",
+        //   formData,
+        //   {
+        //     headers: {
+        //       "Content-Type": "multipart/form-data",
+        //     },
+        //   }
+        // );
+
+        const { data: response } = await axios.post("/v1/classroom/assignment/file/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
         let fileSize;
 
@@ -170,14 +235,15 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
           fileSize = `${(tempFile.size / 1048576).toFixed(2)} MB`;
         }
 
-        if (response.data.status === "success") {
-          setFileSuccess("Image uploaded successfully.");
+        if (response.status === "success") {
+          setFileSuccess("File uploaded successfully.");
           setFiles((prev) =>
             prev.concat({
               type: "file",
-              name: response.data.data.name,
-              mimetype: response.data.data.type,
-              location: response.data.data.location,
+              name: response.data.name,
+              mimetype: response.data.type,
+              location: response.data.location,
+              bucketKey: response.data.bucketKey,
               size: fileSize,
             })
           );
@@ -186,7 +252,7 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
           setTempFilePreview(null);
           setFilePicker(false);
         } else {
-          setFileError(response.data.message);
+          setFileError(response.message);
         }
         setLoading(false);
       } else {
@@ -206,17 +272,22 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
     // remove file from the server
     setDeleting(true);
     try {
-      const response = await axios.post("/api/proxy/upload/posts/delete", {
+      // const response = await axios.post("/api/proxy/upload/posts/delete", {
+      //   files: locations,
+      // });
+
+      const { data: response } = await axios.post("/v1/classroom/assignment/file/delete", {
         files: locations,
+        classroom_id: cid,
       });
 
-      if (response.data.status === "success") {
+      if (response.status === "success") {
         // remove the specific files from the state by the way locations are array of file locations
-        setFiles((prev) => prev.filter((f) => !locations.includes(f.location)));
+        setFiles((prev) => prev.filter((f) => !locations.includes(f.bucketKey)));
       }
 
-      if (response.data.status === "error") {
-        setFileError(response.data.message);
+      if (response.status === "error") {
+        setFileError(response.message);
       } else {
         setFileSuccess("File deleted successfully.");
       }
@@ -248,28 +319,37 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
         return;
       }
 
-      const { data } = await editAssignment({
-        variables: {
-          id: aid,
-          title,
-          content,
-          files,
-          status,
-          aud: fixedAudience,
-          deadline: parsedDeadline,
-        },
+      // const { data } = await editAssignment({
+      //   variables: {
+      //     id: aid,
+      //     title,
+      //     content,
+      //     files,
+      //     status,
+      //     aud: fixedAudience,
+      //     deadline: parsedDeadline,
+      //   },
+      // });
+
+      const { data: response } = await axios.post("/v1/classroom/assignment/update", {
+        id: aid,
+        title,
+        content,
+        files,
+        status,
+        audience: fixedAudience,
+        deadline: parsedDeadline,
       });
 
-      if (data.update_assignments_by_pk.id) {
+      if (response.status === "success") {
         setSuccess("Assignment updated successfully.");
-
         // redirect the user to the note
         // window.location.href = `/classroom/${cid}/assignment/${data.update_assignments_by_pk.id}`;
         router.push(
-          `/classroom/${cid}/assignment/${data.update_assignments_by_pk.id}`
+          `/classroom/${cid}/assignment/${response.data._id}`
         );
       } else {
-        setError("Something went wrong. Please try again.");
+        setError(response.message || "Something went wrong. Please try again.");
       }
     } catch (error) {
       setError(error.message);
@@ -280,20 +360,20 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
 
   // set the values
   React.useEffect(() => {
-    if (sub_data_assignment?.assignments_by_pk) {
-      setTitle(sub_data_assignment.assignments_by_pk.title);
-      setContent(sub_data_assignment.assignments_by_pk.content);
-      setFiles(sub_data_assignment.assignments_by_pk.files);
-      setAudience(sub_data_assignment.assignments_by_pk.audience);
+    if (assignment) {
+      setTitle(assignment?.title);
+      setContent(assignment?.content);
+      setFiles(assignment?.files);
+      setAudience(assignment?.audience);
 
       // 2025-03-28T16:10:06+00:00 to ISO string
       const parsedDeadline = parseAbsoluteToLocal(
-        sub_data_assignment.assignments_by_pk.deadline
+        assignment?.deadline
       );
 
       setDeadline(parsedDeadline);
     }
-  }, [sub_data_assignment]);
+  }, [assignment]);
 
   // auto hide
   React.useEffect(() => {
@@ -340,13 +420,13 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
     }
   }, [fileSuccess]);
 
-  if (sub_loading) return <Loading />;
-  if (!sub_loading_assignment) {
+  if (classroomLoading) return <Loading />;
+  if (!assignmentLoading) {
     // current user
-    const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find(
-      (cr) => cr.user.id === user.sub
+    const currentUser = classroom?.classroom_relation.find(
+      (cr) => cr.user._id === userInfo._id
     );
-    if (!sub_data_assignment?.assignments_by_pk) return <NotFoundPage />;
+    if (!assignment) return <NotFoundPage />;
     if (currentUser?.role !== "owner" && currentUser?.role !== "teacher")
       return <NotFoundPage />;
   }
@@ -376,8 +456,8 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
 
         {openPicker && (
           <MemberSelector
-            my_id={user.sub}
-            members={sub_data?.classrooms_by_pk?.classroom_relation}
+            my_id={userInfo._id}
+            members={classroom?.classroom_relation}
             audience={audience}
             setAudience={setAudience}
             setOpenPicker={setOpenPicker}
@@ -472,7 +552,7 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                         <div className="w-24 h-24 grid justify-center content-center border-2 border-default-200 rounded-lg">
                           {file.type === "image" ? (
                             <img
-                              src={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
+                              src={`${file.location}`}
                               alt={file.name}
                               className="h-16 w-auto object-cover"
                             />
@@ -490,9 +570,9 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                         </p>
                       </div>
                       <div className="flex-initial pr-2">
-                        <button
+                        <Button
                           className=""
-                          onClick={() => handleDeleteFile([file.location])}
+                          onClick={() => handleDeleteFile([file.bucketKey])}
                           disabled={deleting}
                         >
                           {deleting ? (
@@ -506,7 +586,7 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                               className="text-danger-500 text-xl"
                             />
                           )}
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -642,7 +722,7 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                 {...(filePicker === "image" && { types: imageTypes })}
                 handleChange={handleFileChange}
                 // free users 10mb pro users 50mb
-                maxSize={user?.user?.is_plus ? 50 : 10}
+                maxSize={userInfo?.is_plus ? 50 : 10}
                 overRide
               >
                 <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8 mb-2">
@@ -664,9 +744,9 @@ export default function AssignmentEditMainComponent({ cid, aid, user }) {
                 )}
                 <p className="text-xs text-default-400">
                   <span className="text-danger-500">*</span>
-                  Max file size: {user?.user?.is_plus ? 50 : 10}MB
+                  Max file size: {userInfo?.is_plus ? 50 : 10}MB
                 </p>
-                {!user?.user?.is_plus && (
+                {!userInfo?.is_plus && (
                   <p className="text-xs text-default-400">
                     <span className="text-danger-500">*</span>
                     Upgrade to plus to upload bigger files.

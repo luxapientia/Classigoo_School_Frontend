@@ -1,6 +1,6 @@
 "use client";
 import xss from "xss";
-import axios from "axios";
+import axios from "@lib/axios";
 import React from "react";
 import Link from "next/link";
 import DOMPurify from "dompurify";
@@ -10,14 +10,15 @@ import moment, { duration } from "moment";
 import { useRouter } from "next/navigation";
 import Loading from "@components/common/loading";
 import { FileUploader } from "react-drag-drop-files";
-import { GET_EXAM_SUBMISSION } from "@graphql/queries";
-import { UPDATE_MY_SUBMISSION } from "@graphql/mutations";
-import { useSubscription, useMutation, useQuery } from "@apollo/client";
-import {
-  SUB_GET_CLASSROOM,
-  SUB_GET_EXAM,
-  SUB_GET_SUBMISSION,
-} from "@graphql/subscriptions";
+import { useSocket } from "@hooks/useSocket";
+// import { GET_EXAM_SUBMISSION } from "@graphql/queries";
+// import { UPDATE_MY_SUBMISSION } from "@graphql/mutations";
+// import { useSubscription, useMutation, useQuery } from "@apollo/client";
+// import {
+//   SUB_GET_CLASSROOM,
+//   SUB_GET_EXAM,
+//   SUB_GET_SUBMISSION,
+// } from "@graphql/subscriptions";
 import {
   Button,
   Alert,
@@ -29,10 +30,16 @@ import {
   Textarea,
 } from "@heroui/react";
 
-export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
+export default function ExamTakerMainComponent({ cid, eid, sid, userInfo }) {
   const router = useRouter();
   const imageTypes = ["png", "jpg", "jpeg", "heic", "webp"];
 
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [exam, setExam] = React.useState(null);
+  const [examLoading, setExamLoading] = React.useState(false);
+  const [submission, setSubmission] = React.useState(null);
+  const [submissionLoading, setSubmissionLoading] = React.useState(false);
   const [questions, setQuestions] = React.useState([]);
   const [answers, setAnswers] = React.useState([]);
   const [ended, setEnded] = React.useState(false);
@@ -52,31 +59,98 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
   const [filePicker, setFilePicker] = React.useState(false);
   const [tempFilePreview, setTempFilePreview] = React.useState(null);
 
-  const [updateSubmission] = useMutation(UPDATE_MY_SUBMISSION);
+  // const [updateSubmission] = useMutation(UPDATE_MY_SUBMISSION);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id: cid },
-  });
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id: cid },
+  // });
 
-  const {
-    data: exam_data,
-    loading: exam_loading,
-    error: exam_error,
-  } = useSubscription(SUB_GET_EXAM, {
-    variables: { id: eid },
-  });
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${cid}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
 
-  const {
-    data: submission_data,
-    loading: submission_loading,
-    error: submission_error,
-  } = useQuery(GET_EXAM_SUBMISSION, {
-    variables: { sid },
-  });
+    setClassroomLoading(false);
+  }, [cid]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  // useSocket("classroom.updated", (payload) => {
+  //   if (payload.data.id === cid) {
+  //     fetchClassroom();
+  //   }
+  // });
+
+  // const {
+  //   data: exam_data,
+  //   loading: exam_loading,
+  //   error: exam_error,
+  // } = useSubscription(SUB_GET_EXAM, {
+  //   variables: { id: eid },
+  // });
+
+  // fetch exam
+  const fetchExam = React.useCallback(async () => {
+    setExamLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/exam/${eid}`);
+      setExam(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load exam");
+    }
+    setExamLoading(false);
+  }, [eid]);
+  
+  React.useEffect(() => {
+    fetchExam();
+  }, [fetchExam]);
+
+  // useSocket("exam.updated", (payload) => {
+  //   if (payload.data.eid === eid || payload.data.cid === cid) {
+  //     fetchExam();
+  //   }
+  // });
+
+  // const {
+  //   data: submission_data,
+  //   loading: submission_loading,
+  //   error: submission_error,
+  // } = useQuery(GET_EXAM_SUBMISSION, {
+  //   variables: { sid },
+  // });
+
+  // fetch submission
+  const fetchSubmission = React.useCallback(async () => {
+    setSubmissionLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/exam/submission/${sid}`);
+      setSubmission(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load submission");
+    }
+    setSubmissionLoading(false);
+  }, [sid]);
+
+  React.useEffect(() => {
+    fetchSubmission();
+  }, [fetchSubmission]);
+
+  // useSocket("exam.submission.updated", (payload) => {
+  //   if (payload.data.sid === sid) {
+  //     fetchSubmission();
+  //   }
+  // });
 
   // handles
   // handle actions
@@ -99,18 +173,25 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
       }
 
       let formData = new FormData();
-      formData.append("image", tempFile);
+      formData.append("files", tempFile);
+      formData.append("fileFolder", "exam_submission");
 
       // post form data image
-      const response = await axios.post(
-        "/api/proxy/upload/posts/image",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      // const response = await axios.post(
+      //   "/api/proxy/upload/posts/image",
+      //   formData,
+      //   {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   }
+      // );
+
+      const { data: response } = await axios.post("/v1/classroom/exam/submission/image/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       let fileSize;
 
@@ -122,7 +203,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
         fileSize = `${(tempFile.size / 1048576).toFixed(2)} MB`;
       }
 
-      if (response.data.status === "success") {
+      if (response.status === "success") {
         // add the file to the answer
         const existingAnswer = answers.find(
           (a) => a.question_id === filePicker
@@ -130,7 +211,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
         if (existingAnswer) {
           const currentAnswer = [
             ...existingAnswer.answer,
-            response.data.data.location,
+            response.data,
           ];
           const newAnswers = answers.filter(
             (a) => a.question_id !== filePicker
@@ -144,7 +225,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
           );
           newAnswers.push({
             question_id: filePicker,
-            answer: [response.data.data.location],
+            answer: [response.data],
           });
           setAnswers(newAnswers);
         }
@@ -153,7 +234,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
         setTempFilePreview(null);
         setFilePicker(false);
       } else {
-        setFileError(response.data.message);
+        setFileError(response.message);
       }
       setLoading(false);
     } catch (err) {
@@ -168,11 +249,16 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
     // remove file from the server
     setDeleting(true);
     try {
-      const response = await axios.post("/api/proxy/upload/posts/delete", {
+      // const response = await axios.post("/api/proxy/upload/posts/delete", {
+      //   files: locations,
+      // });
+
+      const { data: response } = await axios.post("/v1/classroom/exam/submission/file/delete", {
         files: locations,
+        exam_submission_id: sid,
       });
 
-      if (response.data.status === "success") {
+      if (response.status === "success") {
         // remove the specific files from the state by the way locations are array of file locations
         // existing answer
         const existingAnswer = answers.find((a) => a.question_id === quid);
@@ -201,7 +287,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
       }
 
       if (response.data.status === "error") {
-        setFileError(response.data.message);
+        setFileError(response.message);
       } else {
         // alert("File deleted successfully.");
         // setFileSuccess("File deleted successfully.");
@@ -217,13 +303,20 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
   const handleSubmit = async (status) => {
     setSubmitting(true);
     try {
-      await updateSubmission({
-        variables: {
-          sid: sid,
-          answers: answers,
-          status: status,
-        },
+      // await updateSubmission({
+      //   variables: {
+      //     sid: sid,
+      //     answers: answers,
+      //     status: status,
+      //   },
+      // });
+
+      await axios.post(`/v1/classroom/exam/submission/update`, {
+        id: sid,
+        answers: answers,
+        status: status,
       });
+
       setAutoUpdateSuccess(true);
       if (status === "submitted") {
         router.push(`/classroom/${cid}/exam/${eid}/submission/${sid}`);
@@ -236,13 +329,10 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
   };
 
   React.useEffect(() => {
-    if (sub_loading || exam_loading || submission_loading) return;
-    if (sub_data?.classrooms_by_pk === null) return;
-    if (exam_data?.exams_by_pk === null) return;
-    if (submission_data?.exam_submissions_by_pk === null) return;
-
-    const exam = exam_data.exams_by_pk;
-    const submission = submission_data.exam_submissions_by_pk;
+    if (classroomLoading || examLoading || submissionLoading) return;
+    if (classroom === null) return;
+    if (exam === null) return;
+    if (submission === null) return;
 
     // if (submission?.status === "submitted") {
     //   setEnded(true);
@@ -251,18 +341,18 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
     if (exam?.duration) {
       setTimer(true);
       if (
-        exam.start_once &&
-        !moment().isBefore(moment(exam.start_at).add(exam.duration, "minutes"))
+        exam?.start_once &&
+        !moment().isBefore(moment(exam?.start_at).add(exam?.duration, "minutes"))
       ) {
         setTimeLeft(
-          moment(exam.start_at)
-            .add(exam.duration, "minutes")
+          moment(exam?.start_at)
+            .add(exam?.duration, "minutes")
             .diff(moment(), "seconds")
         );
       } else {
         setTimeLeft(
-          moment(submission.created_at)
-            .add(exam.duration, "minutes")
+          moment(submission?.created_at)
+            .add(exam?.duration, "minutes")
             .diff(moment(), "seconds")
         );
       }
@@ -274,14 +364,14 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
     // }, 30000);
 
     // return () => clearInterval(autoUpdate);
-  }, [sub_data, exam_data, submission_data]);
+  }, [classroom, exam, submission]);
 
   React.useEffect(() => {
     if (timer && timeLeft > 0) {
       const interval = setInterval(() => {
         setTimeLeft(timeLeft - 1);
         if (timeLeft <= 0) {
-          if (exam_data.exams_by_pk.duration !== 0) {
+          if (exam?.duration !== 0) {
             handleSubmit("submitted");
           }
         }
@@ -291,14 +381,14 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
   }, [timer, timeLeft]);
 
   React.useEffect(() => {
-    if (submission_data?.exam_submissions_by_pk?.answers) {
-      setAnswers(submission_data.exam_submissions_by_pk.answers);
+    if (submission?.answers) {
+      setAnswers(submission?.answers);
     }
 
-    if (exam_data?.exams_by_pk?.questions) {
-      setQuestions(exam_data.exams_by_pk.questions);
+    if (exam?.questions) {
+      setQuestions(exam?.questions);
     }
-  }, [submission_data, exam_data]);
+  }, [submission, exam]);
 
   React.useEffect(() => {
     if (autoUpdateError) {
@@ -346,12 +436,17 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
     if (autoUpdate) {
       setAutoUpdateLoading(true);
       try {
-        updateSubmission({
-          variables: {
-            sid: sid,
-            answers: answers,
-            status: "draft",
-          },
+        // updateSubmission({
+        //   variables: {
+        //     sid: sid,
+        //     answers: answers,
+        //     status: "draft",
+        //   },
+        // });
+        axios.post(`/v1/classroom/exam/submission/update`, {
+          id: sid,
+          answers: answers,
+          status: "draft",
         });
         setAutoUpdateSuccess(true);
       } catch (err) {
@@ -363,21 +458,21 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
     }
   }, [autoUpdate]);
 
-  if (sub_loading || submission_loading || exam_loading) return <Loading />;
+  if (classroomLoading || submissionLoading || examLoading) return <Loading />;
   // not found page
-  if (sub_data?.classrooms_by_pk === null) return <NotFoundPage />;
-  if (exam_data?.exams_by_pk === null) return <NotFoundPage />;
-  if (submission_data?.exam_submissions_by_pk === null) return <NotFoundPage />;
+  if (classroom === null) return <NotFoundPage />;
+  if (exam === null) return <NotFoundPage />;
+  if (submission === null) return <NotFoundPage />;
 
   // if already submitted then redirect to the submission page
-  if (submission_data?.exam_submissions_by_pk?.status !== "draft") {
+  if (submission?.status !== "draft") {
     router.push(`/classroom/${cid}/exam/${eid}/submission/${sid}`);
   }
 
   // if start once and the exam is not started yet
   if (
-    exam_data.exams_by_pk.start_once &&
-    !moment().isBefore(moment(exam_data.exams_by_pk.start_once))
+    exam?.start_once &&
+    !moment().isBefore(moment(exam?.start_once))
   ) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-100px)]">
@@ -389,12 +484,12 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
   }
 
   // if exam started from start_once and exam+duration has passed current time
-  if (exam_data.exams_by_pk.duration !== 0) {
+  if (exam?.duration !== 0) {
     if (
-      exam_data.exams_by_pk.start_once &&
+      exam?.start_once &&
       moment().isAfter(
-        moment(exam_data.exams_by_pk.start_once).add(
-          exam_data.exams_by_pk.duration,
+        moment(exam?.start_once).add(
+          exam?.duration,
           "minutes"
         )
       )
@@ -403,7 +498,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
         <div className="flex flex-col justify-center items-center h-[calc(100vh-100px)]">
           <p className="text-2xl font-bold text-center">Exam has ended!</p>
 
-          {submission_data?.exam_submissions_by_pk !== null && (
+          {submission !== null && (
             <div className="mt-5">
               <Link
                 href={`/classroom/${cid}/exam/${eid}/submission/${sid}`}
@@ -418,10 +513,10 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
     }
     // else if if only duration then start submission time + duration has passed current time and start_once is null
     else if (
-      !exam_data.exams_by_pk.start_once &&
+      !exam?.start_once &&
       moment().isAfter(
-        moment(submission_data.exam_submissions_by_pk.created_at).add(
-          exam_data.exams_by_pk.duration,
+        moment(submission?.created_at).add(
+          exam?.duration,
           "minutes"
         )
       )
@@ -430,7 +525,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
         <div className="flex flex-col justify-center items-center h-[calc(100vh-100px)]">
           <p className="text-2xl font-bold text-center">Exam has ended!</p>
 
-          {submission_data?.exam_submissions_by_pk !== null && (
+          {submission !== null && (
             <div className="mt-5">
               <Link
                 href={`/classroom/${cid}/exam/${eid}/submission/${sid}`}
@@ -477,7 +572,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
             <h1 className="text-2xl font-bold text-center">
-              {exam_data.exams_by_pk.title}
+              {exam?.title}
             </h1>
             {timer && (
               <>
@@ -485,12 +580,12 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                   <span>
                     Duration:{" "}
                     {duration(
-                      exam_data.exams_by_pk.duration,
+                      exam?.duration,
                       "minutes"
                     ).hours()}
                     h :{" "}
                     {duration(
-                      exam_data.exams_by_pk.duration,
+                      exam?.duration,
                       "minutes"
                     ).minutes()}
                     m
@@ -741,12 +836,12 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                                     style={{
                                       backgroundSize: "cover",
                                       backgroundPosition: "center center",
-                                      backgroundImage: `url(${process.env.CLASSROOM_CDN_URL}/${answer})`,
+                                      backgroundImage: `url(${answer.location})`,
                                     }}
                                   >
                                     <div className="absolute top-0 right-0 flex gap-2 p-2">
                                       <Link
-                                        href={`${process.env.CLASSROOM_CDN_URL}/${answer}`}
+                                        href={`${answer.location}`}
                                         target="_blank"
                                         className="p-0 w-7 h-7 bg-white dark:bg-gray-800 rounded-full grid justify-center items-center"
                                       >
@@ -760,7 +855,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                                         size="sm"
                                         variant="text"
                                         onPress={() =>
-                                          handleDeleteFile([answer], q.id)
+                                          handleDeleteFile([answer.bucketKey], q.id)
                                         }
                                         isDisabled={deleting}
                                         isIconOnly
@@ -870,7 +965,7 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
                 types={imageTypes}
                 handleChange={handleFileChange}
                 // free users 10mb pro users 50mb
-                maxSize={user?.user?.is_plus ? 50 : 10}
+                maxSize={userInfo?.is_plus ? 50 : 10}
                 overRide
               >
                 <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8 mb-2">
@@ -889,9 +984,9 @@ export default function ExamTakerMainComponent({ cid, eid, sid, user }) {
 
                 <p className="text-xs text-default-400">
                   <span className="text-danger-500">*</span>
-                  Max file size: {user?.user?.is_plus ? 50 : 10}MB
+                  Max file size: {userInfo?.is_plus ? 50 : 10}MB
                 </p>
-                {!user?.user?.is_plus && (
+                {!userInfo?.is_plus && (
                   <p className="text-xs text-default-400">
                     <span className="text-danger-500">*</span>
                     Upgrade to plus to upload bigger files.

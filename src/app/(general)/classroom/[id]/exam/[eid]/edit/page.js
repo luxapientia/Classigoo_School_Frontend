@@ -1,4 +1,4 @@
-import { auth0 } from "@lib/auth0";
+import { getUser } from "@lib/auth";
 import { redirect } from "next/navigation";
 import ExamUpdateMainComponent from "@components/pages/classroom/exam/eid/edit/main";
 
@@ -8,16 +8,16 @@ export const metadata = {
 };
 
 export default async function ClassroomSingleAssignmentEdit({ params }) {
-  const session = await auth0.getSession();
+  const user = await getUser();
   const { id, eid } = await params;
 
-  if (!session) {
-    redirect("/auth/login");
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+    redirect("/api/logout");
   }
 
   return (
     <>
-      <ExamUpdateMainComponent id={id} eid={eid} user={session.user} />
+      <ExamUpdateMainComponent cid={id} eid={eid} userInfo={user} />
     </>
   );
 }

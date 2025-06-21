@@ -4,7 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { useQuery } from "@apollo/client";
-import { useUser } from "@auth0/nextjs-auth0";
+// import { useUser } from "@auth0/nextjs-auth0";
+import { useAuth } from "@contexts/AuthContext";
 import { ThemeSwitcher } from "./theme-switcher";
 import { Avatar, Badge } from "@heroui/react";
 import { useContext, createContext, useState, useEffect, useMemo, useCallback } from "react";
@@ -59,27 +60,35 @@ export function HeaderSlot({ children }) {
 }
 
 export default function Header() {
-  const { user } = useUser();
+  const { user, loading } = useAuth();
   const { slots } = useSlot();
-  const [userAvatar, setUserAvatar] = useState(user?.picture);
+  const [userAvatar, setUserAvatar] = useState(null);
 
-  // fetch user avatar
-  const fetchUserAvatar = useCallback(async () => {
-    if (user) {
-      const { data } = await client.query({
-        query: GET_AVATAR,
-        variables: {
-          id: user.sub,
-        },
-      });
-
-      setUserAvatar(data.users_by_pk?.avatar);
+  useEffect(() => {
+    if (user?.avatar?.url) {
+      setUserAvatar(user.avatar.url);
     }
   }, [user]);
 
-  useEffect(() => {
-    fetchUserAvatar();
-  }, []);
+  if (loading) {
+    return (
+      <header>
+        <div className="flex items-center">
+          <div className="md:hidden flex-initial pl-5">
+            <Image src="/images/brand/logo-c.png" alt="logo" width={50} height={50} className="" />
+          </div>
+          <div className="flex-auto"></div>
+          <div className="flex-initial px-4">
+            <div className="flex justify-end items-center h-full gap-3">
+              <div className="w-11 h-11 bg-gray-100 dark:bg-white/10 rounded-full animate-pulse"></div>
+              <div className="w-11 h-11 bg-gray-100 dark:bg-white/10 rounded-full animate-pulse"></div>
+              <div className="w-11 h-11 bg-gray-100 dark:bg-white/10 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header>
@@ -92,13 +101,6 @@ export default function Header() {
         <div className="flex-initial px-4">
           <div className="flex justify-end items-center h-full">
             {slots.specificHeader && <div className="md:hidden flex-initial pr-3">{slots.specificHeader}</div>}
-            {/* <div className="flex-initial pr-3">
-              <Badge color="danger" shape="circle" content="" size="sm">
-                <button className="flex w-11 h-11 bg-gray-800 dark:bg-white rounded-full justify-center items-center">
-                  <Icon icon="solar:chat-round-line-bold" className="w-6 h-6 text-white dark:text-gray-700" />
-                </button>
-              </Badge>
-            </div> */}
             <div className="flex-initial">
               <Badge color="danger" shape="circle" content="" size="sm">
                 <button className="flex w-11 h-11 bg-gray-100 dark:bg-white/10 rounded-full justify-center items-center">
@@ -118,7 +120,6 @@ export default function Header() {
                   radius="full"
                   src={userAvatar}
                   name={user?.name}
-                  // {...(userAvatar ? { src: userAvatar } : { name: user?.name })}
                 />
               </Link>
             </div>

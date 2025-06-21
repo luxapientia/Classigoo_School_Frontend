@@ -61,7 +61,7 @@ export default function ClassroomHomeEditor({
                 size="md"
                 isBordered
                 className="cursor-pointer"
-                src={user?.user?.avatar}
+                src={user?.user?.avatar.url}
                 name={user?.user?.name}
               />
             </div>
@@ -108,7 +108,7 @@ export default function ClassroomHomeEditor({
                   >
                     <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 grid justify-center content-center flex-initial">
                       <img
-                        src={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
+                        src={`${file.location}`}
                         className="w-full h-full"
                         alt=""
                       />
@@ -125,7 +125,7 @@ export default function ClassroomHomeEditor({
                       <Button
                         variant="text"
                         className="w-12 h-20 grid justify-center items-center bg-gray-200 dark:bg-gray-700 rounded-none"
-                        onPress={() => handleRemoveFile([file.location])}
+                        onPress={() => handleRemoveFile([file.bucketKey])}
                         isLoading={deleting}
                       >
                         {!deleting && (
@@ -162,7 +162,7 @@ export default function ClassroomHomeEditor({
                       <Button
                         variant="text"
                         className="w-12 h-20 grid justify-center items-center bg-gray-200 dark:bg-gray-700 rounded-none"
-                        onPress={() => handleRemoveFile([file.location])}
+                        onPress={() => handleRemoveFile([file.bucketKey])}
                         isLoading={deleting}
                       >
                         {!deleting && (
@@ -233,7 +233,7 @@ export default function ClassroomHomeEditor({
                   variant="text"
                   size="lg"
                   onPress={async () => {
-                    const fileLocs = files.map((f) => f.location);
+                    const fileLocs = files.map((f) => f.bucketKey);
                     if (fileLocs.length > 0) {
                       await handleRemoveFile(fileLocs);
                     }
@@ -242,7 +242,7 @@ export default function ClassroomHomeEditor({
                   }}
                   className="w-full lg:w-20 h-10 bg-gray-500 hover:bg-gray-600 text-sm text-white rounded-lg mr-2"
                 >
-                  Cancle
+                  Cancel
                 </Button>
                 <Button
                   variant="text"

@@ -17,7 +17,7 @@ export default function ProfileTabs({ data }) {
       <Tab key="profile" title="Profile">
         <ProfileSetting
           className="mt-0 bg-content1 dark:bg-content1"
-          id={data?.id}
+          id={data?._id}
           avatar={data?.avatar}
           name={data?.name}
           email={data?.email}
@@ -31,7 +31,7 @@ export default function ProfileTabs({ data }) {
       <Tab key="address" title="Address">
         <AddressSetting
           className="mt-0 bg-content1 dark:bg-content1"
-          id={data?.id}
+          id={data?._id}
           address={data?.address}
         />
       </Tab>

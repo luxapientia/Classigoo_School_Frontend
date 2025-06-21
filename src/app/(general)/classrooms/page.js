@@ -1,7 +1,7 @@
 import React from "react";
-import { auth0 } from "@lib/auth0";
 import { redirect } from "next/navigation";
 import MainClassroomsComponent from "@components/pages/classrooms/main";
+import { getUser } from "@lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -12,15 +12,15 @@ export const metadata = {
 
 export default async function classroomsPage() {
   try {
-    const session = await auth0.getSession();
+    const user = await getUser();
 
-    if (!session) {
-      redirect("/auth/login");
+    if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+      redirect("/api/logout");
     }
 
     return (
       <>
-        <MainClassroomsComponent user={session.user} />
+        <MainClassroomsComponent user={user} />
       </>
     );
   } catch (error) {

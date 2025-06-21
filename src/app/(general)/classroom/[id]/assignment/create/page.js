@@ -1,4 +1,4 @@
-import { auth0 } from "@lib/auth0";
+import { getUser } from "@lib/auth";
 import { redirect } from "next/navigation";
 import AssignmentCreateMainComponent from "@components/pages/classroom/assignment/create/main";
 
@@ -8,17 +8,17 @@ export const metadata = {
 };
 
 export default async function AssignmentCreatePage({ params }) {
-  const session = await auth0.getSession();
+  const user = await getUser();
 
-  if (!session) {
-    redirect("/auth/login");
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+    redirect("/api/logout");
   }
 
   const { id } = await params;
 
   return (
     <>
-      <AssignmentCreateMainComponent classId={id} user={session.user} />
+      <AssignmentCreateMainComponent classId={id} userInfo={user} />
     </>
   );
 }

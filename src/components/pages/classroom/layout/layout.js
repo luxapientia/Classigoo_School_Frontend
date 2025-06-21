@@ -1,12 +1,13 @@
 "use client";
 
-import { useUser } from "@auth0/nextjs-auth0";
+// import { useUser } from "@auth0/nextjs-auth0";
 import Loading from "@components/common/loading";
 import ClassroomHeader from "./header";
 import NotFoundPage from "@app/not-found";
+import { useAuth } from "@contexts/AuthContext";
 
 export default function ClassroomLayout({ id, children, classroom, loading }) {
-  const { user } = useUser();
+  const { user } = useAuth();
 
   if (loading || !user) {
     return (
@@ -17,7 +18,7 @@ export default function ClassroomLayout({ id, children, classroom, loading }) {
   }
 
   // get current user role
-  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === user.sub);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user._id === user._id);
 
   return (
     <>

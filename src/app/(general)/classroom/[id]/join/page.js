@@ -1,4 +1,4 @@
-import { auth0 } from "@lib/auth0";
+import { getUser } from "@lib/auth";
 import { redirect } from "next/navigation";
 import Loading from "@components/common/loading";
 import JoinClassRoomMain from "@components/pages/classroom/join/main";
@@ -9,16 +9,16 @@ export const metadata = {
 };
 
 export default async function JoinClassRoom({ params }) {
-  const session = await auth0.getSession();
+  const user = await getUser();
   const { id } = await params;
 
-  if (!session) {
-    redirect("/auth/login");
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+    redirect("/api/logout");
   }
 
   return (
     <>
-      <JoinClassRoomMain id={id} session={session} />
+      <JoinClassRoomMain id={id} userInfo={user} />
     </>
   );
 }

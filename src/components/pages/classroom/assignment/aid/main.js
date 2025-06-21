@@ -1,6 +1,6 @@
 "use client";
 import xss from "xss";
-import axios from "axios";
+import axios from "@lib/axios";
 import React from "react";
 import moment from "moment";
 import Link from "next/link";
@@ -23,18 +23,23 @@ import DeleteAssignmentAction from "./delete-assignment-action";
 import ClassroomLayout from "../../layout/layout";
 import { Icon } from "@iconify/react";
 import { FileUploader } from "react-drag-drop-files";
-import { useMutation, useSubscription } from "@apollo/client";
-import { SUB_GET_ASSIGNMENT, SUB_GET_CLASSROOM } from "@graphql/subscriptions";
-import {
-  DELETE_ASSIGNMENT,
-  CREATE_ASSIGNMENT_SUBMISSION,
-  UPDATE_ASSIGNMENT_SUBMISSION,
-} from "@graphql/mutations";
+// import { useMutation, useSubscription } from "@apollo/client";
+// import { SUB_GET_ASSIGNMENT, SUB_GET_CLASSROOM } from "@graphql/subscriptions";
+// import {
+//   DELETE_ASSIGNMENT,
+//   CREATE_ASSIGNMENT_SUBMISSION,
+//   UPDATE_ASSIGNMENT_SUBMISSION,
+// } from "@graphql/mutations";
+import { useSocket } from "@hooks/useSocket";
 
-export default function AssignmentPageMainComponent({ user, cid, aid }) {
-  const [deleteAssignment] = useMutation(DELETE_ASSIGNMENT);
-  const [setSubmission] = useMutation(CREATE_ASSIGNMENT_SUBMISSION);
-  const [updateSubmission] = useMutation(UPDATE_ASSIGNMENT_SUBMISSION);
+export default function AssignmentPageMainComponent({ userInfo, cid, aid }) {
+  // const [deleteAssignment] = useMutation(DELETE_ASSIGNMENT);
+  // const [setSubmission] = useMutation(CREATE_ASSIGNMENT_SUBMISSION);
+  // const [updateSubmission] = useMutation(UPDATE_ASSIGNMENT_SUBMISSION);
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [assignment, setAssignment] = React.useState(null);
+  const [assignmentLoading, setAssignmentLoading] = React.useState(false);
   const [d_error, setError] = React.useState(null);
   const [filePicker, setFilePicker] = React.useState(false);
   const [fileError, setFileError] = React.useState(null);
@@ -50,33 +55,82 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
   const [assignMentFiles, setAssignmentFiles] = React.useState([]);
   const [tempAssignmentFile, setTempAssignmentFile] = React.useState(null);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id: cid },
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id: cid },
+  // });
+
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${cid}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [cid]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data.id === cid) {
+      fetchClassroom();
+    }
   });
 
-  const {
-    data: sub_assignment_data,
-    loading: sub_assignment_loading,
-    error: sub_assignment_error,
-  } = useSubscription(SUB_GET_ASSIGNMENT, {
-    variables: { id: aid },
-  });
+  // const {
+  //   data: sub_assignment_data,
+  //   loading: sub_assignment_loading,
+  //   error: sub_assignment_error,
+  // } = useSubscription(SUB_GET_ASSIGNMENT, {
+  //   variables: { id: aid },
+  // });
 
-  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find(
-    (cr) => cr.user.id === user.sub
+  // fetch assignment
+  const fetchAssignment = React.useCallback(async () => {
+    setAssignmentLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/assignment/${aid}`);
+      setAssignment(res.data);
+    } catch (err) {
+      setError(err?.message || "Failed to load assignment");
+    }
+    setAssignmentLoading(false);
+  }, [aid]);
+
+  React.useEffect(() => {
+    fetchAssignment();
+  }, [fetchAssignment]);
+
+  useSocket("assignment.updated", (payload) => {
+    if (payload.data.aid === aid || payload.data.cid === cid) {
+      fetchAssignment();
+    }
+  });
+  const currentUser = classroom?.classroom_relation.find(
+    (cr) => cr.user._id === userInfo._id
   );
 
   const handleDeleteAssignment = async () => {
     setDeleteLoading(true);
     try {
-      await deleteAssignment({
-        variables: { id: aid },
-      });
-      window.location.replace(`/classroom/${cid}/assignments`);
+      // await deleteAssignment({
+      //   variables: { id: aid },
+      // });
+      const { data: response } = await axios.delete(`/v1/classroom/assignment/${aid}`);
+      if (response.status === "success") {
+        window.location.replace(`/classroom/${cid}/assignments`);
+      } else {
+        setError(response.message);
+      }
     } catch (error) {
       setError(error);
       setDeleteLoading(false);
@@ -100,18 +154,25 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
       }
 
       let formData = new FormData();
-      formData.append("file", tempAssignmentFile);
+      formData.append("files", tempAssignmentFile);
+      formData.append("fileFolder", "assignment_submission")
 
       // post form data image
-      const response = await axios.post(
-        "/api/proxy/upload/posts/file",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      // const response = await axios.post(
+      //   "/api/proxy/upload/posts/file",
+      //   formData,
+      //   {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   }
+      // );
+
+      const { data: response } = await axios.post("/v1/classroom/assignment/file/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       let fileSize;
 
@@ -126,42 +187,55 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
         fileSize = `${(tempAssignmentFile.size / 1048576).toFixed(2)} MB`;
       }
 
-      if (response.data.status === "success") {
+      if (response.status === "success") {
         setFileSuccess("File uploaded successfully.");
         // if user submission is not null then update the submission or create a new submission
         const updatedFileList = mySubmission
           ? mySubmission.files.concat({
               type: "file",
-              name: response.data.data.name,
-              mimetype: response.data.data.type,
-              location: response.data.data.location,
+              name: response.data.name,
+              mimetype: response.data.type,
+              location: response.data.location,
+              bucketKey: response.data.bucketKey,
               size: fileSize,
             })
           : [
               {
                 type: "file",
-                name: response.data.data.name,
-                mimetype: response.data.data.type,
-                location: response.data.data.location,
+                name: response.data.name,
+                mimetype: response.data.type,
+                location: response.data.location,
+                bucketKey: response.data.bucketKey,
                 size: fileSize,
               },
             ];
 
         if (mySubmission) {
-          await updateSubmission({
-            variables: {
-              id: mySubmission.id,
-              files: updatedFileList,
-              status: mySubmission.status,
-            },
+          // await updateSubmission({
+          //   variables: {
+          //     id: mySubmission.id,
+          //     files: updatedFileList,
+          //     status: mySubmission.status,
+          //   },
+          // });
+          const { data: response } = await axios.post("/v1/classroom/assignment/submission/update", {
+            id: mySubmission.id,
+            files: updatedFileList,
+            status: mySubmission.status,
           });
+
         } else {
-          await setSubmission({
-            variables: {
-              aid: aid,
-              files: updatedFileList,
-              status: "draft",
-            },
+          // await setSubmission({
+          //   variables: {
+          //     aid: aid,
+          //     files: updatedFileList,
+          //     status: "draft",
+          //   },
+          // });
+          const { data: response } = await axios.post("/v1/classroom/assignment/submission/create", {
+            assignment_id: aid,
+            files: updatedFileList,
+            status: "draft",
           });
         }
 
@@ -169,9 +243,10 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
           setAssignmentFiles((prev) =>
             prev.concat({
               type: "file",
-              name: response.data.data.name,
-              mimetype: response.data.data.type,
-              location: response.data.data.location,
+              name: response.data.name,
+              mimetype: response.data.type,
+              location: response.data.location,
+              bucketKey: response.data.bucketKey,
               size: fileSize,
             })
           );
@@ -179,9 +254,10 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
           setAssignmentFiles([
             {
               type: "file",
-              name: response.data.data.name,
-              mimetype: response.data.data.type,
-              location: response.data.data.location,
+              name: response.data.name,
+              mimetype: response.data.type,
+              location: response.data.location,
+              bucketKey: response.data.bucketKey,
               size: fileSize,
             },
           ]);
@@ -205,17 +281,22 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
     // remove file from the server
     setDeleting(true);
     try {
-      const response = await axios.post("/api/proxy/upload/posts/delete", {
+      // const response = await axios.post("/api/proxy/upload/posts/delete", {
+      //   files: locations,
+      // });
+
+      const { data: response } = await axios.post("/v1/classroom/assignment/file/delete", {
         files: locations,
+        classroom_id: classId,
       });
 
-      if (response.data.status === "success") {
+      if (response.status === "success") {
         // remove the specific files from the state by the way locations are array of file locations
 
         // if set assignment is an array of files then remove the files from the array
         if (assignMentFiles?.length > 0) {
           setAssignmentFiles((prev) =>
-            prev.filter((f) => !locations.includes(f.location))
+            prev.filter((f) => !locations.includes(f.bucketKey))
           );
         } else {
           // if set assignment is not an array of files then remove the file from the array
@@ -223,18 +304,26 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
         }
       }
 
-      if (response.data.status === "error") {
-        setFileError(response.data.message);
+      if (response.status === "error") {
+        setFileError(response.message);
       } else {
         // update the submission
-        await updateSubmission({
-          variables: {
-            id: mySubmission.id,
-            files: mySubmission.files.filter(
-              (f) => !locations.includes(f.location)
-            ),
-            status: mySubmission.status,
-          },
+        // await updateSubmission({
+        //   variables: {
+        //     id: mySubmission.id,
+        //     files: mySubmission.files.filter(
+        //       (f) => !locations.includes(f.location)
+        //     ),
+        //     status: mySubmission.status,
+        //   },
+        // });
+
+        const { data: response } = await axios.post("/v1/classroom/assignment/submission/update", {
+          id: mySubmission.id,
+          files: mySubmission.files.filter(
+            (f) => !locations.includes(f.bucketKey)
+          ),
+          status: mySubmission.status,
         });
         setFileSuccess("File deleted successfully.");
       }
@@ -262,12 +351,17 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
       }
 
       // update the submission status to submitted
-      await updateSubmission({
-        variables: {
-          id: mySubmission.id,
-          files: assignMentFiles,
-          status: "published",
-        },
+      // await updateSubmission({
+      //   variables: {
+      //     id: mySubmission.id,
+      //     files: assignMentFiles,
+      //     status: "published",
+      //   },
+      // });
+      const { data: response } = await axios.post("/v1/classroom/assignment/submission/update", {
+        id: mySubmission.id,
+        files: assignMentFiles,
+        status: "published",
       });
       setSuccess("Assignment submitted successfully.");
       setSubmissionStatus("published");
@@ -288,12 +382,17 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
       }
 
       // update the submission status to draft
-      await updateSubmission({
-        variables: {
-          id: mySubmission.id,
-          files: assignMentFiles,
-          status: "draft",
-        },
+      // await updateSubmission({
+      //   variables: {
+      //     id: mySubmission.id,
+      //     files: assignMentFiles,
+      //     status: "draft",
+      //   },
+      // });
+      const { data: response } = await axios.post("/v1/classroom/assignment/submission/update", {
+        id: mySubmission.id,
+        files: assignMentFiles,
+        status: "draft",
       });
       setSuccess("Assignment unsubmitted successfully.");
       setSubmissionStatus("draft");
@@ -332,31 +431,31 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
   }, [fileSuccess]);
 
   React.useEffect(() => {
-    if (sub_assignment_data?.assignments_by_pk) {
+    if (assignment) {
       // get my submissions
       const mySub =
-        sub_assignment_data.assignments_by_pk.assignment_submissions.find(
-          (s) => s.submitter.id === user.sub
+        assignment.assignment_submissions.find(
+          (s) => s.submitter.id === userInfo._id
         );
       setMySubmission(mySub);
       setAssignmentFiles(mySub?.files);
       setSubmissionStatus(mySub?.status || "draft");
     }
-  }, [sub_assignment_data]);
+  }, [assignment]);
 
   // if not found
-  if (!sub_assignment_loading && !sub_assignment_data?.assignments_by_pk) {
+  if (!assignmentLoading && !assignment) {
     return <NotFoundPage />;
   }
 
   const isPastDeadline = moment(
-    sub_assignment_data?.assignments_by_pk?.deadline
+    assignment?.deadline
   ).isBefore(moment());
 
   // if student and status is draft then don't show the assignment
   if (
     currentUser?.role === "student" &&
-    sub_assignment_data?.assignments_by_pk?.status === "draft"
+    assignment?.status === "draft"
   ) {
     return <NotFoundPage />;
   }
@@ -364,8 +463,8 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
   // if audience is not all and current user is not in the audience then don't show the assignment
   if (
     currentUser?.role === "student" &&
-    !sub_assignment_data?.assignments_by_pk?.audience.includes("*") &&
-    !sub_assignment_data?.assignments_by_pk?.audience.includes(user.sub)
+    !assignment?.audience.includes("*") &&
+    !assignment?.audience.includes(userInfo._id)
   ) {
     return <NotFoundPage />;
   }
@@ -381,8 +480,8 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
       )}
       <ClassroomLayout
         id={cid}
-        loading={sub_loading || sub_assignment_loading}
-        classroom={sub_data?.classrooms_by_pk}
+        loading={classroomLoading || assignmentLoading}
+        classroom={classroom}
       >
         {fileSuccess && (
           <div className="mb-4">
@@ -406,7 +505,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
           )}
 
           <h1 className="text-2xl  p-5 bg-content2 font-bold rounded-xl">
-            {sub_assignment_data?.assignments_by_pk?.title}
+            {assignment?.title}
           </h1>
           <div className="flex flex-col xl:flex-row gap-4 max-w-full w-full">
             <div className="flex-auto flex flex-col overflow-x-auto">
@@ -414,17 +513,17 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                 <article
                   className="prose max-w-none prose-lg prose-headings:text-gray-800 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:italic prose-img:rounded-lg prose-img:shadow-md prose-ul:list-disc prose-ol:list-decimal prose-table:border-collapse prose-table:border prose-table:border-gray-300 prose-th:border prose-th:p-2 prose-th:bg-gray-100 prose-td:border prose-td:p-2 prose-td:text-gray-700 prose-strong:text-gray-800 dark:prose-headings:text-gray-100 dark:prose-p:text-gray-300 dark:prose-a:text-blue-400 dark:prose-blockquote:border-gray-600 dark:prose-th:bg-gray-800 dark:prose-td:text-gray-300 dark:prose-table:border-gray-600 dark:prose-strong:text-gray-100"
                   dangerouslySetInnerHTML={{
-                    // __html: xss(sub_assignment_data?.assignments_by_pk?.content),
-                    __html: sub_assignment_data?.assignments_by_pk?.content,
+                    // __html: xss(assignment?.content),
+                    __html: assignment?.content,
                   }}
                 ></article>
               </div>
               {/* if files */}
-              {sub_assignment_data?.assignments_by_pk?.files.length > 0 && (
+              {assignment?.files.length > 0 && (
                 <div className="mt-5 flex-initial">
                   <div className="">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      {sub_assignment_data?.assignments_by_pk?.files.map(
+                      {assignment?.files.map(
                         (file, index) => (
                           <div
                             key={index}
@@ -434,7 +533,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                               <div className="w-24 h-24 grid justify-center content-center border-2 border-default-200 rounded-lg">
                                 {file.type === "image" ? (
                                   <img
-                                    src={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
+                                    src={`${file.location}`}
                                     alt={file.name}
                                     className="h-16 w-auto object-cover"
                                   />
@@ -457,7 +556,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                             </div>
                             <div className="flex-initial pr-2">
                               <Link
-                                href={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
+                                href={`${file.location}`}
                                 target="_blank"
                                 className="text-black dark:text-white"
                               >
@@ -480,12 +579,12 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                 <h1 className="text-xl font-bold mb-2">Author</h1>
                 <User
                   avatarProps={{
-                    src: sub_assignment_data?.assignments_by_pk?.owner?.avatar,
-                    alt: sub_assignment_data?.assignments_by_pk?.owner?.name,
+                    src: assignment?.owner?.avatar?.url,
+                    alt: assignment?.owner?.name,
                   }}
-                  name={sub_assignment_data?.assignments_by_pk?.owner?.name}
+                  name={assignment?.owner?.name}
                   description={
-                    sub_assignment_data?.assignments_by_pk?.owner?.email
+                    assignment?.owner?.email
                   }
                 />
               </div>
@@ -494,14 +593,14 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                 <h2 className="text-sm">
                   Status:{" "}
                   <span className="font-semibold">
-                    {sub_assignment_data?.assignments_by_pk?.status.toUpperCase()}
+                    {assignment?.status.toUpperCase()}
                   </span>
                 </h2>
                 <h2 className="text-sm">
                   Last Updated:{" "}
                   <span className="font-semibold">
                     {moment(
-                      sub_assignment_data?.assignments_by_pk?.updated_at
+                      assignment?.updated_at
                     ).fromNow()}
                   </span>
                 </h2>
@@ -509,7 +608,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                   Deadline:{" "}
                   <span className="font-semibold">
                     {moment(
-                      sub_assignment_data?.assignments_by_pk?.deadline
+                      assignment?.deadline
                     ).format("MMM DD, YYYY hh:mm A")}
                   </span>
                 </h2>
@@ -548,7 +647,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                             <div className="flex-auto pl-3">
                               {/* file name first5chars...last5chars */}
                               <Link
-                                href={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
+                                href={`${file.location}`}
                                 target="_blank"
                                 className="text-xs text-gray-600 dark:text-gray-400 hover:underline"
                               >
@@ -569,9 +668,9 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                             </div>
                             {submissionStatus === "draft" &&
                               !isPastDeadline && (
-                                <button
+                                <Button
                                   onClick={() =>
-                                    handleDeleteFile([file.location])
+                                    handleDeleteFile([file.bucketKey])
                                   }
                                   disabled={deleting}
                                   className="bg-danger-500 h-8 w-8 rounded-md flex items-center justify-center"
@@ -587,7 +686,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                                       className="h-5 w-5 text-white"
                                     />
                                   )}
-                                </button>
+                                </Button>
                               )}
                           </div>
                         </div>
@@ -700,14 +799,14 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                     <TableColumn>LAST UPDATED</TableColumn>
                   </TableHeader>
                   <TableBody emptyContent={"No submissions found"}>
-                    {sub_assignment_data?.assignments_by_pk?.assignment_submissions.map(
+                    {assignment?.assignment_submissions.map(
                       (submission, index) => (
                         <TableRow key={submission.id}>
                           <TableCell>{index + 1}</TableCell>
                           <TableCell>
                             <User
                               avatarProps={{
-                                src: submission.submitter.avatar,
+                                src: submission.submitter.avatar?.url,
                               }}
                               description={
                                 <h4 className="text-sm text-gray-500 dark:text-gray-400">
@@ -746,7 +845,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                                     <div className="flex-auto pl-3">
                                       {/* file name first5chars...last5chars */}
                                       <Link
-                                        href={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
+                                        href={`${file.location}`}
                                         target="_blank"
                                         className="text-xs text-gray-600 dark:text-gray-400 hover:underline"
                                       >
@@ -803,7 +902,7 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
               <FileUploader
                 handleChange={handleFileChange}
                 // free users 10mb pro users 50mb
-                maxSize={user?.user?.is_plus ? 50 : 10}
+                maxSize={userInfo?.is_plus ? 50 : 10}
                 overRide
               >
                 <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8 mb-2">
@@ -817,9 +916,9 @@ export default function AssignmentPageMainComponent({ user, cid, aid }) {
                 </div>
                 <p className="text-xs text-default-400">
                   <span className="text-danger-500">*</span>
-                  Max file size: {user?.user?.is_plus ? 50 : 10}MB
+                  Max file size: {userInfo?.is_plus ? 50 : 10}MB
                 </p>
-                {!user?.user?.is_plus && (
+                {!userInfo?.is_plus && (
                   <p className="text-xs text-default-400">
                     <span className="text-danger-500">*</span>
                     Upgrade to plus to upload bigger files.

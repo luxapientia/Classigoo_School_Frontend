@@ -1,5 +1,5 @@
 "use client";
-import axios from "axios";
+import axios from "@lib/axios";
 import React from "react";
 import cn from "classnames";
 import moment from "moment";
@@ -11,20 +11,27 @@ import Loading from "@components/common/loading";
 import { FileUploader } from "react-drag-drop-files";
 import { HeaderSlot } from "@components/layout/header";
 import { Avatar, Alert, Button, Textarea } from "@heroui/react";
-
-import { GET_ROOM_MESSAGES } from "@graphql/queries";
-import { START_CHAT, SEND_MESSAGE, DELETE_MESSAGE } from "@graphql/mutations";
-import { useLazyQuery, useSubscription, useMutation } from "@apollo/client";
-import {
-  SUB_GET_CLASSROOM,
-  SUB_LIST_MESSAGE_RECEIPIENTS,
-  SUB_GET_ROOM_LATEST_MESSAGE,
-  SUB_GET_ROOM_MESSAGES,
-} from "@graphql/subscriptions";
+import { useSocket } from "@hooks/useSocket";
+// import { GET_ROOM_MESSAGES } from "@graphql/queries";
+// import { SEND_MESSAGE, DELETE_MESSAGE } from "@graphql/mutations";
+// import { useLazyQuery, useSubscription, useMutation } from "@apollo/client";
+// import {
+//   SUB_GET_CLASSROOM,
+//   SUB_LIST_MESSAGE_RECEIPIENTS,
+//   SUB_GET_ROOM_LATEST_MESSAGE,
+//   SUB_GET_ROOM_MESSAGES,
+// } from "@graphql/subscriptions";
 import DeleteMessageAction from "./delete-action";
 
-export default function ClassroomMessageSingle({ cid, mid, user }) {
+
+export default function ClassroomMessageSingle({ cid, mid, userInfo }) {
   const router = useRouter();
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [messageRecipients, setMessageRecipients] = React.useState([]);
+  const [messageRecipientsLoading, setMessageRecipientsLoading] = React.useState(false);
+  const [subDataMessageIds, setSubDataMessageIds] = React.useState([]);
+  const [latestMessage, setLatestMessage] = React.useState(null);
   const [text, setText] = React.useState("");
   const [dates, setDates] = React.useState([]);
   const [limit, setLimit] = React.useState(20);
@@ -52,48 +59,142 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
 
   const scrollRef = React.useRef(null);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id: cid },
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id: cid },
+  // });
+
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${cid}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [cid]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data.id === cid) {
+      fetchClassroom();
+    }
   });
 
-  const {
-    data: sub_data_message_receipients,
-    loading: sub_loading_message_receipients,
-    error: sub_error_message_receipients,
-  } = useSubscription(SUB_LIST_MESSAGE_RECEIPIENTS, {
-    variables: { cid },
+  // const {
+  //   data: sub_data_message_receipients,
+  //   loading: sub_loading_message_receipients,
+  //   error: sub_error_message_receipients,
+  // } = useSubscription(SUB_LIST_MESSAGE_RECEIPIENTS, {
+  //   variables: { cid },
+  // });
+
+  // fetch recipients
+  const fetchMessageRecipients = React.useCallback(async () => {
+    setMessageRecipientsLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/message/recipients/${cid}`);
+      setMessageRecipients(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load message recipients");
+    }
+
+    setMessageRecipientsLoading(false);
+  }, [cid]);
+
+  React.useEffect(() => {
+    fetchMessageRecipients();
+  }, [fetchMessageRecipients]);
+
+  useSocket("classroom.member.updated", (payload) => {
+    if (payload.data.id === cid) {
+      fetchMessageRecipients();
+    }
   });
 
-  const {
-    data: sub_data_latest_message,
-    loading: sub_loading_latest_message,
-    error: sub_error_latest_message,
-  } = useSubscription(SUB_GET_ROOM_LATEST_MESSAGE, {
-    variables: { rid: mid },
+  useSocket("chatroom.created", (payload) => {
+    if (payload.data.class_id === cid) {
+      fetchMessageRecipients();
+    }
   });
 
-  const {
-    data: sub_data_message_ids,
-    loading: sub_loading_message_ids,
-    error: sub_error_message_ids,
-  } = useSubscription(SUB_GET_ROOM_MESSAGES, {
-    variables: { rid: mid },
+  // const {
+  //   data: sub_data_latest_message,
+  //   loading: sub_loading_latest_message,
+  //   error: sub_error_latest_message,
+  // } = useSubscription(SUB_GET_ROOM_LATEST_MESSAGE, {
+  //   variables: { rid: mid },
+  // });
+
+  // fetch latest message
+  const fetchLatestMessage = React.useCallback(async () => {
+    const { data } = await axios.get(`/v1/classroom/message/room/${mid}/latest`);
+    setLatestMessage(data);
+  }, [mid]);
+
+  React.useEffect(() => {
+    fetchLatestMessage();
+  }, [fetchLatestMessage]);
+
+  useSocket("message.created", (payload) => {
+    if (payload.data.id === mid) {
+      fetchLatestMessage();
+    }
   });
 
-  const [sendMessage] = useMutation(SEND_MESSAGE);
-  const [deleteMessage] = useMutation(DELETE_MESSAGE);
-  const [getMessages] = useLazyQuery(GET_ROOM_MESSAGES);
+  // const {
+  //   data: sub_data_message_ids,
+  //   loading: sub_loading_message_ids,
+  //   error: sub_error_message_ids,
+  // } = useSubscription(SUB_GET_ROOM_MESSAGES, {
+  //   variables: { rid: mid },
+  // });
+
+  // fetch message ids
+  const fetchMessageIds = React.useCallback(async () => {
+    const { data } = await axios.get(`/v1/classroom/message/room/${mid}/ids`);
+    if (data.length > 0) {
+      setSubDataMessageIds(data.map((m) => m.id));
+    }
+  }, [mid]);
+
+  React.useEffect(() => {
+    fetchMessageIds();
+  }, [fetchMessageIds]);
+
+  useSocket("message.deleted", (payload) => {
+    if (payload.data.room_id === mid) {
+      // setSubDataMessageIds((prev) => prev.filter((m) => m !== payload.data.id));
+      // setMessages((prev) => prev.filter((m) => m.id !== payload.data.id));
+      fetchMessageIds();
+    }
+  });
+
+  // const [sendMessage] = useMutation(SEND_MESSAGE);
+  // const [deleteMessage] = useMutation(DELETE_MESSAGE);
+  // const [getMessages] = useLazyQuery(GET_ROOM_MESSAGES);
 
   React.useEffect(() => {
     if (!fLoaded) {
       const fetchMessages = async () => {
         try {
-          const { data } = await getMessages({
-            variables: { rid: mid, limit, offset },
+          // const { data } = await getMessages({
+          //   variables: { rid: mid, limit, offset },
+          // });
+          const { data } = await axios.get(`/v1/classroom/message/room/${mid}`, {
+            params: {
+              limit,
+              offset,
+            },
           });
           setMessages(data.messages);
           if (data.messages.length < limit) {
@@ -111,8 +212,8 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
   }, []);
 
   React.useEffect(() => {
-    if (fLoaded && sub_data_latest_message?.messages?.length > 0) {
-      const newMessage = sub_data_latest_message?.messages[0];
+    if (fLoaded && latestMessage) {
+      const newMessage = latestMessage;
       // dont' duplicate messages
       // if (!messageIds.includes(newMessage.id)) {
       //   setMessageIds((prev) => [newMessage.id, ...prev]);
@@ -134,27 +235,27 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
         }
       }
     }
-  }, [sub_data_latest_message, messages, fLoaded]);
+  }, [latestMessage, messages, fLoaded]);
 
   React.useEffect(() => {
-    if (fLoaded && sub_data_message_ids?.messages?.length > 0) {
+    if (fLoaded && subDataMessageIds.length > 0) {
       const newMessageIDs = [];
-      sub_data_message_ids?.messages.forEach((m) => {
-        if (!newMessageIDs.includes(m.id)) {
-          newMessageIDs.push(m.id);
+      subDataMessageIds.forEach((mId) => {
+        if (!newMessageIDs.includes(mId)) {
+          newMessageIDs.push(mId);
         }
       });
       setMessageIds(newMessageIDs);
     }
-  }, [sub_data_message_ids, fLoaded]);
+  }, [subDataMessageIds, fLoaded]);
 
   React.useEffect(() => {
-    if (sub_data?.classrooms_by_pk && sub_data_message_receipients) {
+    if (classroom && messageRecipients) {
       let r = [];
       let u = [];
 
       // if type == all then name is Group Name but if single that case there will be 2 users in the array and name will be the name of other user in the array different from the current user
-      sub_data_message_receipients.message_rooms.forEach((mr) => {
+      messageRecipients.forEach((mr) => {
         //all and child only disabled
         if (mr.type === "all") {
           r.push({
@@ -166,17 +267,17 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
           r.push({
             id: mr.id,
             type: mr?.type,
-            name: mr?.users?.find((u) => u?.user?.id !== user?.sub)?.user?.name,
-            image: mr?.users?.find((u) => u?.user?.id !== user?.sub)?.user?.avatar,
-            uid: mr?.users?.find((u) => u?.user?.id !== user?.sub)?.user?.id,
-            role: mr?.users?.find((u) => u?.user?.id !== user?.sub)?.user?.role === "student" ? "student" : "teacher",
+            name: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.name,
+            image: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.avatar?.url,
+            uid: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.id,
+            role: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.role === "student" ? "student" : "teacher",
           });
         }
       });
 
       setReceipients(r);
     }
-  }, [sub_data_message_receipients, sub_data]);
+  }, [messageRecipients, classroom]);
 
   React.useEffect(() => {
     if (error) {
@@ -215,25 +316,17 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
   }, [success]);
 
   // handle delete file
-  const handleDeleteFile = async (locations) => {
+  const handleDeleteFile = async (locations, messageId) => {
     try {
-      const response = await axios.post("/api/proxy/upload/posts/delete", {
+      const { data: response } = await axios.post(`/v1/classroom/message/file/delete`, {
         files: locations,
+        message_id: messageId,
       });
 
-      if (response.data.status === "success") {
-        return true;
-      }
-
-      if (response.data.status === "error") {
-        setFileError(response.data.message);
-        return false;
-      } else {
-        return false;
-      }
+      return response.status === "success";
     } catch (err) {
-      // console.log(err);
       setFileError(err.message);
+      console.error("File deletion error:", err);
       return false;
     }
   };
@@ -246,24 +339,34 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
       return;
     }
     try {
-      const { data } = await sendMessage({
-        variables: {
-          cid,
-          rid: mid,
-          msg: {
-            files: [],
-            type: "text",
-            text: text,
-          },
+      // const { data } = await sendMessage({
+      //   variables: {
+      //     cid,
+      //     rid: mid,
+      //     msg: {
+      //       files: [],
+      //       type: "text",
+      //       text: text,
+      //     },
+      //   },
+      // });
+
+      const { data } = await axios.post(`/v1/classroom/message/send`, {
+        class_id: cid,
+        room_id: mid,
+        message: {
+          type: "text",
+          text
         },
       });
+
       setText("");
 
-      if (data.sendMessage.status === "success") {
-        setSuccess("Message sent successfully");
+      if (data.status === "success") {
+        setSuccess(data.message);
       }
-      if (data.sendMessage.status === "error") {
-        setError(data.sendMessage.message);
+      if (data.status === "error") {
+        setError(data.message);
       }
     } catch (error) {
       setError(error.message);
@@ -274,31 +377,32 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
   const handleDeleteMessage = async (id) => {
     setDeleting(true);
     try {
-      const { data } = await deleteMessage({
-        variables: { mid: id },
-      });
-
-      // if type file then also delete file from server
+      // First find the message
       const message = messages.find((m) => m.id === id);
+      
+      // If it's a file message, delete the file first
       if (message?.content?.type === "file") {
-        const fileLocations = message?.content?.files.map((f) => f.location);
-        const deleteFile = await handleDeleteFile(fileLocations);
-        if (!deleteFile) {
-          setError("Something went wrong. Please try again.");
+        const fileLocations = message.content.files.map((f) => f.bucketKey);
+        const fileDeleted = await handleDeleteFile(fileLocations, id);
+        if (!fileDeleted) {
+          setError("Failed to delete file. Please try again.");
           setDeleting(false);
           return;
         }
       }
 
-      if (data.delete_messages_by_pk) {
-        // remove message from the state
+      // Then delete the message
+      const { data } = await axios.delete(`/v1/classroom/message/${id}`);
+
+      if (data.status === "success") {
         setMessages((prev) => prev.filter((m) => m.id !== id));
         setSuccess("Message deleted successfully");
       } else {
-        setError("Something went wrong. Please try again.");
+        setError("Failed to delete message. Please try again.");
       }
     } catch (error) {
-      setError(error.message);
+      console.error("Message deletion error:", error);
+      setError(error?.response?.data?.message || "Something went wrong. Please try again.");
     }
     setDeleteId("");
     setDeleting(false);
@@ -308,9 +412,17 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
     if (loadingMore || limitReached) return;
     setLoadingMore(true);
     try {
-      const { data } = await getMessages({
-        variables: { rid: mid, limit, offset },
+      // const { data } = await getMessages({
+      //   variables: { rid: mid, limit, offset },
+      // });
+
+      const { data } = await axios.get(`/v1/classroom/message/room/${mid}`, {
+        params: {
+          limit,
+          offset,
+        },
       });
+
       setMessages((prev) => [...prev, ...data.messages]);
       if (data.messages.length < limit) {
         setLimitReached(true);
@@ -335,10 +447,17 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
       }
 
       let formData = new FormData();
-      formData.append("file", tempFile);
+      formData.append("files", tempFile);
+      formData.append("fileFolder", "message");
 
       // post form data image
-      const response = await axios.post("/api/proxy/upload/posts/file", formData, {
+      // const response = await axios.post("/api/proxy/upload/posts/file", formData, {
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // });
+
+      const { data: response } = await axios.post("/v1/classroom/message/file/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -354,33 +473,52 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
         fileSize = `${(tempFile.size / 1048576).toFixed(2)} MB`;
       }
 
-      if (response.data.status === "success") {
-        setSuccess("File uploaded successfully");
-        const { data } = await sendMessage({
-          variables: {
-            cid,
-            rid: mid,
-            msg: {
-              files: [
-                {
-                  name: tempFile.name,
-                  type: imageTypes.includes(tempFile.type.split("/")[1]) ? "image" : "file",
-                  size: fileSize,
-                  location: response.data.data.location,
-                },
-              ],
-              type: "file",
-              text: "",
-            },
+      if (response.status === "success") {
+        setSuccess(response.message);
+        // const { data } = await sendMessage({
+        //   variables: {
+        //     cid,
+        //     rid: mid,
+        //     msg: {
+        //       files: [
+        //         {
+        //           name: tempFile.name,
+        //           type: imageTypes.includes(tempFile.type.split("/")[1]) ? "image" : "file",
+        //           size: fileSize,
+        //           location: response.data.data.location,
+        //         },
+        //       ],
+        //       type: "file",
+        //       text: "",
+        //     },
+        //   },
+        // });
+
+        const { data } = await axios.post(`/v1/classroom/message/send`, {
+          class_id: cid,
+          room_id: mid,
+          message: {
+            files: [
+              {
+                name: tempFile.name,
+                type: imageTypes.includes(tempFile.type.split("/")[1]) ? "image" : "file",
+                size: fileSize,
+                bucketKey: response.data.bucketKey,
+                location: response.data.location,
+              },
+            ],
+            type: "file",
+            text: "",
           },
         });
+
         setText("");
 
         setTempFile(null);
         setTempFilePreview(null);
         setFilePicker(false);
       } else {
-        setFileError(response.data.message);
+        setFileError(response.message);
       }
 
       setSending(false);
@@ -408,10 +546,10 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
     }
   };
 
-  if (sub_loading || sub_loading_message_receipients) return <Loading />;
-  if (sub_data?.classrooms_by_pk === null) return <NotFoundPage />;
+  if (classroomLoading || messageRecipientsLoading) return <Loading />;
+  if (classroom === null) return <NotFoundPage />;
 
-  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find((cr) => cr.user.id === user.sub);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user._id === userInfo._id);
 
   return (
     <section>
@@ -442,7 +580,7 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
             <div className="mt-5 ">
               {receipients.map((r) => {
                 if (r.type === "all") {
-                  if (sub_data?.classrooms_by_pk?.child_only) {
+                  if (classroom?.child_only) {
                     return null;
                   }
                   return (
@@ -553,14 +691,14 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
                             )} */}
                             <div
                               className={cn("flex items-end gap-2 w-full", {
-                                "justify-start flex-row-reverse": message.user.id === user.sub,
-                                "justify-start flex-row": message.user.id !== user.sub,
+                                "justify-start flex-row-reverse": message.user.id === userInfo._id,
+                                "justify-start flex-row": message.user.id !== userInfo._id,
                               })}
                             >
                               <Avatar
                                 radius="full"
                                 className="w-5 h-5 text-tiny"
-                                src={message.user.avatar}
+                                src={message.user.avatar?.url}
                                 name={message.user.name}
                               />
 
@@ -568,33 +706,33 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
                                 className={cn(
                                   "flex flex-col w-fit max-w-[80%] rounded-lg p-2 pb-0.5 text-sm group relative",
                                   {
-                                    "bg-blue-500 text-white": message.user.id === user.sub,
-                                    "bg-gray-200 dark:bg-neutral-700": message.user.id !== user.sub,
+                                    "bg-blue-500 text-white": message.user.id === userInfo._id,
+                                    "bg-gray-200 dark:bg-neutral-700": message.user.id !== userInfo._id,
                                   }
                                 )}
                               >
                                 {receipients.find((r) => r.id === mid)?.type === "all" &&
-                                  message.user.id !== user.sub && (
+                                  message.user.id !== userInfo._id && (
                                     <h3
                                       className={cn("text-xs font-semibold", {
-                                        "text-white": message.user.id === user.sub,
-                                        "text-gray-900 dark:text-white": message.user.id !== user.sub,
+                                        "text-white": message.user.id === userInfo._id,
+                                        "text-gray-900 dark:text-white": message.user.id !== userInfo._id,
                                       })}
                                     >
-                                      {message.user.id === user.sub ? "You" : message.user.name}
+                                      {message.user.id === userInfo._id ? "You" : message.user.name}
                                     </h3>
                                   )}
                                 <p>{message.content.text}</p>
                                 <p
                                   className={cn("text-[10px] whitespace-nowrap ", {
-                                    "text-white text-right": message.user.id === user.sub,
-                                    "text-gray-500 dark:text-gray-400 text-left": message.user.id !== user.sub,
+                                    "text-white text-right": message.user.id === userInfo._id,
+                                    "text-gray-500 dark:text-gray-400 text-left": message.user.id !== userInfo._id,
                                   })}
                                 >
                                   {moment(message.created_at).format("DD MMM, YYYY hh:mm A")}
                                 </p>
                                 {/* if sender is currnet user */}
-                                {message.user.id === user.sub && (
+                                {message.user.id === userInfo._id && (
                                   <div className="hidden group-hover:grid h-full items-center absolute -left-12 pr-4 top-0 bottom-0">
                                     <Button
                                       isIconOnly
@@ -630,14 +768,14 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
                             )} */}
                             <div
                               className={cn("flex items-end gap-2 w-full", {
-                                "justify-start flex-row-reverse": message.user.id === user.sub,
-                                "justify-start flex-row": message.user.id !== user.sub,
+                                "justify-start flex-row-reverse": message.user.id === userInfo._id,
+                                "justify-start flex-row": message.user.id !== userInfo._id,
                               })}
                             >
                               <Avatar
                                 radius="full"
                                 className="w-5 h-5 text-tiny"
-                                src={message.user.avatar}
+                                src={message.user.avatar.url}
                                 name={message.user.name}
                               />
 
@@ -645,32 +783,32 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
                                 className={cn(
                                   "flex flex-col w-fit max-w-[80%] rounded-lg p-2 pb-0.5 text-sm group relative",
                                   {
-                                    "bg-blue-500 text-white": message.user.id === user.sub,
-                                    "bg-gray-200 dark:bg-neutral-700": message.user.id !== user.sub,
+                                    "bg-blue-500 text-white": message.user.id === userInfo._id,
+                                    "bg-gray-200 dark:bg-neutral-700": message.user.id !== userInfo._id,
                                   }
                                 )}
                               >
                                 {receipients.find((r) => r.id === mid)?.type === "all" &&
-                                  message.user.id !== user.sub && (
+                                  message.user.id !== userInfo._id && (
                                     <h3
                                       className={cn("text-xs font-semibold", {
-                                        "text-white": message.user.id === user.sub,
-                                        "text-gray-900 dark:text-white": message.user.id !== user.sub,
+                                        "text-white": message.user.id === userInfo._id,
+                                        "text-gray-900 dark:text-white": message.user.id !== userInfo._id,
                                       })}
                                     >
-                                      {message.user.id === user.sub ? "You" : message.user.name}
+                                      {message.user.id === userInfo._id ? "You" : message.user.name}
                                     </h3>
                                   )}
                                 <div className="">
                                   {message.content.files[0].type === "image" ? (
                                     <div className="relative">
                                       <img
-                                        src={`${process.env.CLASSROOM_CDN_URL}/${message.content.files[0].location}`}
+                                        src={`${message.content.files[0].location}`}
                                         alt={message.content.files[0].name}
                                         className="w-48 h-48 rounded-lg object-cover"
                                       />
                                       <Link
-                                        href={`${process.env.CLASSROOM_CDN_URL}/${message.content.files[0].location}`}
+                                        href={`${message.content.files[0].location}`}
                                         target="_blank"
                                       >
                                         <div className="absolute top-0 left-0 w-full h-full bg-black/50 rounded-lg flex items-center justify-center text-white text-sm font-semibold">
@@ -684,17 +822,17 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
                                         className={cn(
                                           "flex-initial h-10 w-10 rounded-xl flex items-center justify-center border-2 border-dotted",
                                           {
-                                            "bg-blue-500 text-white border-white": message.user.id === user.sub,
+                                            "bg-blue-500 text-white border-white": message.user.id === userInfo._id,
                                             "bg-gray-200 dark:bg-neutral-700 border-gray-500":
-                                              message.user.id !== user.sub,
+                                              message.user.id !== userInfo._id,
                                           }
                                         )}
                                       >
                                         <Icon
                                           icon="akar-icons:file"
                                           className={cn("w-5 h-5", {
-                                            "text-white": message.user.id === user.sub,
-                                            "text-gray-500 dark:text-gray-200": message.user.id !== user.sub,
+                                            "text-white": message.user.id === userInfo._id,
+                                            "text-gray-500 dark:text-gray-200": message.user.id !== userInfo._id,
                                           })}
                                         />
                                       </div>
@@ -703,13 +841,13 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
                                         <p className="text-[10px]">{message.content.files[0].size}</p>
                                       </div>
                                       <Link
-                                        href={`${process.env.CLASSROOM_CDN_URL}/${message.content.files[0].location}`}
+                                        href={`${message.content.files[0].location}`}
                                         target="_blank"
                                       >
                                         <div
                                           className={cn("px-2  rounded-lg flex items-center justify-center", {
-                                            "bg-blue-500 text-white": message.user.id === user.sub,
-                                            "bg-gray-200 dark:bg-neutral-700": message.user.id !== user.sub,
+                                            "bg-blue-500 text-white": message.user.id === userInfo._id,
+                                            "bg-gray-200 dark:bg-neutral-700": message.user.id !== userInfo._id,
                                           })}
                                         >
                                           <Icon icon="akar-icons:download" className="w-4 h-4" />
@@ -720,15 +858,15 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
                                 </div>
                                 <p
                                   className={cn("text-[10px] whitespace-nowrap ", {
-                                    "text-white text-right": message.user.id === user.sub,
-                                    "text-gray-500 dark:text-gray-400 text-left": message.user.id !== user.sub,
+                                    "text-white text-right": message.user.id === userInfo._id,
+                                    "text-gray-500 dark:text-gray-400 text-left": message.user.id !== userInfo._id,
                                   })}
                                 >
                                   {moment(message.created_at).format("DD MMM, YYYY hh:mm A")}
                                 </p>
 
                                 {/* if sender is currnet user */}
-                                {message.user.id === user.sub && (
+                                {message.user.id === userInfo._id && (
                                   <div className="hidden group-hover:grid h-full items-center absolute -left-12 pr-4 top-0 bottom-0">
                                     <Button
                                       isIconOnly
@@ -818,8 +956,8 @@ export default function ClassroomMessageSingle({ cid, mid, user }) {
               <FileUploader
                 handleChange={handleFileChange}
                 // free users 10mb pro users 50mb
-                maxSize={user?.user?.is_plus ? 50 : 10}
-                overRide
+                maxSize={userInfo?.is_plus ? 50 : 10}
+                overRide={true}
               >
                 <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8 mb-2">
                   <Icon icon="akar-icons:upload" className="h-8 w-8 text-default-400" />

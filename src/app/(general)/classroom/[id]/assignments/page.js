@@ -1,4 +1,4 @@
-import { auth0 } from "@lib/auth0";
+import { getUser } from "@lib/auth";
 import { redirect } from "next/navigation";
 import ClassroomAssignmentsMain from "@components/pages/classroom/assignments/main";
 
@@ -8,16 +8,16 @@ export const metadata = {
 };
 
 export default async function ClassroomHomePage({ params }) {
-  const session = await auth0.getSession();
+  const user = await getUser();
   const { id } = await params;
 
-  if (!session) {
-    redirect("/auth/login");
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+    redirect("/api/logout");
   }
 
   return (
     <>
-      <ClassroomAssignmentsMain id={id} session={session} />
+      <ClassroomAssignmentsMain id={id} userInfo={user} />
     </>
   );
 }

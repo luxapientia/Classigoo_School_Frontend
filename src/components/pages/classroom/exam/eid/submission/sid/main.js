@@ -1,6 +1,6 @@
 "use client";
 import xss from "xss";
-import axios from "axios";
+import axios from "@lib/axios";
 import React from "react";
 import cn from "classnames";
 import { useRouter } from "next/navigation";
@@ -9,67 +9,141 @@ import DOMPurify from "dompurify";
 import moment, { duration } from "moment";
 import { FileUploader } from "react-drag-drop-files";
 import { Button, Alert, CheckboxGroup, Checkbox, Radio, RadioGroup, Input, Textarea } from "@heroui/react";
-import { GET_EXAM_SUBMISSION } from "@graphql/queries";
-import { UPDATE_EXAM_SUBMISSION_MARKINGS } from "@graphql/mutations";
-import { SUB_GET_CLASSROOM, SUB_GET_EXAM } from "@graphql/subscriptions";
-import { useSubscription, useMutation, useQuery } from "@apollo/client";
+// import { GET_EXAM_SUBMISSION } from "@graphql/queries";
+// import { UPDATE_EXAM_SUBMISSION_MARKINGS } from "@graphql/mutations";
+// import { SUB_GET_CLASSROOM, SUB_GET_EXAM } from "@graphql/subscriptions";
+// import { useSubscription, useMutation, useQuery } from "@apollo/client";
 import Loading from "@components/common/loading";
 import NotFoundPage from "@app/not-found";
 import Link from "next/link";
+import { useToast } from "@heroui/react";
 
-export default function ExamSubmissionSeeMainComponent({ cid, eid, sid, user }) {
+export default function ExamSubmissionSeeMainComponent({ cid, eid, sid, userInfo }) {
   const router = useRouter();
   const imageTypes = ["png", "jpg", "jpeg", "heic", "webp"];
 
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [exam, setExam] = React.useState(null);
+  const [examLoading, setExamLoading] = React.useState(false);
+  const [submission, setSubmission] = React.useState(null);
+  const [submissionLoading, setSubmissionLoading] = React.useState(false);
   const [questions, setQuestions] = React.useState([]);
   const [answers, setAnswers] = React.useState([]);
   const [markings, setMarkings] = React.useState([]);
   const [totalMarks, setTotalMarks] = React.useState(0);
   const [receivedMarks, setReceivedMarks] = React.useState(0);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id: cid },
-  });
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id: cid },
+  // });
 
-  const {
-    data: exam_data,
-    loading: exam_loading,
-    error: exam_error,
-  } = useSubscription(SUB_GET_EXAM, {
-    variables: { id: eid },
-  });
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${cid}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
 
-  const {
-    data: submission_data,
-    loading: submission_loading,
-    error: submission_error,
-  } = useQuery(GET_EXAM_SUBMISSION, {
-    variables: { sid },
-  });
+    setClassroomLoading(false);
+  }, [cid]);
 
   React.useEffect(() => {
-    if (exam_data?.exams_by_pk?.questions) {
-      setQuestions(exam_data.exams_by_pk.questions);
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  // useSocket("classroom.updated", (payload) => {
+  //   if (payload.data.id === cid) {
+  //     fetchClassroom();
+  //   }
+  // });
+
+  // const {
+  //   data: exam_data,
+  //   loading: exam_loading,
+  //   error: exam_error,
+  // } = useSubscription(SUB_GET_EXAM, {
+  //   variables: { id: eid },
+  // });
+
+  // fetch exam
+  const fetchExam = React.useCallback(async () => {
+    setExamLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/exam/${eid}`);
+      setExam(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load exam");
+    }
+    setExamLoading(false);
+  }, [eid]);
+  
+  React.useEffect(() => {
+    fetchExam();
+  }, [fetchExam]);
+
+  // useSocket("exam.updated", (payload) => {
+  //   if (payload.data.eid === eid || payload.data.cid === cid) {
+  //     fetchExam();
+  //   }
+  // });
+
+  // const {
+  //   data: submission_data,
+  //   loading: submission_loading,
+  //   error: submission_error,
+  // } = useQuery(GET_EXAM_SUBMISSION, {
+  //   variables: { sid },
+  // });
+
+  // fetch submission
+  const fetchSubmission = React.useCallback(async () => {
+    setSubmissionLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/exam/submission/${sid}`);
+      setSubmission(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load submission");
+    }
+    setSubmissionLoading(false);
+  }, [sid]);
+
+  React.useEffect(() => {
+    fetchSubmission();
+  }, [fetchSubmission]);
+
+  // useSocket("exam.submission.updated", (payload) => {
+  //   if (payload.data.sid === sid) {
+  //     fetchSubmission();
+  //   }
+  // });
+
+  React.useEffect(() => {
+    if (exam?.questions) {
+      setQuestions(exam?.questions);
     }
 
-    if (submission_data?.exam_submissions_by_pk?.answers) {
-      setAnswers(submission_data.exam_submissions_by_pk.answers);
+    if (submission?.answers) {
+      setAnswers(submission?.answers);
     }
 
-    if (submission_data?.exam_submissions_by_pk?.markings) {
-      setMarkings(submission_data.exam_submissions_by_pk.markings);
+    if (submission?.markings) {
+      setMarkings(submission?.markings);
     }
 
-    if (exam_data?.exams_by_pk?.questions && submission_data?.exam_submissions_by_pk?.answers) {
+    if (exam?.questions && submission?.answers) {
       let total = 0;
       let received = 0;
-      exam_data.exams_by_pk.questions.forEach((q) => {
+      exam?.questions.forEach((q) => {
         total += parseInt(q.points);
-        const marking = submission_data.exam_submissions_by_pk.markings.find((m) => m.question_id === q.id);
+        const marking = submission?.markings.find((m) => m.question_id === q.id);
         if (marking) {
           received += parseInt(marking.marking);
         }
@@ -77,19 +151,19 @@ export default function ExamSubmissionSeeMainComponent({ cid, eid, sid, user }) 
       setTotalMarks(total);
       setReceivedMarks(received);
     }
-  }, [submission_data, exam_data]);
+  }, [submission, exam]);
 
   // current user
-  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find((cr) => cr.user.id === user.sub);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user._id === userInfo._id);
 
-  if (sub_loading || submission_loading || exam_loading) return <Loading />;
+  if (classroomLoading || submissionLoading || examLoading) return <Loading />;
   // not found page
-  if (sub_data?.classrooms_by_pk === null) return <NotFoundPage />;
-  if (exam_data?.exams_by_pk === null) return <NotFoundPage />;
-  if (submission_data?.exam_submissions_by_pk === null) return <NotFoundPage />;
+  if (classroom === null) return <NotFoundPage />;
+  if (exam === null) return <NotFoundPage />;
+  if (submission === null) return <NotFoundPage />;
 
   const can_see =
-    (currentUser?.role === "student" && submission_data?.exam_submissions_by_pk?.status === "published") ||
+    (currentUser?.role === "student" && submission?.status === "published") ||
     currentUser?.role !== "student";
 
   return (
@@ -97,7 +171,7 @@ export default function ExamSubmissionSeeMainComponent({ cid, eid, sid, user }) 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
-            <h1 className="text-2xl font-bold text-center">{exam_data.exams_by_pk.title}</h1>
+            <h1 className="text-2xl font-bold text-center">{exam?.title}</h1>
             {can_see && (
               <div>
                 <p className="text-lg font-medium text-center">
@@ -108,11 +182,11 @@ export default function ExamSubmissionSeeMainComponent({ cid, eid, sid, user }) 
 
             {(currentUser?.role === "teacher" || currentUser?.role === "owner") && (
               <div className="flex gap-4 justify-center">
-                <Link href={`/classroom/${cid}/exam/${eid}/evaluation/${sid}`}>
+                <Link href={`/classroom/${cid}/exam/${eid}/evaluate/${sid}`}>
                   <Button
                     variant="outline"
                     className="flex gap-2 items-center bg-black text-white dark:bg-gray-200 dark:text-gray-900"
-                    disabled={submission_data.exam_submissions_by_pk.status !== "published"}
+                    disabled={submission?.status !== "published"}
                   >
                     Re Evaluate
                   </Button>
@@ -399,12 +473,12 @@ export default function ExamSubmissionSeeMainComponent({ cid, eid, sid, user }) 
                                     style={{
                                       backgroundSize: "cover",
                                       backgroundPosition: "center center",
-                                      backgroundImage: `url(${process.env.CLASSROOM_CDN_URL}/${answer})`,
+                                      backgroundImage: `url(${answer.location})`,
                                     }}
                                   >
                                     <div className="absolute top-0 right-0 flex gap-2 p-2">
                                       <Link
-                                        href={`${process.env.CLASSROOM_CDN_URL}/${answer}`}
+                                        href={`${answer.location}`}
                                         target="_blank"
                                         className="p-0 w-7 h-7 bg-white dark:bg-gray-800 rounded-full grid justify-center items-center"
                                       >

@@ -1,5 +1,5 @@
 "use client";
-import axios from "axios";
+import axios from "@lib/axios";
 import moment from "moment";
 import { Icon } from "@iconify/react";
 import React, { use, useEffect } from "react";
@@ -7,20 +7,25 @@ import ClassroomHomeEditor from "./editor";
 import { Alert, Button } from "@heroui/react";
 import ClassroomLayout from "../layout/layout";
 import MemberSelector from "./member-selector";
-import { useSubscription } from "@apollo/client";
+// import { useSubscription } from "@apollo/client";
 import { FileUploader } from "react-drag-drop-files";
 import InviteMemberBlock from "../members/invite-block";
 
 // graphql imports
-import { useMutation } from "@apollo/client";
-import { CREATE_CLASSROOM_POST } from "@graphql/mutations";
-import { SUB_GET_POSTS, SUB_GET_CLASSROOM } from "@graphql/subscriptions";
+// import { useMutation } from "@apollo/client";
+// import { CREATE_CLASSROOM_POST } from "@graphql/mutations";
+// import { SUB_GET_POSTS, SUB_GET_CLASSROOM } from "@graphql/subscriptions";
 import ClassroomPost from "./posts";
+import { useSocket } from "@hooks/useSocket";
 
-export default function ClassroomHomeMain({ id, session }) {
+export default function ClassroomHomeMain({ id, userInfo }) {
   const imageTypes = ["JPEG", "JPG", "PNG", "GIF"];
   // states
   // -> data
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [posts, setPosts] = React.useState([]);
+  const [postsLoading, setPostsLoading] = React.useState(false);
   const [writting, setWritting] = React.useState(false);
   const [content, setContent] = React.useState("");
   const [pType, setPType] = React.useState("thread");
@@ -43,28 +48,76 @@ export default function ClassroomHomeMain({ id, session }) {
 
   // graphql
   // -> mutations
-  const [createClassroomPost] = useMutation(CREATE_CLASSROOM_POST);
+  // const [createClassroomPost] = useMutation(CREATE_CLASSROOM_POST);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id },
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id },
+  // });
+  // console.log(sub_data, sub_loading, sub_error, 'classroomdata--------------')
+
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${id}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [id]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data.id === id) {
+      fetchClassroom();
+    }
   });
 
-  const {
-    data: sub_posts,
-    loading: sub_posts_loading,
-    error: sub_posts_error,
-  } = useSubscription(SUB_GET_POSTS, {
-    variables: { cid: id },
+  // const {
+  //   data: sub_posts,
+  //   loading: sub_posts_loading,
+  //   error: sub_posts_error,
+  // } = useSubscription(SUB_GET_POSTS, {
+  //   variables: { cid: id },
+  // });
+
+  // fetch posts
+  const fetchPosts = React.useCallback(async () => {
+    setPostsLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/post/list/${id}`);
+      setPosts(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load posts");
+    }
+
+    setPostsLoading(false);
+  }, [id]);
+
+  React.useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
+  useSocket("post.updated", (payload) => {
+    if (payload.data.cid === id) {
+      fetchPosts();
+    }
   });
 
   let user;
 
-  if (session && sub_data?.classrooms_by_pk) {
-    user = sub_data?.classrooms_by_pk.classroom_relation.find((r) => r.user.id === session.user.sub);
+
+  if (userInfo && classroom) {
+    user = classroom?.classroom_relation.find((r) => r.user._id === userInfo._id);
   }
 
   // hooks
@@ -123,20 +176,30 @@ export default function ClassroomHomeMain({ id, session }) {
     setLoading(true);
 
     try {
-      const create = await createClassroomPost({
-        variables: {
-          audience,
-          classroom_id: id,
-          content,
-          files: files,
-          status: status,
-          type: pType,
-          // utc time pub at or now
-          published_at: pubAt ? moment(pubAt).format().toString() : moment().format().toString(),
-        },
+      // const create = await createClassroomPost({
+      //   variables: {
+      //     audience,
+      //     classroom_id: id,
+      //     content,
+      //     files: files,
+      //     status: status,
+      //     type: pType,
+      //     // utc time pub at or now
+      //     published_at: pubAt ? moment(pubAt).format().toString() : moment().format().toString(),
+      //   },
+      // });
+
+      const { data: response } = await axios.post("/v1/classroom/post/create", {
+        audience,
+        classroom_id: id,
+        content,
+        files: files,
+        status: status,
+        type: pType,
+        published_at: pubAt ? moment(pubAt).format().toString() : moment().format().toString(),
       });
 
-      if (create.data.createClassroomPost.status === "success") {
+      if (response.status === "success") {
         setSuccess("Post created successfully");
         setContent("");
         setFiles([]);
@@ -147,9 +210,9 @@ export default function ClassroomHomeMain({ id, session }) {
         setLoading(false);
       }
 
-      if (create.data.createClassroomPost.status === "error") {
+      if (response.status === "error") {
         setLoading(false);
-        setError(create.data.createClassroomPost.message);
+        setError(response.message);
       }
     } catch (err) {
       console.log(err);
@@ -171,10 +234,17 @@ export default function ClassroomHomeMain({ id, session }) {
         }
 
         let formData = new FormData();
-        formData.append("image", tempFile);
+        formData.append("files", tempFile);
+        formData.append("fileFolder", "post");
 
         // post form data image
-        const response = await axios.post("/api/proxy/upload/posts/image", formData, {
+        // const response = await axios.post("/api/proxy/upload/posts/image", formData, {
+        //   headers: {
+        //     "Content-Type": "multipart/form-data",
+        //   },
+        // });
+
+        const { data: response } = await axios.post("/v1/classroom/post/file/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -190,14 +260,15 @@ export default function ClassroomHomeMain({ id, session }) {
           fileSize = `${(tempFile.size / 1048576).toFixed(2)} MB`;
         }
 
-        if (response.data.status === "success") {
+        if (response.status === "success") {
           setFileSuccess("Image uploaded successfully.");
           setFiles((prev) =>
             prev.concat({
               type: "image",
-              name: response.data.data.name,
-              mimetype: response.data.data.type,
-              location: response.data.data.location,
+              name: response.data.name,
+              mimetype: response.data.type,
+              location: response.data.location,
+              bucketKey: response.data.bucketKey,
               size: fileSize,
             })
           );
@@ -206,7 +277,7 @@ export default function ClassroomHomeMain({ id, session }) {
           setTempFilePreview(null);
           setFilePicker(false);
         } else {
-          setFileError(response.data.message);
+          setFileError(response.message);
         }
         setLoading(false);
       } else if (filePicker === "file") {
@@ -216,10 +287,17 @@ export default function ClassroomHomeMain({ id, session }) {
         }
 
         let formData = new FormData();
-        formData.append("file", tempFile);
+        formData.append("files", tempFile);
+        formData.append("fileFolder", "post");
 
         // post form data image
-        const response = await axios.post("/api/proxy/upload/posts/file", formData, {
+        // const response = await axios.post("/api/proxy/upload/posts/file", formData, {
+        //   headers: {
+        //     "Content-Type": "multipart/form-data",
+        //   },
+        // });
+
+        const { data: response } = await axios.post("/v1/classroom/post/file/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -235,14 +313,15 @@ export default function ClassroomHomeMain({ id, session }) {
           fileSize = `${(tempFile.size / 1048576).toFixed(2)} MB`;
         }
 
-        if (response.data.status === "success") {
+        if (response.status === "success") {
           setFileSuccess("File uploaded successfully.");
           setFiles((prev) =>
             prev.concat({
               type: "file",
-              name: response.data.data.name,
-              mimetype: response.data.data.type,
-              location: response.data.data.location,
+              name: response.data.name,
+              mimetype: response.data.type,
+              location: response.data.location,
+              bucketKey: response.data.bucketKey,
               size: fileSize,
             })
           );
@@ -251,7 +330,7 @@ export default function ClassroomHomeMain({ id, session }) {
           setTempFilePreview(null);
           setFilePicker(false);
         } else {
-          setFileError(response.data.message);
+          setFileError(response.message);
         }
         setLoading(false);
       } else {
@@ -271,17 +350,22 @@ export default function ClassroomHomeMain({ id, session }) {
     // remove file from the server
     setDeleting(true);
     try {
-      const response = await axios.post("/api/proxy/upload/posts/delete", {
+      // const response = await axios.post("/api/proxy/upload/posts/delete", {
+      //   files: locations,
+      // });
+
+      const { data: response } = await axios.post("/v1/classroom/post/file/delete", {
         files: locations,
+        classroom_id: id,
       });
 
-      if (response.data.status === "success") {
+      if (response.status === "success") {
         // remove the specific files from the state by the way locations are array of file locations
-        setFiles((prev) => prev.filter((f) => !locations.includes(f.location)));
+        setFiles((prev) => prev.filter((f) => !locations.includes(f.bucketKey)));
       }
 
-      if (response.data.status === "error") {
-        setFileError(response.data.message);
+      if (response.status === "error") {
+        setFileError(response.message);
       } else {
         setFileSuccess("File deleted successfully.");
       }
@@ -293,14 +377,14 @@ export default function ClassroomHomeMain({ id, session }) {
   };
 
   // can user post
-  const canPost = !sub_data?.classrooms_by_pk?.child_only || user?.role === "owner" || user?.role === "teacher";
+  const canPost = !classroom?.child_only || user?.role === "owner" || user?.role === "teacher";
 
   return (
-    <ClassroomLayout id={id} loading={sub_loading || sub_posts_loading} classroom={sub_data?.classrooms_by_pk}>
+    <ClassroomLayout id={id} loading={classroomLoading || postsLoading} classroom={classroom}>
       {openPicker && (
         <MemberSelector
-          my_id={session.user.sub}
-          members={sub_data?.classrooms_by_pk?.classroom_relation}
+          my_id={userInfo._id}
+          members={classroom?.classroom_relation}
           audience={audience}
           setAudience={setAudience}
           setOpenPicker={setOpenPicker}
@@ -309,7 +393,7 @@ export default function ClassroomHomeMain({ id, session }) {
       <div className="max-w-4xl mx-auto">
         {/* <div className="flex">
           <div className="flex-initial">
-            <InviteMemberBlock id={id} code={sub_data?.classrooms_by_pk?.invitation_code} teacher={false} />
+            <InviteMemberBlock id={id} code={classroom?.invitation_code} teacher={false} />
           </div> */}
         <div className="flex-auto">
           {error && (
@@ -390,7 +474,7 @@ export default function ClassroomHomeMain({ id, session }) {
             ""
           )}
           <ClassroomPost
-            posts={sub_posts?.classroom_posts}
+            posts={posts}
             user={user}
             canPost={canPost}
             setSuccess={setSuccess}

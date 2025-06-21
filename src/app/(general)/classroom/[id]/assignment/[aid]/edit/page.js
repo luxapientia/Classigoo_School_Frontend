@@ -1,4 +1,4 @@
-import { auth0 } from "@lib/auth0";
+import { getUser } from "@lib/auth";
 import { redirect } from "next/navigation";
 import AssignmentEditMainComponent from "@components/pages/classroom/assignment/aid/edit/main";
 
@@ -8,16 +8,16 @@ export const metadata = {
 };
 
 export default async function ClassroomSingleAssignmentEdit({ params }) {
-  const session = await auth0.getSession();
+  const user = await getUser();
   const { id, aid } = await params;
 
-  if (!session) {
-    redirect("/auth/login");
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+    redirect("/api/logout");
   }
 
   return (
     <>
-      <AssignmentEditMainComponent cid={id} aid={aid} user={session.user} />
+      <AssignmentEditMainComponent cid={id} aid={aid} userInfo={user} />
     </>
   );
 }

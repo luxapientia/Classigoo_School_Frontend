@@ -5,10 +5,12 @@ import { useSearchParams } from "next/navigation";
 import { HeaderSlot } from "@components/layout/header";
 import { Avatar, Button, Input, Alert } from "@heroui/react";
 import { useDetectClickOutside } from "react-detect-click-outside";
+import axios from "@lib/axios";
+import { useSocket } from "@hooks/useSocket";
 
 // graphql things
-import { CREATE_CLASSROOM, JOIN_CLASSROOM } from "@graphql/mutations";
-import { SUB_LIST_CLASSROOMS } from "@graphql/subscriptions";
+// import { CREATE_CLASSROOM, JOIN_CLASSROOM } from "@graphql/mutations";
+// import { SUB_LIST_CLASSROOMS } from "@graphql/subscriptions";
 
 import { useSubscription, useMutation } from "@apollo/client";
 import Loading from "@components/common/loading";
@@ -21,14 +23,19 @@ export default function MainClassroomsComponent({ user }) {
 
   // graphql
   // -> mutations
-  const [createClassroom] = useMutation(CREATE_CLASSROOM);
-  const [joinClassroom] = useMutation(JOIN_CLASSROOM);
+  // const [createClassroom] = useMutation(CREATE_CLASSROOM);
+  // const [joinClassroom] = useMutation(JOIN_CLASSROOM);
 
   // -> subscriptions
-  const { data: sub_data, loading: sub_loading, error: sub_error } = useSubscription(SUB_LIST_CLASSROOMS);
+  // const { data: sub_data, loading: sub_loading, error: sub_error } = useSubscription(SUB_LIST_CLASSROOMS);
+  // const [sub_data, setSubData] = React.useState(null);
+  // const [sub_loading, setSubLoading] = React.useState(false);
+  // const [sub_error, setSubError] = React.useState(null);
 
   // states
   // -> data
+  const [classrooms, setClassrooms] = React.useState([]);
+  const [classroomsLoading, setClassroomsLoading] = React.useState(false);
   const [classTitle, setClassTitle] = React.useState("");
   const [classSection, setClassSection] = React.useState("");
   const [classSubject, setClassSubject] = React.useState("");
@@ -36,7 +43,7 @@ export default function MainClassroomsComponent({ user }) {
   const [classCode, setClassCode] = React.useState("");
   const [createdClassroom, setCreatedClassroom] = React.useState(null);
 
-  const [error, setError] = React.useState(sub_error ? sub_error.message : "");
+  const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
@@ -86,26 +93,32 @@ export default function MainClassroomsComponent({ user }) {
       }
 
       // create classroom
-      const makeClassroom = await createClassroom({
-        variables: {
-          name: classTitle,
-          section: classSection,
-          subject: classSubject,
-          room: classRoom,
-        },
+      // const makeClassroom = await createClassroom({
+      //   variables: {
+      //     name: classTitle,
+      //     section: classSection,
+      //     subject: classSubject,
+      //     room: classRoom,
+      //   },
+      // });
+      const {data: response} = await axios.post("/v1/classroom/create", {
+        name: classTitle,
+        section: classSection,
+        subject: classSubject,
+        room: classRoom,
       });
 
       // check if classroom is created
-      if (makeClassroom.data.createClassroom.status === "success") {
-        setSuccess(makeClassroom.data.createClassroom.message);
-        setCreatedClassroom(makeClassroom.data.createClassroom.id);
+      if (response.status === "success") {
+        setSuccess(response.message);
+        setCreatedClassroom(response.id);
         setTimeout(() => {
-          if (makeClassroom.data.createClassroom.id) {
-            redirect(`/classroom/${makeClassroom.data.createClassroom.id}/home?created=true`);
+          if (response.id) {
+            redirect(`/classroom/${response.id}/home?created=true`);
           }
         }, 500);
       } else {
-        setError(makeClassroom.data.createClassroom.message);
+        setError(response.message);
       }
       setLoading(false);
     } catch (e) {
@@ -127,22 +140,25 @@ export default function MainClassroomsComponent({ user }) {
       }
 
       // join classroom
-      const joinClass = await joinClassroom({
-        variables: {
-          code: classCode,
-        },
+      // const joinClass = await joinClassroom({
+      //   variables: {
+      //     code: classCode,
+      //   },
+      // });
+      const {data: response} = await axios.post("/v1/classroom/join", {
+        join_code: classCode,
       });
 
       // check if classroom is joined
-      if (joinClass.data.joinClassroom.status === "success") {
-        setSuccess(joinClass.data.joinClassroom.message);
+      if (response.status === "success") {
+        setSuccess(response.message);
         setTimeout(() => {
-          if (joinClass.data.joinClassroom.id) {
-            redirect(`/classroom/${joinClass.data.joinClassroom.id}/home`);
+          if (response.id) {
+            redirect(`/classroom/${response.id}/home`);
           }
         }, 500);
       } else {
-        setError(joinClass.data.joinClassroom.message);
+        setError(response.message);
       }
       setLoading(false);
     } catch (e) {
@@ -161,6 +177,30 @@ export default function MainClassroomsComponent({ user }) {
   });
   const joinRef = useDetectClickOutside({
     onTriggered: () => setShowJoin(false),
+  });
+
+  // fetch classrooms
+
+  const fetchClassrooms = React.useCallback(async () => {
+    setClassroomsLoading(true);
+    try {
+      const res = await axios.get("/v1/classroom/all");
+      setClassrooms(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classrooms");
+    }
+
+    setClassroomsLoading(false);
+  }, []);
+
+  React.useEffect(() => {
+    fetchClassrooms();
+  }, [fetchClassrooms]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data) {
+      fetchClassrooms();
+    }
   });
 
   // auto
@@ -228,11 +268,11 @@ export default function MainClassroomsComponent({ user }) {
 
       {/* content */}
       <div>
-        {sub_loading ? (
+        {classroomsLoading ? (
           <div className="">
             <Loading />
           </div>
-        ) : sub_data?.classrooms?.length === 0 ? (
+        ) : classrooms.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[calc(100vh-100px)]">
             <div className="py-5 px-2 border-2 rounded-lg border-dashed w-[calc(100%-20px)] text-center">
               <p className="font-medium">No classrooms found!</p>
@@ -248,12 +288,12 @@ export default function MainClassroomsComponent({ user }) {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
-            {sub_data?.classrooms.map((classroom) => (
+            {classrooms.map((classroom) => (
               <div
-                key={classroom.id}
+                key={classroom._id}
                 className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg border-2 dark:border-gray-700 overflow-hidden relative"
               >
-                <Link key={classroom.id} href={`/classroom/${classroom.id}/home`}>
+                <Link key={classroom._id} href={`/classroom/${classroom._id}/home`}>
                   <div
                     className="bg-cover bg-center bg-no-repeat"
                     style={{
@@ -272,7 +312,7 @@ export default function MainClassroomsComponent({ user }) {
                   </div>
                   <div className="absolute right-[10px] top-[120px]">
                     <Avatar
-                      src={classroom.ownerDetails.avatar}
+                      src={classroom.ownerDetails.avatar.url}
                       alt={classroom.ownerDetails.name}
                       name={classroom.ownerDetails.name}
                       size="lg"
@@ -289,19 +329,19 @@ export default function MainClassroomsComponent({ user }) {
                 <div className="flex flex-row gap-2 px-2 py-2 border-t-2 dark:border-gray-700">
                   <div className="flex justify-end w-full">
                     <Link
-                      href={`/classroom/${classroom.id}/home`}
+                      href={`/classroom/${classroom._id}/home`}
                       className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
                     >
                       <Icon icon="line-md:home-md" className="h-4 w-4" />
                     </Link>
                     <Link
-                      href={`/classroom/${classroom.id}/assignments`}
+                      href={`/classroom/${classroom._id}/assignments`}
                       className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
                     >
                       <Icon icon="line-md:clipboard-list" className="h-4 w-4" />
                     </Link>
                     <Link
-                      href={`/classroom/${classroom.id}/exams`}
+                      href={`/classroom/${classroom._id}/exams`}
                       className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
                     >
                       <Icon icon="line-md:check-list-3-filled" className="h-4 w-4" />

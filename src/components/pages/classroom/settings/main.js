@@ -1,23 +1,27 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios";
+import { useSocket } from "@hooks/useSocket";
 import { Input, Alert, Select, SelectItem, Button } from "@heroui/react";
 import ClassroomLayout from "../layout/layout";
 
 // graphql
-import { SUB_GET_CLASSROOM } from "@graphql/subscriptions";
-import { useMutation, useSubscription } from "@apollo/client";
-import {
-  UPDATE_CLASSROOM,
-  DELETE_CLASSROOM,
-  ENABLE_CLASSROOM_INVITATION,
-  DISABLE_CLASSROOM_INVITATION,
-} from "@graphql/mutations";
+// import { SUB_GET_CLASSROOM } from "@graphql/subscriptions";
+// import { useMutation, useSubscription } from "@apollo/client";
+// import {
+//   UPDATE_CLASSROOM,
+//   DELETE_CLASSROOM,
+//   ENABLE_CLASSROOM_INVITATION,
+//   DISABLE_CLASSROOM_INVITATION,
+// } from "@graphql/mutations";
 import DisableInvitation from "./show-disable";
 import EnableInvitation from "./show-enable";
 import DeleteConfirmation from "./show-delete";
 
-export default function ClassroomSettingsMain({ id, session }) {
+export default function ClassroomSettingsMain({ id, userInfo }) {
   // states
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
   const [room, setRoom] = React.useState("");
   const [name, setName] = React.useState("");
   const [section, setSection] = React.useState("");
@@ -33,33 +37,65 @@ export default function ClassroomSettingsMain({ id, session }) {
   const [inviteLoading, setInviteLoading] = React.useState(false);
   const [deleteLoading, setDeleteLoading] = React.useState(false);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id },
-  });
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id },
+  // });
+
+    // fetch classroom
+    const fetchClassroom = React.useCallback(async () => {
+      setClassroomLoading(true);
+      try {
+        const res = await axios.get(`/v1/classroom/${id}`);
+        setClassroom(res.data);
+      } catch (err) {
+        setError(err?.response?.data?.message || "Failed to load classroom");
+      }
+  
+      setClassroomLoading(false);
+    }, [id]);
+  
+    React.useEffect(() => {
+      fetchClassroom();
+    }, [fetchClassroom]);
+  
+    useSocket("classroom.updated", (payload) => {
+      if (payload.data.id === id) {
+        fetchClassroom();
+      }
+    });
 
   // mutation
-  const [updateClassroom] = useMutation(UPDATE_CLASSROOM);
-  const [deleteClassroom] = useMutation(DELETE_CLASSROOM);
-  const [enableInvitation] = useMutation(ENABLE_CLASSROOM_INVITATION);
-  const [disableInvitation] = useMutation(DISABLE_CLASSROOM_INVITATION);
+  // const [updateClassroom] = useMutation(UPDATE_CLASSROOM);
+  // const [deleteClassroom] = useMutation(DELETE_CLASSROOM);
+  // const [enableInvitation] = useMutation(ENABLE_CLASSROOM_INVITATION);
+  // const [disableInvitation] = useMutation(DISABLE_CLASSROOM_INVITATION);
 
   // update classroom
   const updateClassroomHandler = async () => {
     try {
       setLoading(true);
-      await updateClassroom({
-        variables: {
-          id,
-          name,
-          subject,
-          section,
-          room,
-          child_only: childOnly,
-        },
+      // await updateClassroom({
+      //   variables: {
+      //     id,
+      //     name,
+      //     subject,
+      //     section,
+      //     room,
+      //     child_only: childOnly,
+      //   },
+      // });
+
+      await axios.put(`/v1/classroom/update`, {
+        id,
+        name,
+        subject,
+        section,
+        room,
+        child_only: childOnly,
       });
       setSuccess("Classroom updated successfully");
     } catch (e) {
@@ -72,17 +108,21 @@ export default function ClassroomSettingsMain({ id, session }) {
   const handleEnableInvite = async () => {
     setInviteLoading(true);
     try {
-      const res = await enableInvitation({
-        variables: {
-          cid: id,
-        },
+      // const res = await enableInvitation({
+      //   variables: {
+      //     cid: id,
+      //   },
+      // });
+
+      const { data } = await axios.post(`/v1/classroom/invitation/enable`, {
+        classroom_id: id,
       });
 
-      if (res.data.enableClassroomInvitation.status === "success") {
+      if (data.status === "success") {
         setSuccess("Invitation enabled successfully");
         setAllowInvite(true);
       } else {
-        setError(res.data.enableClassroomInvitation.message);
+        setError(data.message);
       }
     } catch (e) {
       setError(e.message);
@@ -94,17 +134,21 @@ export default function ClassroomSettingsMain({ id, session }) {
   const handleDisableInvite = async () => {
     setInviteLoading(true);
     try {
-      const res = await disableInvitation({
-        variables: {
-          cid: id,
-        },
+      // const res = await disableInvitation({
+      //   variables: {
+      //     cid: id,
+      //   },
+      // });
+
+      const { data } = await axios.post(`/v1/classroom/invitation/disable`, {
+        classroom_id: id,
       });
 
-      if (res.data.disableClassroomInvitation.status === "success") {
+      if (data.status === "success") {
         setSuccess("Invitation disabled successfully");
         setAllowInvite(false);
       } else {
-        setError(res.data.disableClassroomInvitation.message);
+        setError(data.message);
       }
     } catch (e) {
       setError(e.message);
@@ -116,14 +160,16 @@ export default function ClassroomSettingsMain({ id, session }) {
   const handleDeleteClassroom = async () => {
     setDeleteLoading(true);
     try {
-      const res = await deleteClassroom({
-        variables: {
-          cid: id,
-        },
-      });
+      // const res = await deleteClassroom({
+      //   variables: {
+      //     cid: id,
+      //   },
+      // });
 
-      if (res.data.delete_classrooms_by_pk) {
-        setSuccess("Classroom deleted successfully");
+      const { data } = await axios.delete(`/v1/classroom/${id}`);
+
+      if (data.status === "success") {
+        setSuccess(data.message);
         setTimeout(() => {
           window.location.href = "/classrooms";
         }, 2000);
@@ -151,16 +197,16 @@ export default function ClassroomSettingsMain({ id, session }) {
 
   // by default set state values
   React.useEffect(() => {
-    if (sub_data?.classrooms_by_pk) {
-      setRoom(sub_data?.classrooms_by_pk?.room);
-      setName(sub_data?.classrooms_by_pk?.name);
-      setSection(sub_data?.classrooms_by_pk?.section);
-      setSubject(sub_data?.classrooms_by_pk?.subject);
-      setChildOnly(sub_data?.classrooms_by_pk?.child_only);
-      console.log(sub_data?.classrooms_by_pk);
-      setAllowInvite(sub_data?.classrooms_by_pk?.invitation_code != "" ? true : false);
+    if (classroom) {
+      setRoom(classroom?.room);
+      setName(classroom?.name);
+      setSection(classroom?.section);
+      setSubject(classroom?.subject);
+      setChildOnly(classroom?.child_only);
+      console.log(classroom);
+      setAllowInvite(classroom?.invitation_code != "" ? true : false);
     }
-  }, [sub_data]);
+  }, [classroom]);
 
   // Msg handler
   React.useEffect(() => {
@@ -180,12 +226,12 @@ export default function ClassroomSettingsMain({ id, session }) {
   }, [error]);
 
   // current user's role
-  const userRole = sub_data?.classrooms_by_pk?.classroom_relation.find((r) => r.user.id === session.user.sub);
+  const userRole = classroom?.classroom_relation.find((r) => r.user._id === userInfo._id);
   const canUserEdit = userRole?.role === "owner" || userRole?.role === "teacher";
 
   return (
     <>
-      <ClassroomLayout id={id} loading={sub_loading} classroom={sub_data?.classrooms_by_pk}>
+      <ClassroomLayout id={id} loading={classroomLoading} classroom={classroom}>
         {showModal === "disable" && (
           <DisableInvitation
             handleClose={() => setShowModal("")}

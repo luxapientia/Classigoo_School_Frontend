@@ -1,6 +1,6 @@
 "use client";
 import xss from "xss";
-import axios from "axios";
+import axios from "@lib/axios";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
@@ -17,10 +17,10 @@ import {
   Input,
   Textarea,
 } from "@heroui/react";
-import { GET_EXAM_SUBMISSION } from "@graphql/queries";
-import { UPDATE_EXAM_SUBMISSION_MARKINGS } from "@graphql/mutations";
-import { SUB_GET_CLASSROOM, SUB_GET_EXAM } from "@graphql/subscriptions";
-import { useSubscription, useMutation, useQuery } from "@apollo/client";
+// import { GET_EXAM_SUBMISSION } from "@graphql/queries";
+// import { UPDATE_EXAM_SUBMISSION_MARKINGS } from "@graphql/mutations";
+// import { SUB_GET_CLASSROOM, SUB_GET_EXAM } from "@graphql/subscriptions";
+// import { useSubscription, useMutation, useQuery } from "@apollo/client";
 import Loading from "@components/common/loading";
 import NotFoundPage from "@app/not-found";
 import Link from "next/link";
@@ -29,10 +29,17 @@ export default function ExamEvaluaterMainComponent({
   cid,
   eid,
   vid: sid,
-  user,
+  userInfo,
 }) {
   const router = useRouter();
   const imageTypes = ["png", "jpg", "jpeg", "heic", "webp"];
+
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [exam, setExam] = React.useState(null);
+  const [examLoading, setExamLoading] = React.useState(false);
+  const [submission, setSubmission] = React.useState(null);
+  const [submissionLoading, setSubmissionLoading] = React.useState(false);
 
   const [questions, setQuestions] = React.useState([]);
   const [answers, setAnswers] = React.useState([]);
@@ -48,43 +55,116 @@ export default function ExamEvaluaterMainComponent({
   const [autoUpdateSuccess, setAutoUpdateSuccess] = React.useState(null);
   const [autoUpdateLoading, setAutoUpdateLoading] = React.useState(false);
 
-  const [updateSubmission] = useMutation(UPDATE_EXAM_SUBMISSION_MARKINGS);
+  // const [updateSubmission] = useMutation(UPDATE_EXAM_SUBMISSION_MARKINGS);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id: cid },
-  });
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id: cid },
+  // });
 
-  const {
-    data: exam_data,
-    loading: exam_loading,
-    error: exam_error,
-  } = useSubscription(SUB_GET_EXAM, {
-    variables: { id: eid },
-  });
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${cid}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
 
-  const {
-    data: submission_data,
-    loading: submission_loading,
-    error: submission_error,
-  } = useQuery(GET_EXAM_SUBMISSION, {
-    variables: { sid },
-  });
+    setClassroomLoading(false);
+  }, [cid]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  // useSocket("classroom.updated", (payload) => {
+  //   if (payload.data.id === cid) {
+  //     fetchClassroom();
+  //   }
+  // });
+
+  // const {
+  //   data: exam_data,
+  //   loading: exam_loading,
+  //   error: exam_error,
+  // } = useSubscription(SUB_GET_EXAM, {
+  //   variables: { id: eid },
+  // });
+
+  // fetch exam
+  const fetchExam = React.useCallback(async () => {
+    setExamLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/exam/${eid}`);
+      setExam(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load exam");
+    }
+    setExamLoading(false);
+  }, [eid]);
+  
+  React.useEffect(() => {
+    fetchExam();
+  }, [fetchExam]);
+
+  // useSocket("exam.updated", (payload) => {
+  //   if (payload.data.eid === eid || payload.data.cid === cid) {
+  //     fetchExam();
+  //   }
+  // });
+
+  // const {
+  //   data: submission_data,
+  //   loading: submission_loading,
+  //   error: submission_error,
+  // } = useQuery(GET_EXAM_SUBMISSION, {
+  //   variables: { sid },
+  // });
+
+  // fetch submission
+  const fetchSubmission = React.useCallback(async () => {
+    setSubmissionLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/exam/submission/${sid}`);
+      setSubmission(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load submission");
+    }
+    setSubmissionLoading(false);
+  }, [sid]);
+
+  React.useEffect(() => {
+    fetchSubmission();
+  }, [fetchSubmission]);
+
+  // useSocket("exam.submission.updated", (payload) => {
+  //   if (payload.data.sid === sid) {
+  //     fetchSubmission();
+  //   }
+  // });
 
   // handle submit
   const handleSave = async () => {
     setSubmitting("evaluating");
     try {
-      await updateSubmission({
-        variables: {
-          sid: sid,
-          markings: markings,
-          status: "evaluating",
-        },
+      // await updateSubmission({
+      //   variables: {
+      //     sid: sid,
+      //     markings: markings,
+      //     status: "evaluating",
+      //   },
+      // });
+      const { data: res } = await axios.post(`/v1/classroom/exam/submission/mark`, {
+        id: sid,
+        markings: markings,
+        status: "evaluating",
       });
+
       setSuccess("Evaluation saved successfully!");
     } catch (err) {
       setError(
@@ -123,12 +203,18 @@ export default function ExamEvaluaterMainComponent({
         return;
       }
 
-      await updateSubmission({
-        variables: {
-          sid: sid,
-          markings: markings,
-          status: "published",
-        },
+      // await updateSubmission({
+      //   variables: {
+      //     sid: sid,
+      //     markings: markings,
+      //     status: "published",
+      //   },
+      // });
+
+      const { data: res } = await axios.post(`/v1/classroom/exam/submission/mark`, {
+        id: sid,
+        markings: markings,
+        status: "published",
       });
 
       setSuccess("Evaluation published successfully!");
@@ -142,20 +228,20 @@ export default function ExamEvaluaterMainComponent({
   };
 
   React.useEffect(() => {
-    if (!submission_loading && !exam_loading && !sub_loading) {
-      if (submission_data?.exam_submissions_by_pk?.answers) {
-        setAnswers(submission_data.exam_submissions_by_pk.answers);
+    if (!submissionLoading && !examLoading && !classroomLoading) {
+      if (submission?.answers) {
+        setAnswers(submission?.answers);
       }
 
-      if (exam_data?.exams_by_pk?.questions) {
-        setQuestions(exam_data.exams_by_pk.questions);
+      if (exam?.questions) {
+        setQuestions(exam?.questions);
       }
 
-      if (submission_data?.exam_submissions_by_pk?.markings) {
+      if (submission?.markings) {
         let mrking = [];
         // check for each question if making is already there if not for objective auto evaluate marking by checking the answer
-        exam_data.exams_by_pk.questions?.forEach((q) => {
-          let marking = submission_data?.exam_submissions_by_pk.markings?.find(
+        exam?.questions?.forEach((q) => {
+          let marking = submission?.markings?.find(
             (m) => m.question_id === q.id
           );
           if (marking) {
@@ -164,7 +250,7 @@ export default function ExamEvaluaterMainComponent({
             if (q.question_type === "objective") {
               if (q.answer_type === "single") {
                 let answer =
-                  submission_data?.exam_submissions_by_pk.answers?.find(
+                  submission?.answers?.find(
                     (a) => a.question_id === q.id
                   )?.answer;
 
@@ -175,7 +261,7 @@ export default function ExamEvaluaterMainComponent({
               }
               if (q.answer_type === "multiple") {
                 let answer =
-                  submission_data?.exam_submissions_by_pk.answers?.find(
+                  submission?.answers?.find(
                     (a) => a.question_id === q.id
                   )?.answer;
                 // check if this answer is correct by matching with the options array with the answer array
@@ -202,12 +288,12 @@ export default function ExamEvaluaterMainComponent({
       }
     }
   }, [
-    submission_data,
-    exam_data,
-    sub_data,
-    submission_loading,
-    exam_loading,
-    sub_loading,
+    submission,
+    exam,
+    classroom,
+    submissionLoading,
+    examLoading,
+    classroomLoading,
   ]);
 
   React.useEffect(() => {
@@ -256,13 +342,20 @@ export default function ExamEvaluaterMainComponent({
     if (autoUpdate) {
       setAutoUpdateLoading(true);
       try {
-        updateSubmission({
-          variables: {
-            sid: sid,
-            status: "evaluating",
-            markings: markings,
-          },
+        // updateSubmission({
+        //   variables: {
+        //     sid: sid,
+        //     status: "evaluating",
+        //     markings: markings,
+        //   },
+        // });
+
+        const { data: res } = axios.post(`/v1/classroom/exam/submission/mark`, {
+          id: sid,
+          markings: markings,
+          status: "evaluating",
         });
+
         setAutoUpdateSuccess(true);
       } catch (err) {
         setAutoUpdateError(true);
@@ -280,15 +373,15 @@ export default function ExamEvaluaterMainComponent({
   }, [markings]);
 
   // current user
-  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find(
-    (cr) => cr.user.id === user.sub
+  const currentUser = classroom?.classroom_relation.find(
+    (cr) => cr.user._id === userInfo._id
   );
 
-  if (sub_loading || submission_loading || exam_loading) return <Loading />;
+  if (classroomLoading || submissionLoading || examLoading) return <Loading />;
   // not found page
-  if (sub_data?.classrooms_by_pk === null) return <NotFoundPage />;
-  if (exam_data?.exams_by_pk === null) return <NotFoundPage />;
-  if (submission_data?.exam_submissions_by_pk === null) return <NotFoundPage />;
+  if (classroom === null) return <NotFoundPage />;
+  if (exam === null) return <NotFoundPage />;
+  if (submission === null) return <NotFoundPage />;
 
   // if student is not allowed to evaluate
   if (currentUser?.role !== "teacher" && currentUser?.role !== "owner") {
@@ -327,7 +420,7 @@ export default function ExamEvaluaterMainComponent({
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
             <h1 className="text-2xl font-bold text-center">
-              {exam_data.exams_by_pk.title}
+              {exam?.title}
             </h1>
           </div>
         </div>
@@ -686,12 +779,12 @@ export default function ExamEvaluaterMainComponent({
                                       style={{
                                         backgroundSize: "cover",
                                         backgroundPosition: "center center",
-                                        backgroundImage: `url(${process.env.CLASSROOM_CDN_URL}/${answer})`,
+                                        backgroundImage: `url(${answer.location})`,
                                       }}
                                     >
                                       <div className="absolute top-0 right-0 flex gap-2 p-2">
                                         <Link
-                                          href={`${process.env.CLASSROOM_CDN_URL}/${answer}`}
+                                          href={`${answer.location}`}
                                           target="_blank"
                                           className="p-0 w-7 h-7 bg-white dark:bg-gray-800 rounded-full grid justify-center items-center"
                                         >

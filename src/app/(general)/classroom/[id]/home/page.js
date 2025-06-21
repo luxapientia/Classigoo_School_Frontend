@@ -1,4 +1,4 @@
-import { auth0 } from "@lib/auth0";
+import { getUser } from "@lib/auth";
 import { redirect } from "next/navigation";
 import ClassroomHomeMain from "@components/pages/classroom/home/main";
 
@@ -8,16 +8,16 @@ export const metadata = {
 };
 
 export default async function ClassroomHomePage({ params }) {
-  const session = await auth0.getSession();
+  const user = await getUser();
   const { id } = await params;
 
-  if (!session) {
-    redirect("/auth/login");
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+    redirect("/api/logout");
   }
 
   return (
     <>
-      <ClassroomHomeMain id={id} session={session} />
+      <ClassroomHomeMain id={id} userInfo={user} />
     </>
   );
 }

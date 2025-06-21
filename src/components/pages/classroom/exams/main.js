@@ -1,37 +1,91 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios";
 import moment from "moment";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Tooltip, User } from "@heroui/react";
 import ClassroomLayout from "../layout/layout";
-import { useSubscription } from "@apollo/client";
+// import { useSubscription } from "@apollo/client";
 import { HeaderSlot } from "@components/layout/header";
-import { SUB_GET_CLASSROOM, SUB_LIST_EXAMS } from "@graphql/subscriptions";
+// import { SUB_GET_CLASSROOM, SUB_LIST_EXAMS } from "@graphql/subscriptions";
+import { useSocket } from "@hooks/useSocket";
 
-export default function ClassroomExamsMain({ id, session }) {
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id },
+export default function ClassroomExamsMain({ id, userInfo }) {
+
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [exams, setExams] = React.useState([]);
+  const [examsLoading, setExamsLoading] = React.useState(false);
+
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id },
+  // });
+
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${id}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [id]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data.id === id) {
+      fetchClassroom();
+    }
   });
 
-  const {
-    data: sub_data_exams,
-    loading: sub_loading_exams,
-    error: sub_error_exams,
-  } = useSubscription(SUB_LIST_EXAMS, {
-    variables: { cid: id },
+  // const {
+  //   data: sub_data_exams,
+  //   loading: sub_loading_exams,
+  //   error: sub_error_exams,
+  // } = useSubscription(SUB_LIST_EXAMS, {
+  //   variables: { cid: id },
+  // });
+
+  //fetch assignments
+  const fetchExams = React.useCallback(async () => {
+    setExamsLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/exam/list/${id}`);
+      setExams(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load exams");
+    }
+
+    setExamsLoading(false);
+  }, [id]);
+
+  React.useEffect(() => {
+    fetchExams();
+  }, [fetchExams]);
+
+  useSocket("exam.updated", (payload) => {
+    if (payload.data.cid === id) {
+      fetchExams();
+    }
   });
 
   // Check if the current user is a member of the classroom
-  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find((cr) => cr.user.id === session.user.sub);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user._id === userInfo._id);
 
   return (
     <>
-      <ClassroomLayout id={id} loading={sub_loading || sub_loading_exams} classroom={sub_data?.classrooms_by_pk}>
+      <ClassroomLayout id={id} loading={classroomLoading || examsLoading} classroom={classroom}>
         {(currentUser?.role === "owner" || currentUser?.role === "teacher") && (
           <HeaderSlot>
             <Link
@@ -50,14 +104,14 @@ export default function ClassroomExamsMain({ id, session }) {
           </HeaderSlot>
         )}
 
-        {sub_data_exams?.exams.length > 0 ? (
+        {exams.length > 0 ? (
           <div className="grid gap-4 grid-cols-1">
-            {sub_data_exams?.exams.map((exam) => {
+            {exams.map((exam) => {
               if (currentUser?.role === "student" && exam.status === "draft") return null;
               if (
                 currentUser?.role === "student" &&
                 !exam?.audience?.includes("*") &&
-                !exam?.audience?.includes(currentUser?.user.id)
+                !exam?.audience?.includes(currentUser?.user._id)
               )
                 return null;
 
@@ -123,7 +177,7 @@ export default function ClassroomExamsMain({ id, session }) {
                               <User
                                 className="text-xs"
                                 avatarProps={{
-                                  src: exam.owner.avatar,
+                                  src: exam.owner.avatar.url,
                                   size: "sm",
                                   isBordered: true,
                                 }}

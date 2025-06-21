@@ -2,6 +2,7 @@ import xss from "xss";
 import React from "react";
 import moment from "moment";
 import { Icon } from "@iconify/react";
+import axios from "@lib/axios";
 import {
   Avatar,
   AvatarGroup,
@@ -17,8 +18,8 @@ import Link from "next/link";
 import DeleteCommentAction from "./delete-comment-action";
 
 //  mutations
-import { useMutation } from "@apollo/client";
-import { DELETE_COMMENT } from "@graphql/mutations";
+// import { useMutation } from "@apollo/client";
+// import { DELETE_COMMENT } from "@graphql/mutations";
 import ViewAllComments from "./all-comments";
 
 export default function PostsSingle({
@@ -42,7 +43,7 @@ export default function PostsSingle({
   const [commentDeleteLoading, setCommentDeleteLoading] = React.useState(null);
 
   // graphql
-  const [deleteComment] = useMutation(DELETE_COMMENT);
+  // const [deleteComment] = useMutation(DELETE_COMMENT);
 
   // handle all comments close
   const handleAllCommentsClose = () => {
@@ -55,20 +56,21 @@ export default function PostsSingle({
     try {
       setError("");
       setSuccess("");
-      const deleted = await deleteComment({
-        variables: {
-          cid: id,
-        },
-      });
+      // const deleted = await deleteComment({
+      //   variables: {
+      //     cid: id,
+      //   },
+      // });
 
-      if (deleted?.data.delete_classroom_post_comments_by_pk.id) {
+      const { data: res } = await axios.delete(`/v1/classroom/post/comment/${id}`);
+
+      if (res.status === "success" && res.data.id) {
         setToDeleteComment(null);
         setSuccess("Comment deleted successfully.");
       } else {
         setToDeleteComment(null);
         setError(
-          deleted?.data?.delete_classroom_post_comments_by_pk.errors[0]
-            .message || "Something went wrong. Please try again."
+          res.message || "Something went wrong. Please try again."
         );
       }
     } catch (error) {
@@ -102,6 +104,7 @@ export default function PostsSingle({
         <ViewAllComments
           user={user}
           post_id={allComments}
+          owner={post.user.id}
           handleClose={handleAllCommentsClose}
           handleDeleteComment={setToDeleteComment}
         />
@@ -118,7 +121,7 @@ export default function PostsSingle({
                   size: "md",
                   isBordered: true,
                   className: "cursor-pointer mr-1",
-                  src: post.user.avatar,
+                  src: post.user.avatar.url,
                   name: post.user.name,
                 }}
                 name={post.user.name}
@@ -130,7 +133,7 @@ export default function PostsSingle({
               />
             </div>
             <div className="flex-initial">
-              {post.user.id === user.user.id ||
+              {post.user.id === user.user._id ||
               user.role === "owner" ||
               user.role === "teacher" ? (
                 <Dropdown>
@@ -185,7 +188,7 @@ export default function PostsSingle({
                     >
                       <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 grid justify-center content-center flex-initial">
                         <img
-                          src={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
+                          src={`${file.location}`}
                           className="w-full h-full"
                           alt=""
                         />
@@ -203,7 +206,7 @@ export default function PostsSingle({
                           // variant="text"
                           download
                           className="w-16 h-20 grid justify-center items-center bg-gray-200 dark:bg-gray-700 rounded-none"
-                          href={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
+                          href={`${file.location}`}
                         >
                           <Icon
                             icon="si:file-download-duotone"
@@ -238,7 +241,7 @@ export default function PostsSingle({
                           // variant="text"
                           download
                           className="w-16 h-20 grid justify-center items-center bg-gray-200 dark:bg-gray-700 rounded-none"
-                          href={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
+                          href={`${file.location}`}
                         >
                           <Icon
                             icon="si:file-download-duotone"
@@ -253,10 +256,10 @@ export default function PostsSingle({
             </div>
           )}
 
-          {post.comments_aggregate.aggregate.count > 0 && (
+          {post.comments_count > 0 && (
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-5 text-right">
-              <strong>{post.comments_aggregate.aggregate.count}</strong> comment
-              {post.comments_aggregate.count > 1 && "s"}
+              <strong>{post.comments_count}</strong> comment
+              {post.comments_count > 1 && "s"}
             </p>
           )}
         </div>
@@ -266,7 +269,7 @@ export default function PostsSingle({
               <div className="flex-intial mt-1">
                 <Avatar
                   isBordered
-                  src={user.user.avatar}
+                  src={user.user.avatar.url}
                   name={user.user.name}
                   size="sm"
                 />
@@ -320,7 +323,7 @@ export default function PostsSingle({
                 <div className="flex-initial mt-1">
                   <Avatar
                     isBordered
-                    src={comment.user.avatar}
+                    src={comment.user.avatar.url}
                     name={comment.user.name}
                     size="sm"
                   />
@@ -352,7 +355,7 @@ export default function PostsSingle({
                           </Button>
                         </DropdownTrigger>
                         <DropdownMenu>
-                          {/* {comment.user.id === user.user.id && (
+                          {/* {comment.user.id === user.user._id && (
                           <DropdownItem>
                             <p className="flex items-center">
                               <Icon
@@ -363,10 +366,10 @@ export default function PostsSingle({
                             </p>
                           </DropdownItem>
                         )} */}
-                          {comment.user.id === user.user.id ||
+                          {comment.user.id === user.user._id ||
                           user.role === "owner" ||
                           user.role === "teacher" ||
-                          post.user.id === user.user.id ? (
+                          post.user.id === user.user._id ? (
                             <DropdownItem>
                               <button
                                 className=""
@@ -390,14 +393,14 @@ export default function PostsSingle({
               </div>
             ))}
 
-            {post.comments_aggregate.aggregate.count > 1 && (
+            {post.comments_count > 1 && (
               // show all comments
               <button
                 className="text-xs text-gray-500 dark:text-gray-400 mt-2 w-full grid justify-center"
                 onClick={() => setAllComments(post.id)}
               >
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-                  View all {post.comments_aggregate.aggregate.count} comments
+                  View all {post.comments_count} comments
                 </p>
               </button>
             )}

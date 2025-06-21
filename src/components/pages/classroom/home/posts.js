@@ -1,14 +1,15 @@
 "use client";
 
 import React from "react";
+import axios from "@lib/axios";
 
 import PostsSingle from "./posts-single";
 import DeletePostAction from "./delete-post-action";
 import UndoCommentAction from "./undo-comment-action";
 
 //  graphql
-import { useMutation } from "@apollo/client";
-import { DELETE_POST, ADD_COMMENT } from "@graphql/mutations";
+// import { useMutation } from "@apollo/client";
+// import { DELETE_POST, ADD_COMMENT } from "@graphql/mutations";
 
 export default function ClassroomPost({
   posts = [],
@@ -28,8 +29,8 @@ export default function ClassroomPost({
   const [commentUndo, setCommentUndo] = React.useState(null);
 
   // graphql
-  const [deletePost] = useMutation(DELETE_POST);
-  const [addComment] = useMutation(ADD_COMMENT);
+  // const [deletePost] = useMutation(DELETE_POST);
+  // const [addComment] = useMutation(ADD_COMMENT);
 
   // delete post
   const handleDeletePost = async (id) => {
@@ -37,16 +38,18 @@ export default function ClassroomPost({
       setError("");
       setSuccess("");
       setDeleteLoading(true);
-      const deleted = await deletePost({
-        variables: { id },
-      });
+      // const deleted = await deletePost({
+      //   variables: { id },
+      // });
 
-      if (deleted?.data.delete_classroom_posts_by_pk.id) {
+      const { data: res } = await axios.delete(`/v1/classroom/post/${id}`);
+
+      if (res.status === "success" && res.data.id) {
         // get the file id to make arrray
         const post = posts.find((p) => p.id === id);
 
         if (post.files.length > 0) {
-          let fileIds = post.files.map((f) => f.id);
+          let fileIds = post.files.map((f) => f.bucketKey);
           handleDeleteFile(fileIds);
         }
 
@@ -55,7 +58,7 @@ export default function ClassroomPost({
       } else {
         setToDelete(null);
         setError(
-          deleted?.data?.delete_classroom_posts_by_pk.errors[0].message ||
+          res.message ||
             "Something went wrong. Please try again."
         );
       }
@@ -104,20 +107,26 @@ export default function ClassroomPost({
     try {
       setError("");
       setSuccess("");
-      const commented = await addComment({
-        variables: {
-          cid: classroom_id,
-          pid: post_id,
-          content: comment,
-        },
+      // const commented = await addComment({
+      //   variables: {
+      //     cid: classroom_id,
+      //     pid: post_id,
+      //     content: comment,
+      //   },
+      // });
+
+      const { data: res } = await axios.post("/v1/classroom/post/comment/add", {
+        class_id: classroom_id,
+        post_id: post_id,
+        content: comment,
       });
 
-      if (commented?.data?.addClassroomPostComment?.status) {
+      if (res.status === "success") {
         setComment("");
         setSuccess("Comment added successfully.");
       } else {
         setError(
-          commented?.data?.addClassroomPostComment?.message ||
+          res.message ||
             "Something went wrong. Please try again."
         );
       }

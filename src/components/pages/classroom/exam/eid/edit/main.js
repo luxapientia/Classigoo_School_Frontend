@@ -1,5 +1,5 @@
 "use client";
-import axios from "axios";
+import axios from "@lib/axios";
 import React from "react";
 import moment from "moment";
 import DOMPurify from "dompurify";
@@ -26,16 +26,22 @@ import {
   parseAbsoluteToLocal,
 } from "@internationalized/date";
 
-import { UPDATE_EXAM } from "@graphql/mutations";
-import { SUB_GET_EXAM } from "@graphql/subscriptions";
-import { SUB_GET_CLASSROOM } from "@graphql/subscriptions";
-import { useQuery, useMutation, useSubscription } from "@apollo/client";
+import { useSocket } from "@hooks/useSocket";
+
+// import { UPDATE_EXAM } from "@graphql/mutations";
+// import { SUB_GET_EXAM } from "@graphql/subscriptions";
+// import { SUB_GET_CLASSROOM } from "@graphql/subscriptions";
+// import { useQuery, useMutation, useSubscription } from "@apollo/client";
 
 import NotFoundPage from "@app/not-found";
 
-export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
+export default function ExamUpdateMainComponent({ eid, cid: classId, userInfo }) {
   const router = useRouter();
   const editorRef = React.useRef(null);
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [exam, setExam] = React.useState(null);
+  const [examLoading, setExamLoading] = React.useState(false);
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("loading.....");
   const [questions, setQuestions] = React.useState([]);
@@ -56,35 +62,80 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
   const [openQBuilder, setOpenQBuilder] = React.useState(false);
   const [openQUpdater, setOpenQUpdater] = React.useState(false);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id: classId },
-  });
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id: classId },
+  // });
 
-  const {
-    data: exam_data,
-    loading: exam_loading,
-    error: exam_error,
-  } = useSubscription(SUB_GET_EXAM, {
-    variables: {
-      id: eid,
-    },
-  });
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${classId}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [classId]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  // useSocket("classroom.updated", (payload) => {
+  //   if (payload.data.id === classId) {
+  //     fetchClassroom();
+  //   }
+  // });
+
+  // const {
+  //   data: exam_data,
+  //   loading: exam_loading,
+  //   error: exam_error,
+  // } = useSubscription(SUB_GET_EXAM, {
+  //   variables: {
+  //     id: eid,
+  //   },
+  // });
+
+  // fetch exam
+  const fetchExam = React.useCallback(async () => {
+    setExamLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/exam/${eid}`);
+      setExam(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load exam");
+    }
+    setExamLoading(false);
+  }, [eid]);
+  
+  React.useEffect(() => {
+    fetchExam();
+  }, [fetchExam]);
+
+  // useSocket("exam.updated", (payload) => {
+  //   if (payload.data.eid === eid || payload.data.cid === cid) {
+  //     fetchExam();
+  //   }
+  // });
 
   // initiate mutations
-  const [updateExam] = useMutation(UPDATE_EXAM);
+  // const [updateExam] = useMutation(UPDATE_EXAM);
 
   // React.useEffect(() => {
   //   console.log(deadline);
   // }, [deadline]);
 
   // current user
-  const currentUser = user.sub;
-  const userRole = sub_data?.classrooms_by_pk?.classroom_relation.find(
-    (m) => m.user.id === currentUser
+  const currentUser = userInfo._id;
+  const userRole = classroom?.classroom_relation.find(
+    (m) => m.user._id === currentUser
   )?.role;
 
   // check if user is a student
@@ -141,22 +192,34 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
         return;
       }
 
-      const { data } = await updateExam({
-        variables: {
-          eid,
-          title,
-          content,
-          cid: classId,
-          status,
-          questions,
-          aud: fixedAudience,
-          duration: sDuration === "yes" ? duration : 0,
-          start_once: dStart === "yes" ? fixedStartAt : null,
-        },
+      // const { data } = await updateExam({
+      //   variables: {
+      //     eid,
+      //     title,
+      //     content,
+      //     cid: classId,
+      //     status,
+      //     questions,
+      //     aud: fixedAudience,
+      //     duration: sDuration === "yes" ? duration : 0,
+      //     start_once: dStart === "yes" ? fixedStartAt : null,
+      //   },
+      // });
+
+      const { data: response } = await axios.post("/v1/classroom/exam/update", {
+        id: eid,
+        title,
+        content,
+        status,
+        audience: fixedAudience,
+        duration: sDuration === "yes" ? duration : 0,
+        start_once: dStart === "yes" ? fixedStartAt : null,
+        questions,
       });
-      if (data.update_exams_by_pk) {
+
+      if (response.status === "success") {
         setSuccess("Exam updated successfully.");
-        router.push(`/classroom/${classId}/exam/${data.update_exams_by_pk.id}`);
+        router.push(`/classroom/${classId}/exam/${response.data._id}`);
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -203,38 +266,38 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
 
   // auto fill exam data
   React.useEffect(() => {
-    console.log(exam_data);
-    if (exam_data) {
-      setTitle(exam_data.exams_by_pk.title ? exam_data.exams_by_pk.title : "");
+    // console.log(exam);
+    if (exam) {
+      setTitle(exam?.title ? exam?.title : "");
       setContent(
-        exam_data.exams_by_pk.content ? exam_data.exams_by_pk.content : ""
+        exam?.content ? exam?.content : ""
       );
       setAudience(
-        exam_data.exams_by_pk.audience?.length > 0
-          ? exam_data.exams_by_pk.audience
+        exam?.audience?.length > 0
+          ? exam?.audience
           : []
       );
       setDuration(
-        exam_data.exams_by_pk.duration ? exam_data.exams_by_pk.duration : 0
+        exam?.duration ? exam?.duration : 0
       );
       setStartAt(
-        exam_data.exams_by_pk.start_once
-          ? parseAbsoluteToLocal(exam_data.exams_by_pk.start_once)
+        exam?.start_once
+          ? parseAbsoluteToLocal(exam?.start_once)
           : now(getLocalTimeZone())
       );
       setQuestions(
-        exam_data?.exams_by_pk?.questions?.length > 0
-          ? exam_data.exams_by_pk.questions
+        exam?.questions?.length > 0
+          ? exam?.questions
           : []
       );
 
-      if (exam_data.exams_by_pk.start_once) {
+      if (exam?.start_once) {
         setDStart("yes");
         setSDuration("yes");
       }
-      if (exam_data.exams_by_pk.duration !== 0) setSDuration("yes");
+      if (exam?.duration !== 0) setSDuration("yes");
     }
-  }, [exam_data]);
+  }, [exam]);
 
   // auto hide
   React.useEffect(() => {
@@ -261,7 +324,7 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
     }
   }, [success]);
 
-  if (sub_loading) return <Loading />;
+  if (classroomLoading) return <Loading />;
 
   return (
     <>
@@ -288,8 +351,8 @@ export default function ExamUpdateMainComponent({ eid, id: classId, user }) {
 
         {openPicker && (
           <MemberSelector
-            my_id={user.sub}
-            members={sub_data?.classrooms_by_pk?.classroom_relation}
+            my_id={userInfo._id}
+            members={classroom?.classroom_relation}
             audience={audience}
             setAudience={setAudience}
             setOpenPicker={setOpenPicker}

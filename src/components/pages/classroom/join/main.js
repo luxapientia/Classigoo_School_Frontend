@@ -1,32 +1,41 @@
 "use client";
 
+import axios from "@lib/axios";
 import React from "react";
 import { redirect, useSearchParams } from "next/navigation";
 import Loading from "@components/common/loading";
 
-import { useMutation } from "@apollo/client";
-import { JOIN_CLASSROOM } from "@graphql/mutations";
+// import { useMutation } from "@apollo/client";
+// import { JOIN_CLASSROOM } from "@graphql/mutations";
 
-export default function JoinClassRoomMain({ id, session }) {
+export default function JoinClassRoomMain({ id, userInfo }) {
   const searchParams = useSearchParams();
 
   if (!searchParams.get("code")) {
     redirect(`/classrooms`);
   }
 
-  const [joinClassroom] = useMutation(JOIN_CLASSROOM);
+  // const [joinClassroom] = useMutation(JOIN_CLASSROOM);
 
   React.useEffect(() => {
     const join = async () => {
       try {
-        await joinClassroom({
-          variables: {
-            id,
-            code: searchParams.get("code"),
-          },
+        // await joinClassroom({
+        //   variables: {
+        //     id,
+        //     code: searchParams.get("code"),
+        //   },
+        // });
+        const { data: response } = await axios.post(`/v1/classroom/join`, {
+          class_id: id,
+          join_code: searchParams.get("code"),
         });
 
-        window.location.href = `/classroom/${id}`;
+        if (response.status === "success") {
+          window.location.href = `/classroom/${id}`;
+        } else {
+          window.location.href = `/classrooms`;
+        }
       } catch (err) {
         console.error(err);
         window.location.href = `/classrooms`;

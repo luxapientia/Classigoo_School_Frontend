@@ -1,9 +1,6 @@
 import { redirect } from "next/navigation";
-import { auth0 } from "@lib/auth0";
-import { Tabs, Tab, Button } from "@heroui/react";
+import { getUser } from "@lib/auth";
 import ProfileTabs from "@components/pages/account/profile/tabs";
-import { GET_PROFILE } from "@graphql/queries";
-import { getClient } from "@lib/apolloServer";
 import Loading from "@components/common/loading";
 import ErrorPage from "@components/common/error";
 
@@ -13,26 +10,27 @@ export const metadata = {
 };
 
 export default async function ProfilePage() {
-  const session = await auth0.getSession();
-
-  if (!session) {
-    redirect("/auth/login");
+  // const session = await auth0.getSession();
+  const user = await getUser();
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+    redirect("/api/logout");
   }
 
-  const { data, loading, error } = await getClient().query({
-    query: GET_PROFILE,
-    variables: { id: session.user.sub },
-  });
+  // const { data, loading, error } = await getClient().query({
+  //   query: GET_PROFILE,
+  //   variables: { id: session.user.sub },
+  // });
 
-  if (loading) {
-    return <Loading />;
-  }
 
-  if (error) {
-    return <ErrorPage message={error.message} />;
-  }
+  // if (loading) {
+  //   return <Loading />;
+  // }
 
-  const profileData = data.users_by_pk;
+  // if (error) {
+  //   return <ErrorPage message={error.message} />;
+  // }
+
+  const profileData = user;
 
   return (
     <div className="w-full flex-1 lg:grid lg:justify-center">

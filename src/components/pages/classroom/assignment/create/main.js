@@ -1,5 +1,5 @@
 "use client";
-import axios from "axios";
+import axios from "@lib/axios";
 import React from "react";
 import moment from "moment";
 import { Icon } from "@iconify/react";
@@ -8,20 +8,23 @@ import MemberSelector from "./member-selector";
 import Loading from "@components/common/loading";
 import TinyEditor from "@components/common/editor";
 import { Input, Button, Select, SelectItem, Alert, DatePicker } from "@heroui/react";
+import { useSocket } from "@hooks/useSocket";
 
 import { now, getLocalTimeZone } from "@internationalized/date";
 
-import { CREATE_ASSIGNMENT } from "@graphql/mutations";
-import { GET_CLASSROOM_NAMES } from "@graphql/queries";
-import { SUB_GET_CLASSROOM } from "@graphql/subscriptions";
-import { useQuery, useMutation, useSubscription } from "@apollo/client";
+// import { CREATE_ASSIGNMENT } from "@graphql/mutations";
+// import { GET_CLASSROOM_NAMES } from "@graphql/queries";
+// import { SUB_GET_CLASSROOM } from "@graphql/subscriptions";
+// import { useQuery, useMutation, useSubscription } from "@apollo/client";
 
 import { FileUploader } from "react-drag-drop-files";
 
-export default function AssignmentCreateMainComponent({ classId, user }) {
+export default function AssignmentCreateMainComponent({ classId, userInfo }) {
   const imageTypes = ["JPEG", "JPG", "PNG", "GIF"];
 
   const editorRef = React.useRef(null);
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
   const [title, setTitle] = React.useState("");
   const [files, setFiles] = React.useState([]);
   const [content, setContent] = React.useState("");
@@ -49,16 +52,39 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
   //     uid: user.sub,
   //   },
   // });
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id: classId },
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id: classId },
+  // });
+
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${classId}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [classId]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data.id === classId) {
+      fetchClassroom();
+    }
   });
 
   // initiate mutations
-  const [createAssignment] = useMutation(CREATE_ASSIGNMENT);
+  // const [createAssignment] = useMutation(CREATE_ASSIGNMENT);
 
   // handles
   // handle actions
@@ -83,10 +109,17 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
         }
 
         let formData = new FormData();
-        formData.append("image", tempFile);
+        formData.append("files", tempFile);
+        formData.append("fileFolder", "assignment");
 
         // post form data image
-        const response = await axios.post("/api/proxy/upload/posts/image", formData, {
+        // const response = await axios.post("/api/proxy/upload/posts/image", formData, {
+        //   headers: {
+        //     "Content-Type": "multipart/form-data",
+        //   },
+        // });
+
+        const { data: response } = await axios.post("/v1/classroom/assignment/file/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -102,14 +135,15 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
           fileSize = `${(tempFile.size / 1048576).toFixed(2)} MB`;
         }
 
-        if (response.data.status === "success") {
+        if (response.status === "success") {
           setFileSuccess("Image uploaded successfully.");
           setFiles((prev) =>
             prev.concat({
               type: "image",
-              name: response.data.data.name,
-              mimetype: response.data.data.type,
-              location: response.data.data.location,
+              name: response.data.name,
+              mimetype: response.data.type,
+              location: response.data.location,
+              bucketKey: response.data.bucketKey,
               size: fileSize,
             })
           );
@@ -118,7 +152,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
           setTempFilePreview(null);
           setFilePicker(false);
         } else {
-          setFileError(response.data.message);
+          setFileError(response.message);
         }
         setLoading(false);
       } else if (filePicker === "file") {
@@ -128,10 +162,17 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
         }
 
         let formData = new FormData();
-        formData.append("file", tempFile);
+        formData.append("files", tempFile);
+        formData.append("fileFolder", "assignment");
 
         // post form data image
-        const response = await axios.post("/api/proxy/upload/posts/file", formData, {
+        // const response = await axios.post("/api/proxy/upload/posts/file", formData, {
+        //   headers: {
+        //     "Content-Type": "multipart/form-data",
+        //   },
+        // });
+
+        const { data: response } = await axios.post("/v1/classroom/assignment/file/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -147,14 +188,15 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
           fileSize = `${(tempFile.size / 1048576).toFixed(2)} MB`;
         }
 
-        if (response.data.status === "success") {
+        if (response.status === "success") {
           setFileSuccess("File uploaded successfully.");
           setFiles((prev) =>
             prev.concat({
               type: "file",
-              name: response.data.data.name,
-              mimetype: response.data.data.type,
-              location: response.data.data.location,
+              name: response.data.name,
+              mimetype: response.data.type,
+              location: response.data.location,
+              bucketKey: response.data.bucketKey,
               size: fileSize,
             })
           );
@@ -163,7 +205,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
           setTempFilePreview(null);
           setFilePicker(false);
         } else {
-          setFileError(response.data.message);
+          setFileError(response.message);
         }
         setLoading(false);
       } else {
@@ -183,17 +225,22 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
     // remove file from the server
     setDeleting(true);
     try {
-      const response = await axios.post("/api/proxy/upload/posts/delete", {
+      // const response = await axios.post("/api/proxy/upload/posts/delete", {
+      //   files: locations,
+      // });
+
+      const { data: response } = await axios.post("/v1/classroom/assignment/file/delete", {
         files: locations,
+        classroom_id: classId,
       });
 
-      if (response.data.status === "success") {
+      if (response.status === "success") {
         // remove the specific files from the state by the way locations are array of file locations
-        setFiles((prev) => prev.filter((f) => !locations.includes(f.location)));
+        setFiles((prev) => prev.filter((f) => !locations.includes(f.bucketKey)));
       }
 
-      if (response.data.status === "error") {
-        setFileError(response.data.message);
+      if (response.status === "error") {
+        setFileError(response.message);
       } else {
         setFileSuccess("File deleted successfully.");
       }
@@ -229,26 +276,36 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
         return;
       }
 
-      const { data } = await createAssignment({
-        variables: {
-          title,
-          content,
-          cid: classId,
-          files,
-          status,
-          aud: fixedAudience,
-          deadline: fixedDeadline,
-        },
+      // const { data } = await createAssignment({
+      //   variables: {
+      //     title,
+      //     content,
+      //     cid: classId,
+      //     files,
+      //     status,
+      //     aud: fixedAudience,
+      //     deadline: fixedDeadline,
+      //   },
+      // });
+
+      const { data: response } = await axios.post("/v1/classroom/assignment/create", {
+        title,
+        content,
+        class_id: classId,
+        files,
+        status,
+        audience: fixedAudience,
+        deadline: fixedDeadline,
       });
 
-      if (data.insert_assignments.returning.length > 0) {
+      if (response.status === "success") {
         setSuccess("Assignment created successfully.");
         // setTitle("");
         // setContent("");
         // setClassrooms([]);
 
         // redirect the user to the note
-        window.location.href = `/classroom/${classId}/assignment/${data.insert_assignments.returning[0].id}`;
+        window.location.href = `/classroom/${classId}/assignment/${response.data._id}`;
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -304,7 +361,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
     }
   }, [fileSuccess]);
 
-  if (sub_loading) return <Loading />;
+  if (classroomLoading) return <Loading />;
 
   return (
     <>
@@ -324,8 +381,8 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
 
         {openPicker && (
           <MemberSelector
-            my_id={user.sub}
-            members={sub_data?.classrooms_by_pk?.classroom_relation}
+            my_id={userInfo._id}
+            members={classroom?.classroom_relation}
             audience={audience}
             setAudience={setAudience}
             setOpenPicker={setOpenPicker}
@@ -401,7 +458,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
                         <div className="w-24 h-24 grid justify-center content-center border-2 border-default-200 rounded-lg">
                           {file.type === "image" ? (
                             <img
-                              src={`${process.env.CLASSROOM_CDN_URL}/${file.location}`}
+                              src={`${file.location}`}
                               alt={file.name}
                               className="h-16 w-auto object-cover"
                             />
@@ -416,7 +473,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
                         </p>
                       </div>
                       <div className="flex-initial pr-2">
-                        <button className="" onClick={() => handleDeleteFile([file.location])} disabled={deleting}>
+                        <button className="" onClick={() => handleDeleteFile([file.bucketKey])} disabled={deleting}>
                           {deleting ? (
                             <Icon icon="eos-icons:three-dots-loading" className="text-danger-500 text-xl" />
                           ) : (
@@ -542,7 +599,7 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
                 {...(filePicker === "image" && { types: imageTypes })}
                 handleChange={handleFileChange}
                 // free users 10mb pro users 50mb
-                maxSize={user?.user?.is_plus ? 50 : 10}
+                maxSize={userInfo?.is_plus ? 50 : 10}
                 overRide
               >
                 <div className="border-2 border-dotted border-default-200 rounded-lg flex items-center justify-center px-4 py-8 mb-2">
@@ -557,9 +614,9 @@ export default function AssignmentCreateMainComponent({ classId, user }) {
                 )}
                 <p className="text-xs text-default-400">
                   <span className="text-danger-500">*</span>
-                  Max file size: {user?.user?.is_plus ? 50 : 10}MB
+                  Max file size: {userInfo?.is_plus ? 50 : 10}MB
                 </p>
-                {!user?.user?.is_plus && (
+                {!userInfo?.is_plus && (
                   <p className="text-xs text-default-400">
                     <span className="text-danger-500">*</span>
                     Upgrade to plus to upload bigger files.

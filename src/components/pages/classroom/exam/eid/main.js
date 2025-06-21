@@ -1,6 +1,6 @@
 "use client";
 import xss from "xss";
-import axios from "axios";
+import axios from "@lib/axios";
 import React from "react";
 import moment from "moment";
 import Link from "next/link";
@@ -13,8 +13,9 @@ import Loading from "@components/common/loading";
 import ClassroomLayout from "../../layout/layout";
 import DeleteExamAction from "./delete-exam-action";
 import { FileUploader } from "react-drag-drop-files";
-import { useMutation, useSubscription } from "@apollo/client";
-import { DELETE_EXAM, ADD_EXAM_SUBMISSION_ENTRY } from "@graphql/mutations";
+import { useSocket } from "@hooks/useSocket";
+// import { useMutation, useSubscription } from "@apollo/client";
+// import { DELETE_EXAM, ADD_EXAM_SUBMISSION_ENTRY } from "@graphql/mutations";
 import {
   Alert,
   Button,
@@ -26,20 +27,29 @@ import {
   TableCell,
   TableRow,
 } from "@heroui/react";
-import {
-  SUB_GET_EXAM,
-  SUB_GET_CLASSROOM,
-  SUB_GET_MY_SUBMISSIONS,
-  SUB_LIST_SUBMISSIONS,
-} from "@graphql/subscriptions";
+// import {
+//   SUB_GET_EXAM,
+//   // SUB_GET_CLASSROOM,
+//   SUB_GET_MY_SUBMISSIONS,
+//   SUB_LIST_SUBMISSIONS,
+// } from "@graphql/subscriptions";
 
-export default function ExamPageMainComponent({ user, cid, eid }) {
+export default function ExamPageMainComponent({ userInfo, cid, eid }) {
   const router = useRouter();
 
-  const [deleteExam] = useMutation(DELETE_EXAM);
-  const [addSubmissionEntry] = useMutation(ADD_EXAM_SUBMISSION_ENTRY);
+  // const [deleteExam] = useMutation(DELETE_EXAM);
+  // const [addSubmissionEntry] = useMutation(ADD_EXAM_SUBMISSION_ENTRY);
   // const [setSubmission] = useMutation(CREATE_ASSIGNMENT_SUBMISSION);
   // const [updateSubmission] = useMutation(UPDATE_ASSIGNMENT_SUBMISSION);
+
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [exam, setExam] = React.useState(null);
+  const [examLoading, setExamLoading] = React.useState(false);
+  const [mySubmissions, setMySubmissions] = React.useState([]);
+  const [mySubmissionsLoading, setMySubmissionsLoading] = React.useState(false);
+  const [listSubmissions, setListSubmissions] = React.useState([]);
+  const [listSubmissionsLoading, setListSubmissionsLoading] = React.useState(false);
   const [d_error, setError] = React.useState(null);
   const [deleting, setDeleting] = React.useState(false);
   const [doing, setDoing] = React.useState(false);
@@ -51,50 +61,140 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
   const [submissionStatus, setSubmissionStatus] = React.useState("FETCHING...");
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id: cid },
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id: cid },
+  // });
+
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${cid}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [cid]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data.id === cid) {
+      fetchClassroom();
+    }
   });
 
-  const {
-    data: sub_exams_data,
-    loading: sub_exams_loading,
-    error: sub_exams_error,
-  } = useSubscription(SUB_GET_EXAM, {
-    variables: { id: eid },
+  // const {
+  //   data: sub_exams_data,
+  //   loading: sub_exams_loading,
+  //   error: sub_exams_error,
+  // } = useSubscription(SUB_GET_EXAM, {
+  //   variables: { id: eid },
+  // });
+
+  // fetch exam
+  const fetchExam = React.useCallback(async () => {
+    setExamLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/exam/${eid}`);
+      setExam(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load exam");
+    }
+    setExamLoading(false);
+  }, [eid]);
+  
+  React.useEffect(() => {
+    fetchExam();
+  }, [fetchExam]);
+
+  useSocket("exam.updated", (payload) => {
+    if (payload.data.eid === eid || payload.data.cid === cid) {
+      fetchExam();
+    }
   });
 
-  const {
-    data: sub_my_submission_data,
-    loading: sub_my_submission_loading,
-    error: sub_my_submission_error,
-  } = useSubscription(SUB_GET_MY_SUBMISSIONS, {
-    variables: { uid: user.sub, eid: eid },
+  // const {
+  //   data: sub_my_submission_data,
+  //   loading: sub_my_submission_loading,
+  //   error: sub_my_submission_error,
+  // } = useSubscription(SUB_GET_MY_SUBMISSIONS, {
+  //   variables: { uid: user.sub, eid: eid },
+  // });
+
+  // fetch my submissions
+  const fetchMySubmissions = React.useCallback(async () => {
+    setMySubmissionsLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/exam/${eid}/${userInfo._id}/submissions`);
+      setMySubmissions(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load my submissions");
+    }
+    setMySubmissionsLoading(false);
+  }, [eid]);
+  
+  React.useEffect(() => {
+    fetchMySubmissions();
+  }, [fetchMySubmissions]);
+
+  useSocket("exam.updated", (payload) => {
+    if (payload.data.eid === eid || payload.data.cid === cid) {
+      fetchMySubmissions();
+    }
   });
 
-  const {
-    data: sub_list_submissions_data,
-    loading: sub_list_submissions_loading,
-    error: sub_list_submissions_error,
-  } = useSubscription(SUB_LIST_SUBMISSIONS, {
-    variables: { eid: eid },
+  // const {
+  //   data: sub_list_submissions_data,
+  //   loading: sub_list_submissions_loading,
+  //   error: sub_list_submissions_error,
+  // } = useSubscription(SUB_LIST_SUBMISSIONS, {
+  //   variables: { eid: eid },
+  // });
+
+  // fetch list submissions
+  const fetchListSubmissions = React.useCallback(async () => {
+    setListSubmissionsLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/exam/${eid}/submissions`);
+      setListSubmissions(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load list submissions");
+    }
+    setListSubmissionsLoading(false);
+  }, [eid]);
+  
+  React.useEffect(() => {
+    fetchListSubmissions();
+  }, [fetchListSubmissions]);
+
+  useSocket("exam.updated", (payload) => {
+    if (payload.data.eid === eid || payload.data.cid === cid) {
+      fetchListSubmissions();
+    }
   });
 
-  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find(
-    (cr) => cr.user.id === user.sub
+  const currentUser = classroom?.classroom_relation.find(
+    (cr) => cr.user._id === userInfo._id
   );
 
   const handleDeleteExam = async () => {
     setDeleteLoading(true);
     try {
-      await deleteExam({
-        variables: {
-          eid: eid,
-        },
-      });
+      // await deleteExam({
+      //   variables: {
+      //     eid: eid,
+      //   },
+      // });
+      await axios.delete(`/v1/classroom/exam/${eid}`);
       router.push(`/classroom/${cid}/exams`);
     } catch (error) {
       setError(error);
@@ -108,19 +208,23 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
     setStarting(true);
     try {
       if (currentUser?.role === "student") {
-        if (sub_my_submission_data?.exam_submissions?.length !== 0) {
+        if (mySubmissions?.length !== 0) {
           router.push(
-            `/classroom/${cid}/exam/${eid}/start/${sub_my_submission_data?.exam_submissions[0].id}`
+            `/classroom/${cid}/exam/${eid}/start/${mySubmissions[0].id}`
           );
         } else {
-          const newSubmission = await addSubmissionEntry({
-            variables: {
-              eid: eid,
-              status: "draft",
-            },
+          // const newSubmission = await addSubmissionEntry({
+          //   variables: {
+          //     eid: eid,
+          //     status: "draft",
+          //   },
+          // });
+          const res = await axios.post(`/v1/classroom/exam/submission/create`, {
+            exam_id: eid,
+            status: "draft",
           });
           router.push(
-            `/classroom/${cid}/exam/${eid}/start/${newSubmission.data.insert_exam_submissions_one.id}`
+            `/classroom/${cid}/exam/${eid}/start/${res.data._id}`
           );
         }
       }
@@ -136,7 +240,7 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
     setStarting(true);
     if (currentUser?.role === "student") {
       router.push(
-        `/classroom/${cid}/exam/${eid}/submission/${sub_my_submission_data?.exam_submissions[0].id}`
+        `/classroom/${cid}/exam/${eid}/submission/${mySubmissions[0].id}`
       );
     }
     setStarting(false);
@@ -145,29 +249,29 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
   // caluclate submission status
   React.useEffect(() => {
     if (
-      !sub_loading &&
-      !sub_exams_loading &&
-      !sub_my_submission_loading &&
-      !sub_list_submissions_loading
+      !classroomLoading &&
+      !examLoading &&
+      !mySubmissionsLoading &&
+      !listSubmissionsLoading
     ) {
-      const start_time = moment(sub_exams_data?.exams_by_pk?.start_once).add(
-        sub_exams_data?.exams_by_pk?.duration,
+      const start_time = moment(exam?.start_once).add(
+        exam?.duration,
         "minutes"
       );
 
       if (currentUser?.role === "student") {
-        if (sub_my_submission_data?.exam_submissions?.length !== 0) {
+        if (mySubmissions?.length !== 0) {
           const duration_time = moment(
-            sub_my_submission_data?.exam_submissions[0].created_at
-          ).add(sub_exams_data?.exams_by_pk?.duration, "minutes");
-          if (sub_my_submission_data?.exam_submissions[0].status === "draft") {
-            if (sub_exams_data?.exams_by_pk?.start_once) {
+            mySubmissions[0].created_at
+          ).add(exam?.duration, "minutes");
+          if (mySubmissions[0].status === "draft") {
+            if (exam?.start_once) {
               if (start_time.isAfter(moment())) {
                 setSubmissionStatus("STARTED");
               } else {
                 setSubmissionStatus("FINISHED");
               }
-            } else if (sub_exams_data?.exams_by_pk?.duration !== 0) {
+            } else if (exam?.duration !== 0) {
               if (duration_time.isAfter(moment())) {
                 setSubmissionStatus("STARTED");
               } else {
@@ -180,7 +284,7 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
             setSubmissionStatus("FINISHED");
           }
         } else {
-          if (sub_exams_data?.exams_by_pk?.start_once) {
+          if (exam?.start_once) {
             if (start_time.isBefore(moment())) {
               setSubmissionStatus("ENDED");
             } else {
@@ -193,15 +297,15 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
       }
     }
   }, [
-    sub_loading,
-    sub_exams_loading,
-    sub_my_submission_loading,
-    sub_list_submissions_loading,
+    classroomLoading,
+    examLoading,
+    mySubmissionsLoading,
+    listSubmissionsLoading,
     currentUser,
-    sub_data,
-    sub_exams_data,
-    sub_my_submission_data,
-    sub_list_submissions_data,
+    classroom,
+    exam,
+    mySubmissions,
+    listSubmissions,
   ]);
 
   React.useEffect(() => {
@@ -215,23 +319,23 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
 
   React.useEffect(() => {
     let subs = [];
-    if (sub_list_submissions_data?.exam_submissions.length > 0) {
+    if (listSubmissions.length > 0) {
       if (currentUser?.role === "teacher" || currentUser?.role === "owner") {
-        sub_list_submissions_data?.exam_submissions.map((submission) => {
+        listSubmissions.map((submission) => {
           if (submission.status !== "draft") {
             subs.push(submission);
-          } else if (sub_exams_data?.exams_by_pk?.duration !== 0) {
+          } else if (exam?.duration !== 0) {
             if (
-              sub_exams_data?.exams_by_pk?.start_once &&
-              moment(sub_exams_data?.exams_by_pk?.start_once)
-                .add(sub_exams_data?.exams_by_pk?.duration, "minutes")
+              exam?.start_once &&
+              moment(exam?.start_once)
+                .add(exam?.duration, "minutes")
                 .isBefore(moment())
             ) {
               subs.push(submission);
             } else if (
-              !sub_exams_data?.exams_by_pk?.start_once &&
+              !exam?.start_once &&
               moment(submission.created_at)
-                .add(sub_exams_data?.exams_by_pk?.duration, "minutes")
+                .add(exam?.duration, "minutes")
                 .isBefore(moment())
             ) {
               subs.push(submission);
@@ -241,31 +345,31 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
       }
     }
     setSubmissions(subs);
-  }, [sub_list_submissions_data, currentUser, sub_exams_data]);
+  }, [listSubmissions, currentUser, exam]);
 
   if (
-    !sub_loading &&
-    !sub_exams_loading &&
-    !sub_my_submission_loading &&
-    !sub_list_submissions_loading
+    !classroomLoading &&
+    !examLoading &&
+    !mySubmissionsLoading &&
+    !listSubmissionsLoading
   ) {
     // if not found
-    if (!sub_data?.classrooms_by_pk && !sub_exams_data?.exams_by_pk) {
+    if (!classroom && !exam) {
       return <NotFoundPage />;
     }
 
     // if exam is not for everyone and current user is not in the audience
     if (
       currentUser?.role === "student" &&
-      !sub_exams_data?.exams_by_pk?.audience.includes("*") &&
-      !sub_exams_data?.exams_by_pk?.audience.includes(currentUser?.user.id)
+      !exam?.audience.includes("*") &&
+      !exam?.audience.includes(currentUser?.user._id)
     ) {
       return <NotFoundPage />;
     }
 
     // if draft
     if (
-      sub_exams_data?.exams_by_pk?.status === "draft" &&
+      exam?.status === "draft" &&
       currentUser?.role === "student"
     ) {
       return <NotFoundPage />;
@@ -283,8 +387,8 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
       )}
       <ClassroomLayout
         id={cid}
-        loading={sub_loading || sub_exams_loading}
-        classroom={sub_data?.classrooms_by_pk}
+        loading={classroomLoading || examLoading}
+        classroom={classroom}
       >
         {success && (
           <div className="mb-4">
@@ -303,7 +407,7 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
           )}
 
           <h1 className="text-lg md:text-xl xl:text-2xl  p-5 bg-content2 font-bold rounded-xl">
-            {sub_exams_data?.exams_by_pk?.title}
+            {exam?.title}
           </h1>
           <div className="flex flex-col xl:flex-row gap-4 max-w-full w-full">
             <div className="flex-auto flex flex-col overflow-x-auto">
@@ -311,9 +415,9 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
                 <article className="prose max-w-none prose-lg prose-headings:text-gray-800 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:underline prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:italic prose-img:rounded-lg prose-img:shadow-md prose-ul:list-disc prose-ol:list-decimal prose-table:border-collapse prose-table:border prose-table:border-gray-300 prose-th:border prose-th:p-2 prose-th:bg-gray-100 prose-td:border prose-td:p-2 prose-td:text-gray-700 prose-strong:text-gray-800 dark:prose-headings:text-gray-100 dark:prose-p:text-gray-300 dark:prose-a:text-blue-400 dark:prose-blockquote:border-gray-600 dark:prose-th:bg-gray-800 dark:prose-td:text-gray-300 dark:prose-table:border-gray-600 dark:prose-strong:text-gray-100">
                   <div
                     dangerouslySetInnerHTML={{
-                      // __html: xss(sub_exams_data?.exams_by_pk?.content),
-                      // __html: DOMPurify.sanitize(sub_exams_data?.exams_by_pk?.content),
-                      __html: sub_exams_data?.exams_by_pk?.content,
+                      // __html: xss(exam?.content),
+                      // __html: DOMPurify.sanitize(exam?.content),
+                      __html: exam?.content,
                     }}
                   ></div>
                 </article>
@@ -325,11 +429,11 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
 
                 <User
                   avatarProps={{
-                    src: sub_exams_data?.exams_by_pk?.owner?.avatar,
-                    alt: sub_exams_data?.exams_by_pk?.owner?.name,
+                    src: exam?.owner?.avatar.url,
+                    alt: exam?.owner?.name,
                   }}
-                  name={sub_exams_data?.exams_by_pk?.owner?.name}
-                  description={sub_exams_data?.exams_by_pk?.owner?.email}
+                  name={exam?.owner?.name}
+                  description={exam?.owner?.email}
                 />
               </div>
 
@@ -337,32 +441,32 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
                 <h2 className="text-sm">
                   Status:{" "}
                   <span className="font-semibold">
-                    {sub_exams_data?.exams_by_pk?.status.toUpperCase()}
+                    {exam?.status.toUpperCase()}
                   </span>
                 </h2>
                 <h2 className="text-sm">
                   Last Updated:{" "}
                   <span className="font-semibold">
-                    {moment(sub_exams_data?.exams_by_pk?.updated_at).fromNow()}
+                    {moment(exam?.updated_at).fromNow()}
                   </span>
                 </h2>
-                {sub_exams_data?.exams_by_pk?.start_once !== null && (
+                {exam?.start_once !== null && (
                   <h2 className="text-sm text-danger-500 dark:text-danger-400">
                     Starts on:{" "}
                     <span className="font-semibold">
-                      {moment(sub_exams_data?.exams_by_pk?.start_once).format(
+                      {moment(exam?.start_once).format(
                         "MMM DD, YYYY hh:mm A"
                       )}
                     </span>
                   </h2>
                 )}
 
-                {sub_exams_data?.exams_by_pk?.duration !== 0 &&
-                  sub_exams_data?.exams_by_pk?.duration !== null && (
+                {exam?.duration !== 0 &&
+                  exam?.duration !== null && (
                     <h2 className="text-sm">
                       Exam Duration:{" "}
                       <span className="font-semibold">
-                        {sub_exams_data?.exams_by_pk?.duration} minutes
+                        {exam?.duration} minutes
                       </span>
                     </h2>
                   )}
@@ -425,7 +529,7 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
                     <p className="text-sm text-center pt-1">
                       <span className="text-danger-500 dark:text-danger-400 italic text-xs font-medium">
                         Exam is scheduled to start at <br />
-                        {moment(sub_exams_data?.exams_by_pk?.start_once).format(
+                        {moment(exam?.start_once).format(
                           "MMM DD, YYYY hh:mm A"
                         )}{" "}
                         <br />
@@ -493,7 +597,7 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
                         <TableCell>
                           <User
                             avatarProps={{
-                              src: submission.user.avatar,
+                              src: submission.user.avatar.url,
                             }}
                             description={
                               <h4 className="text-sm text-gray-500 dark:text-gray-400">
@@ -540,7 +644,7 @@ export default function ExamPageMainComponent({ user, cid, eid }) {
                         <TableCell>
                           <User
                             avatarProps={{
-                              src: submission.submitter.avatar,
+                              src: submission.submitter.avatar.url,
                             }}
                             description={
                               <h4 className="text-sm text-gray-500 dark:text-gray-400">{submission.submitter.email}</h4>

@@ -12,22 +12,50 @@ import {
   Spinner,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-
-import { useSubscription } from "@apollo/client";
-import { SUB_GET_COMMENTS } from "@graphql/subscriptions";
+import axios from "@lib/axios";
+import { useSocket } from "@hooks/useSocket";
+// import { useSubscription } from "@apollo/client";
+// import { SUB_GET_COMMENTS } from "@graphql/subscriptions";
 
 export default function ViewAllComments({
   user,
   post_id,
+  owner,
   handleClose,
   handleDeleteComment,
 }) {
+
   // fetch comments
-  const { data, loading, error } = useSubscription(SUB_GET_COMMENTS, {
-    variables: {
-      pid: post_id,
-    },
+  // const { data, loading, error } = useSubscription(SUB_GET_COMMENTS, {
+  //   variables: {
+  //     pid: post_id,
+  //   },
+  // });
+
+  const [comments, setComments] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+
+  // fetch comments
+  const fetchComments = React.useCallback(async () => {
+    setLoading(true);
+    const { data: res } = await axios.get(`/v1/classroom/post/comments/${post_id}`);
+    setComments(res.data);
+    setLoading(false);
+  }, [post_id]);
+
+  React.useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
+
+  useSocket("post.updated", (payload) => {
+    if (payload.data.pid === post_id) {
+      fetchComments();
+    }
   });
+
+
+  // handle delete comment
+
 
   const bodyRef = useDetectClickOutside({ onTriggered: handleClose });
 
@@ -57,12 +85,12 @@ export default function ViewAllComments({
               All Comments
             </h4>
 
-            {data?.classroom_post_comments?.map((comment, index) => (
+            {comments?.map((comment, index) => (
               <div key={index} className="flex gap-4 mt-4">
                 <div className="flex-initial mt-1">
                   <Avatar
                     isBordered
-                    src={comment.user.avatar}
+                    src={comment.user.avatar.url}
                     name={comment.user.name}
                     size="sm"
                   />
@@ -79,10 +107,10 @@ export default function ViewAllComments({
                       </p>{" "}
                     </div>
 
-                    {comment.user.id === user.user.id ||
+                    {comment.user.id === user.user._id ||
                     user.role === "owner" ||
                     user.role === "teacher" ||
-                    post.user.id === user.user.id ? (
+                    owner === user.user._id ? (
                       <div className="flex-initial">
                         <button
                           className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded-full grid justify-center items-center h-full w-12 text-center"
@@ -108,7 +136,7 @@ export default function ViewAllComments({
                       </Button>
                     </DropdownTrigger>
                     <DropdownMenu>
-                      {/* {comment.user.id === user.user.id && (
+                      {/* {comment.user.id === user.user._id && (
                           <DropdownItem>
                             <p className="flex items-center">
                               <Icon
@@ -119,10 +147,10 @@ export default function ViewAllComments({
                             </p>
                           </DropdownItem>
                         )} */}
-                        {/* {comment.user.id === user.user.id ||
+                        {/* {comment.user.id === user.user._id ||
                       user.role === "owner" ||
                       user.role === "teacher" ||
-                      post.user.id === user.user.id ? ( */}
+                      post.user.id === user.user._id ? ( */}
                         {/* <DropdownItem>
                           <button
                             className=""

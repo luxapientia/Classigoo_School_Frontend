@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios";
 import moment from "moment";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
@@ -12,13 +13,17 @@ import ClassroomLayout from "../layout/layout";
 import { Button, Tooltip, User } from "@heroui/react";
 import { HeaderSlot } from "@components/layout/header";
 import parseAbsoluteToLocal from "@internationalized/date";
+import { useSocket } from "@hooks/useSocket";
 
 // graphql imports
-import { DELETE_SCHEDULE } from "@graphql/mutations";
-import { useSubscription, useMutation } from "@apollo/client";
-import { SUB_GET_CLASSROOM, SUB_LIST_SCHEDULES } from "@graphql/subscriptions";
+// import { DELETE_SCHEDULE } from "@graphql/mutations";
+// import { useSubscription, useMutation } from "@apollo/client";
+// import { SUB_GET_CLASSROOM, SUB_LIST_SCHEDULES } from "@graphql/subscriptions";
 
-export default function ClassroomCalendarMain({ id, session }) {
+export default function ClassroomCalendarMain({ id, userInfo }) {
+
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
   const [eventCreator, setEventCreator] = React.useState(false);
 
   const [showEvent, setShowEvent] = React.useState({});
@@ -33,23 +38,50 @@ export default function ClassroomCalendarMain({ id, session }) {
   const [success, setSuccess] = React.useState(null);
   const [deleting, setDeleting] = React.useState(false);
 
-  const [deleteSchedule] = useMutation(DELETE_SCHEDULE);
+  // const [deleteSchedule] = useMutation(DELETE_SCHEDULE);
 
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id },
-  });
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id },
+  // });
 
-  const {
-    data: sub_data_schedules,
-    loading: sub_loading_schedules,
-    error: sub_error_schedules,
-  } = useSubscription(SUB_LIST_SCHEDULES, {
-    variables: { cid: id },
-  });
+    // fetch classroom
+    const fetchClassroom = React.useCallback(async () => {
+      setClassroomLoading(true);
+      try {
+        const res = await axios.get(`/v1/classroom/${id}`);
+        setClassroom(res.data);
+      } catch (err) {
+        setError(err?.response?.data?.message || "Failed to load classroom");
+      }
+  
+      setClassroomLoading(false);
+    }, [id]);
+  
+    React.useEffect(() => {
+      fetchClassroom();
+    }, [fetchClassroom]);
+  
+    useSocket("classroom.updated", (payload) => {
+      if (payload.data.id === id) {
+        fetchClassroom();
+      }
+    });
+
+  // const {
+  //   data: sub_data_schedules,
+  //   loading: sub_loading_schedules,
+  //   error: sub_error_schedules,
+  // } = useSubscription(SUB_LIST_SCHEDULES, {
+  //   variables: { cid: id },
+  // });
+
+  const sub_data_schedules = [];
+  const sub_loading_schedules = false;
+  const sub_error_schedules = null;
 
   React.useEffect(() => {
     if (sub_data_schedules?.schedules) {
@@ -97,11 +129,16 @@ export default function ClassroomCalendarMain({ id, session }) {
   const handleDeleteEvent = async () => {
     setDeleting(true);
     try {
-      const { data } = await deleteSchedule({
-        variables: {
-          eid: showDeleteEvent,
-        },
-      });
+      // const { data } = await deleteSchedule({
+      //   variables: {
+      //     eid: showDeleteEvent,
+      //   },
+      // });
+
+      const data = {
+        
+      }
+
       if (data.delete_schedules_by_pk?.id) {
         setSuccess("Event deleted successfully");
         setShowDeleteEvent("");
@@ -124,18 +161,18 @@ export default function ClassroomCalendarMain({ id, session }) {
   };
 
   // Check if the current user is a member of the classroom
-  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find(
-    (cr) => cr.user.id === session.user.sub
+  const currentUser = classroom?.classroom_relation.find(
+    (cr) => cr.user._id === userInfo._id
   );
 
-  if (!sub_loading && !sub_data?.classrooms_by_pk) return <NotFoundPage />;
+  if (!classroomLoading && !classroom) return <NotFoundPage />;
 
   return (
     <>
       <ClassroomLayout
         id={id}
-        loading={sub_loading || sub_loading_schedules}
-        classroom={sub_data?.classrooms_by_pk}
+        loading={classroomLoading || sub_loading_schedules}
+        classroom={classroom}
       >
         {(currentUser?.role === "owner" || currentUser?.role === "teacher") && (
           <HeaderSlot>
