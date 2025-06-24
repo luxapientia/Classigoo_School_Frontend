@@ -1,5 +1,6 @@
 "use client";
 import cn from "classnames";
+import axios from "@lib/axios"
 import React from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
@@ -9,15 +10,15 @@ import { Button, Textarea } from "@heroui/react";
 import MarkdownRender from "@components/common/markdown";
 
 // graphql imports
-import { GET_PROFILE } from "@graphql/queries";
-import { useQuery, useMutation } from "@apollo/client";
-import {
-  CHAT_WITH_AI_BUDDY,
-  RETRIEVE_SINGLE_AI_BUDDY_CHAT,
-} from "@graphql/mutations";
+// import { GET_PROFILE } from "@graphql/queries";
+// import { useQuery, useMutation } from "@apollo/client";
+// import {
+//   CHAT_WITH_AI_BUDDY,
+//   RETRIEVE_SINGLE_AI_BUDDY_CHAT,
+// } from "@graphql/mutations";
 import NotFoundComponent from "@components/common/404";
 
-export default function PhysicsSingleMainComponent({ user, id }) {
+export default function PhysicsSingleMainComponent({ userInfo, id }) {
   // hooks
   const router = useRouter();
 
@@ -34,19 +35,19 @@ export default function PhysicsSingleMainComponent({ user, id }) {
   const [pageLoading, setPageLoading] = React.useState(false);
 
   // mutation
-  const [retrieveSingleAIBuddyChat] = useMutation(
-    RETRIEVE_SINGLE_AI_BUDDY_CHAT
-  );
-  const [chatWithAIBuddy] = useMutation(CHAT_WITH_AI_BUDDY);
+  // const [retrieveSingleAIBuddyChat] = useMutation(
+  //   RETRIEVE_SINGLE_AI_BUDDY_CHAT
+  // );
+  // const [chatWithAIBuddy] = useMutation(CHAT_WITH_AI_BUDDY);
 
   // get user data
-  const {
-    data: user_data,
-    loading: user_loading,
-    error: user_error,
-  } = useQuery(GET_PROFILE, {
-    variables: { id: user.sub },
-  });
+  // const {
+  //   data: user_data,
+  //   loading: user_loading,
+  //   error: user_error,
+  // } = useQuery(GET_PROFILE, {
+  //   variables: { id: user.sub },
+  // });
 
   // get chat history
   React.useEffect(() => {
@@ -54,17 +55,23 @@ export default function PhysicsSingleMainComponent({ user, id }) {
       const fetchChatHistory = async () => {
         setPageLoading(true);
         try {
-          const { data } = await retrieveSingleAIBuddyChat({
-            variables: {
-              id: id,
-              model: "physics",
-            },
+          // const { data } = await retrieveSingleAIBuddyChat({
+          //   variables: {
+          //     id: id,
+          //     model: "physics",
+          //   },
+          // });
+
+          const { data } = await axios.post("/v1/aibuddy/retrieve", {
+            id: id,
+            model: "physics",
           });
-          if (data.aiBuddyChatSingle.status === "success") {
-            setChatHistory(data?.aiBuddyChatSingle?.chats);
+
+          if (data.status === "success") {
+            setChatHistory(data?.chats);
           } else {
-            setError(data?.aiBuddyChatSingle?.message);
-            if (data?.aiBuddyChatSingle?.not_found) {
+            setError(data?.message);
+            if (data?.not_found) {
               setNotFound(true);
             }
           }
@@ -76,7 +83,7 @@ export default function PhysicsSingleMainComponent({ user, id }) {
       };
       fetchChatHistory();
     }
-  }, [id, retrieveSingleAIBuddyChat]);
+  }, [id]);
 
   React.useEffect(() => {
     if (error !== "") {
@@ -126,20 +133,27 @@ export default function PhysicsSingleMainComponent({ user, id }) {
     setPrompt("");
 
     try {
-      const { data } = await chatWithAIBuddy({
-        variables: {
-          model: "physics",
-          prompt: promptBefore,
-          chat_id: id,
-        },
+      // const { data } = await chatWithAIBuddy({
+      //   variables: {
+      //     model: "physics",
+      //     prompt: promptBefore,
+      //     chat_id: id,
+      //   },
+      // });
+
+      const { data } = await axios.post("/v1/aibuddy/chat", {
+        model: "physics",
+        prompt: promptBefore,
+        chat_id: id,
       });
-      if (data.aiBuddyChat.status === "success") {
+
+      if (data.status === "success") {
         // add new chat to chat history
         setChatHistory((prev) => [
           ...prev,
           {
             role: "assistant",
-            content: data?.aiBuddyChat?.content,
+            content: data?.content,
           },
         ]);
         setPrompt("");
@@ -150,9 +164,9 @@ export default function PhysicsSingleMainComponent({ user, id }) {
           }
         }, 100);
         // set success message
-        setSuccess(data?.aiBuddyChat?.message);
+        setSuccess(data?.message);
       } else {
-        setError(data?.aiBuddyChat?.message);
+        setError(data?.message);
       }
     } catch (error) {
       setError(error.message);
@@ -163,9 +177,9 @@ export default function PhysicsSingleMainComponent({ user, id }) {
 
   return (
     <PhysicsLayoutComponent
-      user_data={user_data}
+      user_data={userInfo}
       setError={setError}
-      isLoading={user_loading || pageLoading}
+      isLoading={pageLoading}
       active={id}
     >
       {notFound ? (
@@ -241,7 +255,7 @@ export default function PhysicsSingleMainComponent({ user, id }) {
                 </div>
               )}
 
-              {user_data?.users_by_pk?.is_plus ? (
+              {userInfo?.is_plus ? (
                 <React.Fragment>
                   <Textarea
                     variant="solid"

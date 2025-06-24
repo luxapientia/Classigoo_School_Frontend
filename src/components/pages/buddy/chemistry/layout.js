@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios"
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
@@ -10,11 +11,11 @@ import { useDetectClickOutside } from "react-detect-click-outside";
 import { Button, cn } from "@heroui/react";
 
 // graphql imports
-import { useMutation } from "@apollo/client";
-import {
-  RETRIEVE_AI_BUDDY_HISTORY,
-  RETRIEVE_AI_CHAT_SEARCH,
-} from "@graphql/mutations";
+// import { useMutation } from "@apollo/client";
+// import {
+//   RETRIEVE_AI_BUDDY_HISTORY,
+//   RETRIEVE_AI_CHAT_SEARCH,
+// } from "@graphql/mutations";
 
 export default function ChemistryLayoutComponent({
   user_data,
@@ -48,27 +49,34 @@ export default function ChemistryLayoutComponent({
   const [showMobileSidebar, setShowMobileSidebar] = React.useState(false);
   const [historyLoadingMore, setHistoryLoadingMore] = React.useState(false);
 
-  const [retrieveHistory] = useMutation(RETRIEVE_AI_BUDDY_HISTORY);
-  const [retrieveSearch] = useMutation(RETRIEVE_AI_CHAT_SEARCH);
+  // const [retrieveHistory] = useMutation(RETRIEVE_AI_BUDDY_HISTORY);
+  // const [retrieveSearch] = useMutation(RETRIEVE_AI_CHAT_SEARCH);
 
   React.useEffect(() => {
     const fetchHistory = async () => {
       setHistoryLoading(true);
       try {
-        const { data } = await retrieveHistory({
-          variables: {
-            page: page,
-            limit: limit,
-            model: "chemistry",
-          },
-        });
-        if (data?.aiBuddyHistory?.status === "success") {
+        // const { data } = await retrieveHistory({
+        //   variables: {
+        //     page: page,
+        //     limit: limit,
+        //     model: "chemistry",
+        //   },
+        // });
+
+        const { data } = await axios.post("/v1/aibuddy/history", {
+          page: page,
+          limit: limit,
+          model: "chemistry"
+        })
+
+        if (data?.status === "success") {
           setPage((prev) => prev + 1);
-          setHistory(data?.aiBuddyHistory?.history);
-          setNextPage(data?.aiBuddyHistory?.pagination?.has_next_page);
+          setHistory(data?.history);
+          setNextPage(data?.pagination?.has_next_page);
           setInitialLoad(true);
         } else {
-          setError(data?.aiBuddyHistory?.message);
+          setError(data?.message);
         }
       } catch (error) {
         setError(error.message);
@@ -86,19 +94,26 @@ export default function ChemistryLayoutComponent({
     if (nextPage && !historyLoadingMore) {
       setHistoryLoadingMore(true);
       try {
-        const { data } = await retrieveHistory({
-          variables: {
-            page: page,
-            limit: limit,
-            model: "chemistry",
-          },
-        });
-        if (data.aiBuddyHistory.status === "success") {
-          setHistory((prev) => [...prev, ...data.aiBuddyHistory.history]);
-          setNextPage(data.aiBuddyHistory.pagination.has_next_page);
+        // const { data } = await retrieveHistory({
+        //   variables: {
+        //     page: page,
+        //     limit: limit,
+        //     model: "chemistry",
+        //   },
+        // });
+
+        const { data } = await axios.post("/v1/aibuddy/history", {
+          page: page,
+          limit: limit,
+          model: "chemistry"
+        })
+
+        if (data.status === "success") {
+          setHistory((prev) => [...prev, ...data.history]);
+          setNextPage(data.pagination.has_next_page);
           setPage((prev) => prev + 1);
         } else {
-          setError(data.aiBuddyHistory.message);
+          setError(data.message);
         }
       } catch (error) {
         setError(error.message);
@@ -132,21 +147,27 @@ export default function ChemistryLayoutComponent({
   const handleSearch = async () => {
     if (searchQuery.length > 0) {
       try {
-        const { data } = await retrieveSearch({
-          variables: {
-            model: "chemistry",
-            query: searchQuery,
-          },
-        });
-        if (data?.aiBuddySearch?.status === "success") {
-          setSearchResults(data?.aiBuddySearch?.data);
-          if (data?.aiBuddySearch?.data > 0) {
+        // const { data } = await retrieveSearch({
+        //   variables: {
+        //     model: "chemistry",
+        //     query: searchQuery,
+        //   },
+        // });
+
+        const { data: res } = await axios.post("/v1/aibuddy/search", {
+          model: "chemistry",
+          query: searchQuery
+        })
+
+        if (res?.status === "success") {
+          setSearchResults(res?.data);
+          if (res?.data > 0) {
             setNoSearchResult(false);
           } else {
             setNoSearchResult(true);
           }
         } else {
-          setError(data?.aiBuddySearch?.message);
+          setError(res?.message);
         }
       } catch (error) {
         setError(error.message);
@@ -534,11 +555,11 @@ export default function ChemistryLayoutComponent({
                 </Button>
                 <Link href="/account/profile">
                   <div className="grid justify-center content-center h-10 w-10 border-2 border-content1 rounded-full">
-                    {!user_data?.users_by_pk?.avatar ? (
+                    {!user_data?.avatar ? (
                       <div className="h-[inherit] w-[inherit] bg-content1 rounded-full"></div>
                     ) : (
                       <img
-                        src={user_data?.users_by_pk?.avatar}
+                        src={user_data?.avatar?.url}
                         alt="user avatar"
                         className="rounded-full h-full w-full object-cover"
                       />

@@ -1,4 +1,4 @@
-import { auth0 } from "@lib/auth0";
+import { getUser } from "@lib/auth";
 import { redirect } from "next/navigation";
 import MathSingleMainComponent from "@components/pages/buddy/math/id/main";
 
@@ -9,15 +9,15 @@ export const metadata = {
 
 export default async function SettingsPage({ params }) {
   const { id } = await params;
-  const session = await auth0.getSession();
+  const user = await getUser();
 
-  if (!session) {
-    redirect("/auth/login");
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+    redirect("/api/logout");
   }
 
   return (
     <>
-      <MathSingleMainComponent user={session.user} id={id} />
+      <MathSingleMainComponent userInfo={user} id={id} />
     </>
   );
 }

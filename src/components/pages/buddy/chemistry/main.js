@@ -1,17 +1,18 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { useRouter } from "nextjs-toploader/app";
 import { Button, Textarea } from "@heroui/react";
 
 // graphql imports
-import { GET_PROFILE } from "@graphql/queries";
-import { useQuery, useMutation } from "@apollo/client";
-import { CHAT_WITH_AI_BUDDY } from "@graphql/mutations";
+// import { GET_PROFILE } from "@graphql/queries";
+// import { useQuery, useMutation } from "@apollo/client";
+// import { CHAT_WITH_AI_BUDDY } from "@graphql/mutations";
 import ChemistryLayoutComponent from "./layout";
 
-export default function ChemistryMainComponent({ user }) {
+export default function ChemistryMainComponent({ userInfo }) {
   // hooks
   const router = useRouter();
 
@@ -22,16 +23,16 @@ export default function ChemistryMainComponent({ user }) {
   const [loading, setLoading] = React.useState(false);
 
   // mutation
-  const [chatWithAIBuddy] = useMutation(CHAT_WITH_AI_BUDDY);
+  // const [chatWithAIBuddy] = useMutation(CHAT_WITH_AI_BUDDY);
 
   // get user data
-  const {
-    data: user_data,
-    loading: user_loading,
-    error: user_error,
-  } = useQuery(GET_PROFILE, {
-    variables: { id: user.sub },
-  });
+  // const {
+  //   data: user_data,
+  //   loading: user_loading,
+  //   error: user_error,
+  // } = useQuery(GET_PROFILE, {
+  //   variables: { id: userInfo._id },
+  // });
 
   const initiateChat = async () => {
     setLoading(true);
@@ -54,16 +55,22 @@ export default function ChemistryMainComponent({ user }) {
     }
 
     try {
-      const { data } = await chatWithAIBuddy({
-        variables: {
-          model: "chemistry",
-          prompt: prompt,
-        },
+      // const { data } = await chatWithAIBuddy({
+      //   variables: {
+      //     model: "chemistry",
+      //     prompt: prompt,
+      //   },
+      // });
+
+      const { data } = await axios.post("/v1/aibuddy/chat", {
+        model: "chemistry",
+        prompt: prompt,
       });
-      if (data.aiBuddyChat.status === "success") {
-        router.push(`/buddy/chemistry/${data.aiBuddyChat.chat_id}`);
+
+      if (data.status === "success") {
+        router.push(`/buddy/chemistry/${data.chat_id}`);
       } else {
-        setError(data.aiBuddyChat.message);
+        setError(data.message);
         setLoading(false);
       }
     } catch (error) {
@@ -83,11 +90,11 @@ export default function ChemistryMainComponent({ user }) {
 
   return (
     <ChemistryLayoutComponent
-      user_data={user_data}
+      user_data={userInfo}
       setError={setError}
-      isLoading={user_loading}
+      isLoading={false}
     >
-      {user_data?.users_by_pk?.is_plus ? (
+      {userInfo?.is_plus ? (
         <div className="flex flex-col items-center justify-center h-full">
           <h1 className="text-center text-neutral-800 dark:text-neutral-100 font-bold text-lg">
             Welcome to Chemistry Buddy!
