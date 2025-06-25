@@ -14,6 +14,8 @@ export default function ClassroomNotesMain({ id, userInfo }) {
 
   const [classroom, setClassroom] = React.useState(null);
   const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [classroomNotes, setClassroomNotes] = React.useState([]);
+  const [classroomNotesLoading, setClassroomNotesLoading] = React.useState(false);
 
   // const {
   //   data: sub_data,
@@ -53,19 +55,30 @@ export default function ClassroomNotesMain({ id, userInfo }) {
   // } = useSubscription(SUB_GET_CLASSROOM_NOTES, {
   //   variables: { cid: id },
   // });
-  
-  // Define mock values
-  const sub_data_notes = {
-    notes: []
-  };
-  const sub_loading_notes = false;
+
+  // fetch classroom notes
+  const fetchClassroomNotes = React.useCallback(async () => {
+    setClassroomNotesLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/note/classroom/${id}`);
+      setClassroomNotes(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom notes");
+    }
+    setClassroomNotesLoading(false);
+  }, [id]);
+
+  React.useEffect(() => {
+    fetchClassroomNotes();
+  }, [fetchClassroomNotes]);
+
 
   return (
     <>
-      <ClassroomLayout id={id} loading={classroomLoading || sub_loading_notes} classroom={classroom}>
-        {sub_data_notes?.notes.length > 0 ? (
+      <ClassroomLayout id={id} loading={classroomLoading || classroomNotesLoading} classroom={classroom}>
+        {classroomNotes.length > 0 ? (
           <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-            {sub_data_notes?.notes.map((note) => (
+            {classroomNotes.map((note) => (
               <Link href={`/note/${note.id}`} key={note.id} className="cursor-pointer">
                 <div className="shadow rounded-xl p-5">
                   <div className="flex">
