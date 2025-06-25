@@ -7,18 +7,18 @@ import { Icon } from "@iconify/react";
 import Loading from "@components/common/loading";
 import { HeaderSlot } from "@components/layout/header";
 
-import { useSubscription } from "@apollo/client";
-import SUB_GET_NOTES from "@graphql/subscriptions/subGetNotes";
+// import { useSubscription } from "@apollo/client";
+// import SUB_GET_NOTES from "@graphql/subscriptions/subGetNotes";
 import { Tooltip } from "@heroui/react";
 
-export default function NotesMainComponent({ user }) {
-  const { data, loading, error } = useSubscription(SUB_GET_NOTES, {
-    variables: {
-      uid: user.sub,
-    },
-  });
+export default function NotesMainComponent({ userInfo }) {
+  // const { data, loading, error } = useSubscription(SUB_GET_NOTES, {
+  //   variables: {
+  //     uid: user.sub,
+  //   },
+  // });
 
-  if (loading) return <Loading />;
+  // if (loading) return <Loading />;
 
   return (
     <div>

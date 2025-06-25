@@ -1,4 +1,4 @@
-import { auth0 } from "@lib/auth0";
+import { getUser } from "@lib/auth";
 import { redirect } from "next/navigation";
 import NotesMainComponent from "@components/pages/notes/main";
 
@@ -8,15 +8,15 @@ export const metadata = {
 };
 
 export default async function SettingsPage() {
-  const session = await auth0.getSession();
+  const user = await getUser();
 
-  if (!session) {
-    redirect("/auth/login");
+  if (!user) {
+    redirect("/api/logout");
   }
 
   return (
     <>
-      <NotesMainComponent user={session.user} />
+      <NotesMainComponent userInfo={user} />
     </>
   );
 }

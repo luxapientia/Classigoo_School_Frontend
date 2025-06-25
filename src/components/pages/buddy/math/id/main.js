@@ -63,7 +63,7 @@ export default function MathSingleMainComponent({ userInfo, id }) {
           // });
 
           const { data } = await axios.post("/v1/aibuddy/retrieve", {
-            id: id,
+            chat_id: id,
             model: "math",
           });
 

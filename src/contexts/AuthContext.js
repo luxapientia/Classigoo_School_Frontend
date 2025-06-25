@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
       const token = Cookies.get("token");
       if (!token) {
         setLoading(false);
-        router.push("/auth/login");
+        // router.push("/auth/login");
         return;
       }
 
@@ -46,6 +46,11 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const login = async (token, maxAge) => {
+    Cookies.set("token", token, { expires: maxAge / (24 * 60 * 60) });
+    await checkAuth();
+  }
+
   const logout = () => {
     // Clear auth token
     Cookies.remove("token");
@@ -63,6 +68,7 @@ export function AuthProvider({ children }) {
     user,
     loading,
     error,
+    login,
     logout,
     checkAuth,
   };

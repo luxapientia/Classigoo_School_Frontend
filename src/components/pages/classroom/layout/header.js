@@ -1,7 +1,7 @@
 "use client";
 import * as NProgress from "nprogress";
 import { useRouter } from "next/navigation";
-import { useUser } from "@auth0/nextjs-auth0";
+// import { useUser } from "@auth0/nextjs-auth0";
 import { usePathname } from "next/navigation";
 import { Avatar, Tabs, Tab } from "@heroui/react";
 

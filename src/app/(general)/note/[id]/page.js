@@ -1,4 +1,4 @@
-import { auth0 } from "@lib/auth0";
+import { getUser } from "@lib/auth";
 import { redirect } from "next/navigation";
 import NotePageMainComponent from "@components/pages/note/id/main";
 
@@ -8,17 +8,17 @@ export const metadata = {
 };
 
 export default async function SettingsPage({ params }) {
-  const session = await auth0.getSession();
+  const user = await getUser();
 
-  if (!session) {
-    redirect("/auth/login");
+  if (!user) {
+    redirect("/api/logout");
   }
 
   const { id } = await params;
 
   return (
     <>
-      <NotePageMainComponent user={session.user} id={id} />
+      <NotePageMainComponent userInfo={user} id={id} />
     </>
   );
 }

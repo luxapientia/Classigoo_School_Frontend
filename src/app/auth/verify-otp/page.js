@@ -5,11 +5,13 @@ import { Button, Form } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { LogoIcon } from "@components/common/logo";
 import axios from "@lib/axios";
-import { setCookie } from 'cookies-next';
+// import { setCookie } from 'cookies-next';
 import Cookies from 'js-cookie';
+import { useAuth } from "@contexts/AuthContext";
 
 export default function VerifyOtpPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [otp, setOtp] = useState(Array(9).fill(""));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -129,9 +131,10 @@ export default function VerifyOtpPage() {
           : 30 * 24 * 60 * 60; // 30 days default
 
         // Set cookie using js-cookie for immediate effect
-        Cookies.set('token', data.token, {
-          expires: maxAge / (24 * 60 * 60), // Convert seconds to days
-        });
+        await login(data.token, maxAge);
+        // Cookies.set('token', data.token, {
+        //   expires: maxAge / (24 * 60 * 60), // Convert seconds to days
+        // });
         
         // Also set using cookies-next for SSR
         // setCookie('token', data.token, {

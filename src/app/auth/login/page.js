@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import { Button, Input, Checkbox, Link, Form, Divider } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import { LogoIcon } from "@components/common/logo";
+// import { LogoIcon } from "@components/common/logo";
+import Image from "next/image";
 import axios from "@lib/axios";
 
 export default function LoginPage() {
@@ -52,10 +53,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex h-full w-full items-center justify-center">
+    <div className="flex h-screen w-full items-center justify-center">
       <div className="flex w-full max-w-sm flex-col gap-4 rounded-large">
         <div className="flex flex-col items-center pb-6">
-          <LogoIcon size={60} />
+          {/* <LogoIcon size={60} /> */}
+          <Image src="/images/brand/logo-c.png" alt="logo" width={50} height={50} className="mb-4" />
           <p className="text-xl font-medium">Welcome Back</p>
           <p className="text-small text-default-500">Log in to your account to continue</p>
         </div>
@@ -80,7 +82,7 @@ export default function LoginPage() {
             Log In
           </Button>
         </Form>
-        <div className="flex items-center gap-4 py-2">
+        {/* <div className="flex items-center gap-4 py-2">
           <Divider className="flex-1" />
           <p className="shrink-0 text-tiny text-default-500">OR</p>
           <Divider className="flex-1" />
@@ -98,7 +100,7 @@ export default function LoginPage() {
           >
             Continue with Github
           </Button>
-        </div>
+        </div> */}
         <p className="text-center text-small">
           Need to create an account?&nbsp;
           <Link href="/auth/signup" size="sm">

@@ -12,7 +12,7 @@ import { useSocket } from "@hooks/useSocket";
 // import { CREATE_CLASSROOM, JOIN_CLASSROOM } from "@graphql/mutations";
 // import { SUB_LIST_CLASSROOMS } from "@graphql/subscriptions";
 
-import { useSubscription, useMutation } from "@apollo/client";
+// import { useSubscription, useMutation } from "@apollo/client";
 import Loading from "@components/common/loading";
 import { redirect } from "next/navigation";
 import Link from "next/link";

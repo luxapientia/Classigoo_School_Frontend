@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
-import { useQuery } from "@apollo/client";
+// import { useQuery } from "@apollo/client";
 // import { useUser } from "@auth0/nextjs-auth0";
 import { useAuth } from "@contexts/AuthContext";
 import { ThemeSwitcher } from "./theme-switcher";
@@ -11,9 +11,9 @@ import { Avatar, Badge } from "@heroui/react";
 import { useContext, createContext, useState, useEffect, useMemo, useCallback } from "react";
 
 // queries
-import { GET_AVATAR } from "@graphql/queries";
-import { useSuspenseQuery } from "@apollo/client";
-import { client } from "@lib/apolloClient";
+// import { GET_AVATAR } from "@graphql/queries";
+// import { useSuspenseQuery } from "@apollo/client";
+// import { client } from "@lib/apolloClient";
 
 const HeaderSlotContext = createContext();
 
