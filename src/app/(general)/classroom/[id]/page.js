@@ -1,4 +1,4 @@
-import { auth0 } from "@lib/auth0";
+import { getUser } from "@lib/auth";
 import { redirect } from "next/navigation";
 
 export const metadata = {
@@ -7,11 +7,11 @@ export const metadata = {
 };
 
 export default async function ClassroomsPage({ params }) {
-  const session = await auth0.getSession();
+  const user = await getUser();
   const { id } = await params;
 
-  if (!session) {
-    redirect("/auth/login");
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
+    redirect("/api/logout");
   } else {
     redirect(`/classroom/${id}/home`);
   }

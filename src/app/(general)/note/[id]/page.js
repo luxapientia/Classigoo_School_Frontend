@@ -10,7 +10,7 @@ export const metadata = {
 export default async function SettingsPage({ params }) {
   const user = await getUser();
 
-  if (!user) {
+  if (!user || (user.status === "error" && user.message === "Unauthorized")) {
     redirect("/api/logout");
   }
 

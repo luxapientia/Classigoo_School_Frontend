@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios";
 import { Icon } from "@iconify/react";
 import NotFoundPage from "@app/not-found";
 import { useRouter } from "nextjs-toploader/app";
@@ -7,13 +8,17 @@ import Loading from "@components/common/loading";
 import TinyEditor from "@components/common/editor";
 import { Input, Button, Select, SelectItem, Alert } from "@heroui/react";
 
-import { EDIT_NOTE } from "@graphql/mutations";
-import { GET_NOTE, GET_CLASSROOM_NAMES } from "@graphql/queries";
-import { useQuery, useMutation } from "@apollo/client";
+// import { EDIT_NOTE } from "@graphql/mutations";
+// import { GET_NOTE, GET_CLASSROOM_NAMES } from "@graphql/queries";
+// import { useQuery, useMutation } from "@apollo/client";
 
-export default function NoteEditMainComponent({ user, id }) {
+export default function NoteEditMainComponent({ userInfo, id }) {
   const router = useRouter();
   const editorRef = React.useRef(null);
+  const [classroomNames, setClassroomNames] = React.useState([]);
+  const [classroomNamesLoading, setClassroomNamesLoading] = React.useState(false);
+  const [note, setNote] = React.useState(null);
+  const [noteLoading, setNoteLoading] = React.useState(false);
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("loading...........");
   const [classrooms, setClassrooms] = React.useState([]);
@@ -23,55 +28,95 @@ export default function NoteEditMainComponent({ user, id }) {
   const [loading, setLoading] = React.useState(false);
 
   // get classrooms
-  const {
-    data: classroomData,
-    loading: classroomLoading,
-    error: classroomError,
-  } = useQuery(GET_CLASSROOM_NAMES, {
-    variables: {
-      uid: user.sub,
-    },
-  });
+  // const {
+  //   data: classroomData,
+  //   loading: classroomLoading,
+  //   error: classroomError,
+  // } = useQuery(GET_CLASSROOM_NAMES, {
+  //   variables: {
+  //     uid: user.sub,
+  //   },
+  // });
 
-  const {
-    data: noteData,
-    loading: noteLoading,
-    error: noteError,
-  } = useQuery(GET_NOTE, {
-    variables: {
-      id,
-    },
-  });
+  // get classroom names
+  const fetchClassroomNames = React.useCallback(async () => {
+    setClassroomNamesLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/names/${userInfo._id}`);
+      setClassroomNames(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom names");
+    }
+    setClassroomNamesLoading(false);
+  }, [userInfo._id]);
+
+  React.useEffect(() => {
+    fetchClassroomNames();
+  }, [fetchClassroomNames]);
+
+  // const {
+  //   data: noteData,
+  //   loading: noteLoading,
+  //   error: noteError,
+  // } = useQuery(GET_NOTE, {
+  //   variables: {
+  //     id,
+  //   },
+  // });
+
+  // fetch note
+  const fetchNote = React.useCallback(async () => {
+    setNoteLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/note/${id}`);
+      setNote(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load note");
+    }
+    setNoteLoading(false);
+  }, [id]);
+
+  React.useEffect(() => {
+    fetchNote();
+  }, [fetchNote]);
 
   // initiate mutations
-  const [editNote] = useMutation(EDIT_NOTE);
+  // const [editNote] = useMutation(EDIT_NOTE);
 
   // edit note
   const handleEditNote = async (status) => {
     setLoading(status);
 
     try {
-      const { data } = await editNote({
-        variables: {
-          id,
-          title,
-          content,
-          status: status,
-          classroom_ids: classrooms,
-        },
+      // const { data } = await editNote({
+      //   variables: {
+      //     id,
+      //     title,
+      //     content,
+      //     status: status,
+      //     classroom_ids: classrooms,
+      //   },
+      // });
+
+      const { data } = await axios.post("/v1/note/update", {
+        id,
+        title,
+        content,
+        status,
+        classroom_ids: classrooms,
       });
 
-      if (data.editNote.status === "success") {
-        setSuccess(data.editNote.message);
+      if (data.status === "success") {
+        setSuccess(data.message);
         // setTitle("");
         // setContent("");
         // setClassrooms([]);
 
         // redirect the user to the note
-        // window.location.href = `/note/${data.editNote.id}`;
-        router.push(`/note/${data.editNote.id}`);
+        // window.location.href = `/note/${data.id}`;
+        router.push(`/note/${data.id}`);
       } else {
-        setError(data.editNote.message);
+        setError(data.message);
       }
     } catch (error) {
       setError(error.message);
@@ -106,20 +151,20 @@ export default function NoteEditMainComponent({ user, id }) {
   }, [success]);
 
   React.useEffect(() => {
-    if (noteData?.notes_by_pk) {
-      setTitle(noteData.notes_by_pk.title);
-      setContent(noteData.notes_by_pk.content);
+    if (note) {
+      setTitle(note.title);
+      setContent(note.content);
       setClassrooms(
-        noteData.notes_by_pk.classroom_notes.map(
+        note.classroom_notes.map(
           ({ classroom }) => classroom.id
         )
       );
     }
-  }, [noteData]);
+  }, [note]);
 
-  if (classroomLoading || noteLoading) return <Loading />;
-  if (noteData?.notes_by_pk === null) return <NotFoundPage />;
-  if (user.sub !== noteData?.notes_by_pk.owner_data.id) return <NotFoundPage />;
+  if (classroomNamesLoading || noteLoading) return <Loading />;
+  if (note === null) return <NotFoundPage />;
+  if (userInfo._id !== note.owner_data.id) return <NotFoundPage />;
 
   return (
     <div>
@@ -194,7 +239,7 @@ export default function NoteEditMainComponent({ user, id }) {
                   input.click();
                 },
               }}
-              // initialValue={noteData.notes_by_pk.content}
+              // initialValue={note.content}
               value={content}
               onChange={(content) => setContent(content)}
               // onChange={(content) => void 0}
@@ -217,13 +262,13 @@ export default function NoteEditMainComponent({ user, id }) {
               selectedKeys={classrooms}
               onChange={(e) => setClassrooms(e.target.value.split(","))}
               items={
-                classroomData.classroom_access?.map(({ classroom }) => ({
+                classroomNames?.map(({ classroom }) => ({
                   key: classroom.id,
                   label: classroom.name,
                 })) || []
               }
             >
-              {classroomData.classroom_access?.map(({ classroom }) => (
+              {classroomNames?.map(({ classroom }) => (
                 <SelectItem key={classroom.id}>{classroom.name}</SelectItem>
               ))}
             </Select>

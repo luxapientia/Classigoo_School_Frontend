@@ -1,16 +1,19 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios";
 import Loading from "@components/common/loading";
 import TinyEditor from "@components/common/editor";
 import { Input, Button, Select, SelectItem, Alert } from "@heroui/react";
 
-import { CREATE_NOTE } from "@graphql/mutations";
-import { GET_CLASSROOM_NAMES } from "@graphql/queries";
-import { useQuery, useMutation } from "@apollo/client";
+// import { CREATE_NOTE } from "@graphql/mutations";
+// import { GET_CLASSROOM_NAMES } from "@graphql/queries";
+// import { useQuery, useMutation } from "@apollo/client";
 import { redirect } from "next/navigation";
 
-export default function NoteCreateMainComponent({ user }) {
+export default function NoteCreateMainComponent({ userInfo }) {
   const editorRef = React.useRef(null);
+  const [classroomNames, setClassroomNames] = React.useState([]);
+  const [classroomNamesLoading, setClassroomNamesLoading] = React.useState(false);
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
   const [classrooms, setClassrooms] = React.useState([]);
@@ -20,18 +23,34 @@ export default function NoteCreateMainComponent({ user }) {
   const [loading, setLoading] = React.useState(false);
 
   // get classrooms
-  const {
-    data: classroomData,
-    loading: classroomLoading,
-    error: classroomError,
-  } = useQuery(GET_CLASSROOM_NAMES, {
-    variables: {
-      uid: user.sub,
-    },
-  });
+  // const {
+  //   data: classroomData,
+  //   loading: classroomLoading,
+  //   error: classroomError,
+  // } = useQuery(GET_CLASSROOM_NAMES, {
+  //   variables: {
+  //     uid: user.sub,
+  //   },
+  // });
+
+  // get classroom names
+  const fetchClassroomNames = React.useCallback(async () => {
+    setClassroomNamesLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/names/${userInfo._id}`);
+      setClassroomNames(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom names");
+    }
+    setClassroomNamesLoading(false);
+  }, [userInfo._id]);
+
+  React.useEffect(() => {
+    fetchClassroomNames();
+  }, [fetchClassroomNames]);
 
   // initiate mutations
-  const [createNote] = useMutation(CREATE_NOTE);
+  // const [createNote] = useMutation(CREATE_NOTE);
 
   // create note
   const handleCreateNote = async (status) => {
@@ -39,25 +58,32 @@ export default function NoteCreateMainComponent({ user }) {
     console.log(classrooms);
 
     try {
-      const { data } = await createNote({
-        variables: {
-          title,
-          content,
-          status: status,
-          classroom_ids: classrooms,
-        },
+      // const { data } = await createNote({
+      //   variables: {
+      //     title,
+      //     content,
+      //     status: status,
+      //     classroom_ids: classrooms,
+      //   },
+      // });
+
+      const { data } = await axios.post("/v1/note/create", {
+        title,
+        content,
+        status: status,
+        classroom_ids: classrooms,
       });
 
-      if (data.createNote.status === "success") {
-        setSuccess(data.createNote.message);
+      if (data.status === "success") {
+        setSuccess(data.message);
         setTitle("");
         setContent("");
         setClassrooms([]);
 
         // redirect the user to the note
-        window.location.href = `/note/${data.createNote.id}`;
+        window.location.href = `/note/${data.id}`;
       } else {
-        setError(data.createNote.message);
+        setError(data.message);
       }
     } catch (error) {
       setError(error.message);
@@ -91,7 +117,7 @@ export default function NoteCreateMainComponent({ user }) {
     }
   }, [success]);
 
-  if (classroomLoading) return <Loading />;
+  if (classroomNamesLoading) return <Loading />;
 
   return (
     <div>
@@ -166,13 +192,13 @@ export default function NoteCreateMainComponent({ user }) {
               selectedKeys={classrooms}
               onChange={(e) => setClassrooms(e.target.value.split(","))}
               items={
-                classroomData.classroom_access?.map(({ classroom }) => ({
+                classroomNames?.map(({ classroom }) => ({
                   key: classroom.id,
                   label: classroom.name,
                 })) || []
               }
             >
-              {classroomData.classroom_access?.map(({ classroom }) => (
+              {classroomNames?.map(({ classroom }) => (
                 <SelectItem key={classroom.id}>{classroom.name}</SelectItem>
               ))}
             </Select>

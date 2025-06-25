@@ -1,40 +1,93 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios";
 import moment from "moment";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Tooltip, User } from "@heroui/react";
 import ClassroomLayout from "../layout/layout";
-import { useSubscription } from "@apollo/client";
+import { useSocket } from "@hooks/useSocket";
+// import { useSubscription } from "@apollo/client";
 import { HeaderSlot } from "@components/layout/header";
-import { SUB_GET_CLASSROOM, SUB_LIST_EXAM_GRADES } from "@graphql/subscriptions";
+// import { SUB_GET_CLASSROOM, SUB_LIST_EXAM_GRADES } from "@graphql/subscriptions";
 
-export default function ClassroomResultsMain({ id, session }) {
-  const {
-    data: sub_data,
-    loading: sub_loading,
-    error: sub_error,
-  } = useSubscription(SUB_GET_CLASSROOM, {
-    variables: { id },
+export default function ClassroomResultsMain({ id, userInfo }) {
+
+  const [classroom, setClassroom] = React.useState(null);
+  const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [examGrades, setExamGrades] = React.useState([]);
+  const [examGradesLoading, setExamGradesLoading] = React.useState(false);
+
+  // const {
+  //   data: sub_data,
+  //   loading: sub_loading,
+  //   error: sub_error,
+  // } = useSubscription(SUB_GET_CLASSROOM, {
+  //   variables: { id },
+  // });
+
+  // fetch classroom
+  const fetchClassroom = React.useCallback(async () => {
+    setClassroomLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/${id}`);
+      setClassroom(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load classroom");
+    }
+
+    setClassroomLoading(false);
+  }, [id]);
+
+  React.useEffect(() => {
+    fetchClassroom();
+  }, [fetchClassroom]);
+
+  useSocket("classroom.updated", (payload) => {
+    if (payload.data.id === id) {
+      fetchClassroom();
+    }
   });
 
-  const {
-    data: sub_data_exam_grades,
-    loading: sub_loading_exam_grades,
-    error: sub_error_exam_grades,
-  } = useSubscription(SUB_LIST_EXAM_GRADES, {
-    variables: { cid: id },
-  });
+  // const {
+  //   data: sub_data_exam_grades,
+  //   loading: sub_loading_exam_grades,
+  //   error: sub_error_exam_grades,
+  // } = useSubscription(SUB_LIST_EXAM_GRADES, {
+  //   variables: { cid: id },
+  // });
+
+  // fetch exam grades
+  const fetchExamGrades = React.useCallback(async () => {
+    setExamGradesLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/exam/grades/${id}`);
+      setExamGrades(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load exam grades");
+    }
+    setExamGradesLoading(false);
+  }, [id]);
+  
+  React.useEffect(() => {
+    fetchExamGrades();
+  }, [fetchExamGrades]);
+
+  // useSocket("exam.updated", (payload) => {
+  //   if (payload.data.cid === id) {
+  //     fetchExamGrades();
+  //   }
+  // });
 
   // Check if the current user is a member of the classroom
-  const currentUser = sub_data?.classrooms_by_pk?.classroom_relation.find((cr) => cr.user.id === session.user.sub);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo._id);
 
   return (
     <>
-      <ClassroomLayout id={id} loading={sub_loading || sub_loading_exam_grades} classroom={sub_data?.classrooms_by_pk}>
-        {sub_data_exam_grades?.exam_submissions.length > 0 ? (
+      <ClassroomLayout id={id} loading={classroomLoading || examGradesLoading} classroom={classroom}>
+        {examGrades.length > 0 ? (
           <div className="grid gap-4 grid-cols-3">
-            {sub_data_exam_grades?.exam_submissions.map((grade) => {
+            {examGrades.map((grade) => {
               const marksObtained = grade?.markings?.reduce((acc, curr) => acc + parseInt(curr.marking), 0);
               const totalMarks = grade?.exam?.questions.reduce((acc, curr) => acc + parseInt(curr.points), 0);
 

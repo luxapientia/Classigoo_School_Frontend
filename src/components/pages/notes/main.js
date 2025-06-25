@@ -1,17 +1,42 @@
 "use client";
 
 import React from "react";
+import axios from "@lib/axios";
 import moment from "moment";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import Loading from "@components/common/loading";
 import { HeaderSlot } from "@components/layout/header";
+import { useSocket } from "@hooks/useSocket";
 
 // import { useSubscription } from "@apollo/client";
 // import SUB_GET_NOTES from "@graphql/subscriptions/subGetNotes";
 import { Tooltip } from "@heroui/react";
 
 export default function NotesMainComponent({ userInfo }) {
+
+  const [notes, setNotes] = React.useState([]);
+  const [notesLoading, setNotesLoading] = React.useState(false);
+
+  // fetch notes
+  const fetchNotes = React.useCallback(async () => {
+    setNotesLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/note/list/${userInfo._id}`);
+      setNotes(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load notes");
+    }
+
+    setNotesLoading(false);
+  }, []);
+  
+  React.useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
+
+  if (notesLoading) return <Loading />;
+
   // const { data, loading, error } = useSubscription(SUB_GET_NOTES, {
   //   variables: {
   //     uid: user.sub,
@@ -38,9 +63,9 @@ export default function NotesMainComponent({ userInfo }) {
         </Link>
       </HeaderSlot>
 
-      {data?.notes?.length > 0 ? (
+      {notes?.length > 0 ? (
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-          {data.notes.map((note) => (
+          {notes.map((note) => (
             <Link
               href={`/note/${note.id}`}
               key={note.id}

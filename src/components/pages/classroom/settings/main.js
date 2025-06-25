@@ -203,7 +203,6 @@ export default function ClassroomSettingsMain({ id, userInfo }) {
       setSection(classroom?.section);
       setSubject(classroom?.subject);
       setChildOnly(classroom?.child_only);
-      console.log(classroom);
       setAllowInvite(classroom?.invitation_code != "" ? true : false);
     }
   }, [classroom]);
