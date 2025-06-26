@@ -40,7 +40,6 @@ export default function ClassroomCalendarMain({ id, userInfo }) {
   const [success, setSuccess] = React.useState(null);
   const [deleting, setDeleting] = React.useState(false);
 
-  // const [deleteSchedule] = useMutation(DELETE_SCHEDULE);
 
   // const {
   //   data: sub_data,
