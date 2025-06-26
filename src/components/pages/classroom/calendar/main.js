@@ -4,7 +4,7 @@ import axios from "@lib/axios";
 import moment from "moment";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import EvenViewer from "./even-viewer";
+import EventViewer from "./event-viewer";
 import EventEditor from "./event-editor";
 import NotFoundPage from "@app/not-found";
 import EventCreator from "./event-creator";
@@ -24,6 +24,8 @@ export default function ClassroomCalendarMain({ id, userInfo }) {
 
   const [classroom, setClassroom] = React.useState(null);
   const [classroomLoading, setClassroomLoading] = React.useState(false);
+  const [schedules, setSchedules] = React.useState(null);
+  const [schedulesLoading, setSchedulesLoading] = React.useState(false);
   const [eventCreator, setEventCreator] = React.useState(false);
 
   const [showEvent, setShowEvent] = React.useState({});
@@ -79,19 +81,38 @@ export default function ClassroomCalendarMain({ id, userInfo }) {
   //   variables: { cid: id },
   // });
 
-  const sub_data_schedules = [];
-  const sub_loading_schedules = false;
-  const sub_error_schedules = null;
+  // fetch schedules
+  const fetchSchedules = React.useCallback(async () => {
+    setSchedulesLoading(true);
+    try {
+      const { data: res } = await axios.get(`/v1/classroom/schedule/list/${id}`);
+      setSchedules(res.data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load Schedules");
+    }
+
+    setSchedulesLoading(false);
+  }, [id]);
 
   React.useEffect(() => {
-    if (sub_data_schedules?.schedules) {
+    fetchSchedules();
+  }, [fetchSchedules]);
+
+  useSocket("schedule.updated", (payload) => {
+    if (payload.data.cid === id) {
+      fetchSchedules();
+    }
+  });
+
+  React.useEffect(() => {
+    if (schedules) {
       let u = [];
       let t = [];
       let p = [];
 
-      console.log(sub_data_schedules.schedules);
+      // console.log(schedules);
 
-      sub_data_schedules.schedules.forEach((schedule) => {
+      schedules.forEach((schedule) => {
         //   const startDate = moment(parseAbsoluteToLocal(schedule.start_time));
         //   const endDate = moment(parseAbsoluteToLocal(schedule.end_time));
         // moment convert to local time
@@ -124,7 +145,7 @@ export default function ClassroomCalendarMain({ id, userInfo }) {
       console.log("T", t);
       console.log("U", u);
     }
-  }, [sub_data_schedules]);
+  }, [schedules]);
 
   const handleDeleteEvent = async () => {
     setDeleting(true);
@@ -135,11 +156,9 @@ export default function ClassroomCalendarMain({ id, userInfo }) {
       //   },
       // });
 
-      const data = {
-        
-      }
+      const { data: res } = await axios.delete(`/v1/classroom/schedule/${showDeleteEvent}`)
 
-      if (data.delete_schedules_by_pk?.id) {
+      if (res.status === "success" && res.data.id) {
         setSuccess("Event deleted successfully");
         setShowDeleteEvent("");
         setShowEvent({});
@@ -171,7 +190,7 @@ export default function ClassroomCalendarMain({ id, userInfo }) {
     <>
       <ClassroomLayout
         id={id}
-        loading={classroomLoading || sub_loading_schedules}
+        loading={classroomLoading || schedulesLoading}
         classroom={classroom}
       >
         {(currentUser?.role === "owner" || currentUser?.role === "teacher") && (
@@ -589,7 +608,7 @@ export default function ClassroomCalendarMain({ id, userInfo }) {
         <EventCreator cid={id} setEventCreator={setEventCreator} />
       )}
       {showEvent?.id && (
-        <EvenViewer event={showEvent} setEventViewer={setShowEvent} />
+        <EventViewer event={showEvent} setEventViewer={setShowEvent} />
       )}
       {showEventEditor?.id && (
         <EventEditor

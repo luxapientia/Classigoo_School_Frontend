@@ -1,13 +1,14 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios"
 import moment from "moment";
 import { Icon } from "@iconify/react";
 import TinyEditor from "@components/common/editor";
 import { Input, DateRangePicker, Button, Alert } from "@heroui/react";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 
-import { CREATE_SCHEDULE } from "@graphql/mutations";
-import { useMutation } from "@apollo/client";
+// import { CREATE_SCHEDULE } from "@graphql/mutations";
+// import { useMutation } from "@apollo/client";
 
 export default function EventCreator({ cid, setEventCreator }) {
   const editorRef = React.useRef(null);
@@ -20,7 +21,7 @@ export default function EventCreator({ cid, setEventCreator }) {
   const [startDate, setStartDate] = React.useState(moment().toISOString());
   const [endDate, setEndDate] = React.useState(moment().add(1, "days").toISOString());
 
-  const [createSchedule] = useMutation(CREATE_SCHEDULE);
+  // const [createSchedule] = useMutation(CREATE_SCHEDULE);
 
   const handleCreateSchedule = async () => {
     setCreating(true);
@@ -31,17 +32,25 @@ export default function EventCreator({ cid, setEventCreator }) {
         return;
       }
 
-      const { data } = await createSchedule({
-        variables: {
-          cid,
-          title,
-          description,
-          sTime: startDate,
-          eTime: endDate,
-        },
-      });
+      // const { data } = await createSchedule({
+      //   variables: {
+      //     cid,
+      //     title,
+      //     description,
+      //     sTime: startDate,
+      //     eTime: endDate,
+      //   },
+      // });
 
-      if (data.insert_schedules_one?.id) {
+      const { data: res } = await axios.post('/v1/classroom/schedule/create', {
+        class_id: cid,
+        title,
+        description,
+        start_time: startDate,
+        end_time: endDate
+      })
+
+      if (res.status === "success" && res.data.id) {
         setSuccess("Event created successfully");
         setTitle("");
         setDescription("");

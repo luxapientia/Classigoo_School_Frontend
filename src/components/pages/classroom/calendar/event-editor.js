@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios";
 import moment from "moment";
 import { Icon } from "@iconify/react";
 import TinyEditor from "@components/common/editor";
@@ -7,8 +8,8 @@ import { Input, DateRangePicker, Button, Alert } from "@heroui/react";
 
 import { parseAbsoluteToLocal } from "@internationalized/date";
 
-import { useMutation } from "@apollo/client";
-import { UPDATE_SCHEDULE } from "@graphql/mutations";
+// import { useMutation } from "@apollo/client";
+// import { UPDATE_SCHEDULE } from "@graphql/mutations";
 
 export default function EventEditor({ event, setEventEditor }) {
   console.log(event);
@@ -21,7 +22,7 @@ export default function EventEditor({ event, setEventEditor }) {
   const [success, setSuccess] = React.useState(null);
   const [updating, setUpdating] = React.useState(false);
 
-  const [updateSchedule] = useMutation(UPDATE_SCHEDULE);
+  // const [updateSchedule] = useMutation(UPDATE_SCHEDULE);
 
   React.useEffect(() => {
     if (event?.description) {
@@ -38,17 +39,25 @@ export default function EventEditor({ event, setEventEditor }) {
         return;
       }
 
-      const { data } = await updateSchedule({
-        variables: {
-          eid: event?.id,
-          title,
-          description,
-          sTime: startDate,
-          eTime: endDate,
-        },
-      });
+      // const { data } = await updateSchedule({
+      //   variables: {
+      //     eid: event?.id,
+      //     title,
+      //     description,
+      //     sTime: startDate,
+      //     eTime: endDate,
+      //   },
+      // });
 
-      if (data.update_schedules_by_pk?.id) {
+      const { data: res } = await axios.post(`/v1/classroom/schedule/update`, {
+        id: event?.id,
+        title,
+        description,
+        start_time: startDate,
+        end_time: endDate
+      })
+
+      if (res.status === "success" && res.data.id) {
         setSuccess("Event updated successfully");
         setTitle("");
         setDescription("");
