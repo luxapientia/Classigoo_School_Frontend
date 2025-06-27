@@ -6,7 +6,7 @@ let socket = null;
 export function getSocket() {
   if (!socket) {
     const token = Cookies.get('token');
-    socket = io('http://localhost:8002/events', {
+    socket = io(`${process.env.BACKEND_API_URL}/events`, {
       auth: { token },
     });
 
