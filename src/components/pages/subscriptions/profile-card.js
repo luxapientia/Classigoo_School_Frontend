@@ -1,9 +1,10 @@
 "use client";
 import React from "react";
+import axios from "@lib/axios";
 import { Avatar, Button } from "@heroui/react";
 
-import { useMutation } from "@apollo/client";
-import { CREATE_SUBSCRIPTION, MANAGE_SUBSCRIPTION } from "@graphql/mutations";
+// import { useMutation } from "@apollo/client";
+// import { CREATE_SUBSCRIPTION, MANAGE_SUBSCRIPTION } from "@graphql/mutations";
 import ActionCard from "./action";
 
 export default function ProfileCard({ user, manageable }) {
@@ -13,8 +14,8 @@ export default function ProfileCard({ user, manageable }) {
   const [loading, setLoading] = React.useState(false);
   const [showModal, setShowModal] = React.useState(false);
 
-  const [createSubscription] = useMutation(CREATE_SUBSCRIPTION);
-  const [manageSubscription] = useMutation(MANAGE_SUBSCRIPTION);
+  // const [createSubscription] = useMutation(CREATE_SUBSCRIPTION);
+  // const [manageSubscription] = useMutation(MANAGE_SUBSCRIPTION);
 
   const handleClose = React.useCallback(() => {
     setShowModal(false);
@@ -27,11 +28,17 @@ export default function ProfileCard({ user, manageable }) {
         // e.preventDefault();
         setLoading(true);
         if (!user.is_plus) {
-          const { data } = await createSubscription({
-            variables: { id: user.id, plan },
+          // const { data } = await createSubscription({
+          //   variables: { id: user.id, plan },
+          // });
+
+          const { data: res } = await axios.post("/v1/subscription/create", {
+            id: user.id,
+            plan,
           });
-          if (data.createSubscription.status === "success") {
-            window.location.href = data.createSubscription.url;
+
+          if (res.status === "success") {
+            window.location.href = res.url;
           }
         }
         setLoading(false);
@@ -49,11 +56,16 @@ export default function ProfileCard({ user, manageable }) {
       setLoading(true);
       console.log(user);
       if (user.is_plus) {
-        const { data } = await manageSubscription({
-          variables: { id: user.id },
+        // const { data } = await manageSubscription({
+        //   variables: { id: user.id },
+        // });
+
+        const { data: res } = await axios.post("/v1/subscription/manage", {
+          id: user.id,
         });
-        if (data.manageSubscription.status === "success") {
-          window.location.href = data.manageSubscription.url;
+
+        if (res.status === "success") {
+          window.location.href = res.url;
         }
       }
       setLoading(false);

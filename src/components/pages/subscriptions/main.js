@@ -1,30 +1,50 @@
 "use client";
 
 import React from "react";
+import axios from "@lib/axios";
 import ProfileCard from "./profile-card";
 import { useSearchParams } from "next/navigation";
 
-import { useQuery } from "@apollo/client";
-import { GET_SUBSCRIPTIONS } from "@graphql/queries";
+// import { useQuery } from "@apollo/client";
+// import { GET_SUBSCRIPTIONS } from "@graphql/queries";
 import { Alert, Avatar, Button } from "@heroui/react";
 import Loading from "@components/common/loading";
 
-export default function SubscriptionMainComponent({ user }) {
+export default function SubscriptionMainComponent({ userInfo }) {
   const params = useSearchParams();
   const [self, setSelf] = React.useState({});
   const [error, setError] = React.useState("");
+  const [subscription, setSubscription] = React.useState(null);
+  const [subscriptionLoading, setSubscriptionLoading] = React.useState(false);
   const [success, setSuccess] = React.useState("");
   const [children, setChildren] = React.useState([]);
   const [isChild, setIsChild] = React.useState(false);
   const [isParent, setIsParent] = React.useState(false);
 
-  const {
-    loading: q_loading,
-    error: q_error,
-    data: q_data,
-  } = useQuery(GET_SUBSCRIPTIONS, {
-    variables: { id: user.sub },
-  });
+  // const {
+  //   loading: q_loading,
+  //   error: q_error,
+  //   data: q_data,
+  // } = useQuery(GET_SUBSCRIPTIONS, {
+  //   variables: { id: user.sub },
+  // });
+
+  // Get subscriptions
+  const fetchSubscriptions = React.useCallback(async () => {
+    setSubscriptionLoading(true);
+    try {
+      const { data } = await axios.get(`/v1/subscription/${userInfo._id}`);
+      setSubscription(data);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load subscriptions");
+    } finally {
+      setSubscriptionLoading(false);
+    }
+  }, [userInfo._id]);
+
+  React.useEffect(() => {
+    fetchSubscriptions();
+  }, [fetchSubscriptions]);
 
   React.useEffect(() => {
     if (params.get("status") === "success") {
@@ -35,21 +55,21 @@ export default function SubscriptionMainComponent({ user }) {
   }, []);
 
   React.useEffect(() => {
-    if (q_data) {
-      if (q_data.parent_count.aggregate.count > 0) {
+    if (subscription) {
+      if (subscription.parents_count > 0) {
         setIsChild(true);
-      } else if (q_data.child_count.aggregate.count > 0) {
+      } else if (subscription.children_count > 0) {
         setIsParent(true);
       }
 
       setSelf({
         self: true,
         manageable: !isChild,
-        ...q_data.users_by_pk,
+        ...subscription.user,
       });
 
       let obj = [];
-      q_data.child_parent.forEach((item) => {
+      subscription.children.forEach((item) => {
         obj.push({
           self: false,
           manageable: isParent,
@@ -59,11 +79,11 @@ export default function SubscriptionMainComponent({ user }) {
 
       setChildren(obj);
     }
-  }, [q_data]);
+  }, [subscription]);
 
   return (
     <section>
-      {q_loading ? (
+      {subscriptionLoading ? (
         <div className="">
           <Loading />
         </div>

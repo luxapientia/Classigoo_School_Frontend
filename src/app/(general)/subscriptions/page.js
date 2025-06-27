@@ -16,7 +16,7 @@ export default async function SubscriptionPage() {
 
   return (
     <>
-      <SubscriptionMainComponent user={user} />
+      <SubscriptionMainComponent userInfo={user} />
     </>
   );
 }
