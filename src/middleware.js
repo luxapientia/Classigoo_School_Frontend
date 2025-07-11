@@ -50,7 +50,7 @@ export async function middleware(request) {
   
   // Redirect unauthenticated users to login page
   if (!isPublicPath && !isValidToken) {
-    const response = NextResponse.redirect(new URL("/auth/login", request.url));
+    const response = NextResponse.redirect(new URL("/auth", request.url));
     response.cookies.delete("token"); // Clear invalid token
     return response;
   }

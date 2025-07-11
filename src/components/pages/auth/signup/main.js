@@ -1,19 +1,37 @@
 "use client";
 
-import React, { useState } from "react";
-import { Button, Input, Checkbox, Link, Form, Divider } from "@heroui/react";
+import React, { useState, useMemo } from "react";
+import { Button, Input, Link, Form, Checkbox, Divider, Select, SelectItem } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 // import { LogoIcon } from "@components/common/logo";
 import Image from "next/image";
 import axios from "@lib/axios";
 
-export default function LoginPage() {
+export default function SignupMain({ role: userRole }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedRole, setSelectedRole] = useState("");
+
+  const roleOptions = useMemo(() => {
+    if (userRole === 'teacher') {
+      return [
+        { value: 'principal', label: 'Principal' },
+        { value: 'assistant-principal', label: 'Assistant Principal' },
+        { value: 'teacher', label: 'Teacher' },
+        { value: 'staff', label: 'Staff' }
+      ];
+    } else {
+      return [
+        { value: 'student', label: 'Student' },
+        { value: 'parent', label: 'Parent' }
+      ];
+    }
+  }, [userRole]);
 
   const handleRememberMe = (e) => {
     setRememberMe(e.target.checked);
@@ -21,14 +39,23 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email || !name || !selectedRole) {
+      setError("Please fill in all fields");
+      return;
+    }
     setError("");
     setLoading(true);
 
     try {
+      if (userRole === 'teacher') {
+        router.push(`/auth/teacher/select-school`);
+        return;
+      }
       const { data } = await axios.post("/v1/auth/otp/send", {
         email,
-        isSignup: false,
-        role: 'user',
+        name,
+        isSignup: true,
+        role: selectedRole,
         ip: "127.0.0.1", // This should be handled by the backend
         platform: navigator.platform,
         os: navigator.userAgent,
@@ -41,7 +68,7 @@ export default function LoginPage() {
         localStorage.setItem("session_token", data.session_token);
         localStorage.setItem("email", email);
         // Navigate to OTP verification page
-        router.push("/auth/verify-otp");
+        router.push(`/auth/${userRole}/verify-otp`);
       } else {
         setError(data.message || "Failed to send OTP");
       }
@@ -58,10 +85,20 @@ export default function LoginPage() {
         <div className="flex flex-col items-center pb-6">
           {/* <LogoIcon size={60} /> */}
           <Image src="/images/brand/logo-c.png" alt="logo" width={50} height={50} className="mb-4" />
-          <p className="text-xl font-medium">Welcome Back</p>
-          <p className="text-small text-default-500">Log in to your account to continue</p>
+          <p className="text-xl font-medium">Welcome</p>
+          <p className="text-small text-default-500">Create an account to get started</p>
         </div>
         <Form className="flex flex-col gap-3" validationBehavior="native" onSubmit={handleSubmit}>
+          <Input
+            isRequired
+            label="Full Name"
+            name="name"
+            placeholder="Enter your full name"
+            type="text"
+            variant="bordered"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
           <Input
             isRequired
             label="Email Address"
@@ -72,6 +109,20 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+          <Select
+            isRequired
+            label="Role"
+            placeholder={`Select your ${userRole === 'teacher' ? 'staff' : 'account'} role`}
+            variant="bordered"
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+          >
+            {roleOptions.map((role) => (
+              <SelectItem key={role.value} value={role.value}>
+                {role.label}
+              </SelectItem>
+            ))}
+          </Select>
           <div className="w-full px-1 py-2">
             <Checkbox name="remember" size="sm" checked={rememberMe} onChange={handleRememberMe}>
               Remember me
@@ -79,7 +130,7 @@ export default function LoginPage() {
           </div>
           {error && <p className="text-tiny text-danger">{error}</p>}
           <Button className="w-full" color="primary" type="submit" isLoading={loading}>
-            Log In
+            {userRole === 'teacher' ? 'Continue' : 'Sign Up'}
           </Button>
         </Form>
         {/* <div className="flex items-center gap-4 py-2">
@@ -92,19 +143,19 @@ export default function LoginPage() {
             startContent={<Icon icon="flat-color-icons:google" width={24} />}
             variant="bordered"
           >
-            Continue with Google
+            Sign Up with Google
           </Button>
           <Button
             startContent={<Icon className="text-default-500" icon="fe:github" width={24} />}
             variant="bordered"
           >
-            Continue with Github
+            Sign Up with Github
           </Button>
         </div> */}
         <p className="text-center text-small">
-          Need to create an account?&nbsp;
-          <Link href="/auth/signup" size="sm">
-            Sign Up
+          Already have an account?&nbsp;
+          <Link href={`/auth/${userRole}/login`} size="sm">
+            Log In
           </Link>
         </p>
       </div>

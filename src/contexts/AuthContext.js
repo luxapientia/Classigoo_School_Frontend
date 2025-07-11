@@ -61,7 +61,7 @@ export function AuthProvider({ children }) {
     setLoading(false);
 
     // Redirect to login
-    router.push("/auth/login");
+    router.push("/auth");
   };
 
   const value = {

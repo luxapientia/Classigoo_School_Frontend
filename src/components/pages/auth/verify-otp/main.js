@@ -9,7 +9,7 @@ import axios from "@lib/axios";
 import Cookies from 'js-cookie';
 import { useAuth } from "@contexts/AuthContext";
 
-export default function VerifyOtpPage() {
+export default function VerifyOtpMain({ role: userRole }) {
   const router = useRouter();
   const { login } = useAuth();
   const [otp, setOtp] = useState(Array(9).fill(""));
@@ -111,7 +111,7 @@ export default function VerifyOtpPage() {
       const session_token = localStorage.getItem("session_token");
 
       if (!session_token) {
-        router.push("/auth/login");
+        router.push(`/auth/${userRole}/login`);
         return;
       }
 
@@ -169,7 +169,7 @@ export default function VerifyOtpPage() {
     try {
       const session_token = localStorage.getItem("session_token");
       if (!session_token) {
-        router.push("/auth/login");
+        router.push(`/auth/${userRole}/login`);
         return;
       }
 

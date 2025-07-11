@@ -1,17 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button, Input, Link, Form, Checkbox, Divider } from "@heroui/react";
+import { Button, Input, Checkbox, Link, Form, Divider } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 // import { LogoIcon } from "@components/common/logo";
 import Image from "next/image";
 import axios from "@lib/axios";
 
-export default function SignupPage() {
+export default function LoginMain({ role: userRole }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -22,19 +21,14 @@ export default function SignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !name) {
-      setError("Please fill in all fields");
-      return;
-    }
     setError("");
     setLoading(true);
 
     try {
       const { data } = await axios.post("/v1/auth/otp/send", {
         email,
-        name,
-        isSignup: true,
-        role: 'user',
+        isSignup: false,
+        role: userRole,
         ip: "127.0.0.1", // This should be handled by the backend
         platform: navigator.platform,
         os: navigator.userAgent,
@@ -47,7 +41,7 @@ export default function SignupPage() {
         localStorage.setItem("session_token", data.session_token);
         localStorage.setItem("email", email);
         // Navigate to OTP verification page
-        router.push("/auth/verify-otp");
+        router.push(`/auth/${userRole}/verify-otp`);
       } else {
         setError(data.message || "Failed to send OTP");
       }
@@ -64,20 +58,10 @@ export default function SignupPage() {
         <div className="flex flex-col items-center pb-6">
           {/* <LogoIcon size={60} /> */}
           <Image src="/images/brand/logo-c.png" alt="logo" width={50} height={50} className="mb-4" />
-          <p className="text-xl font-medium">Welcome</p>
-          <p className="text-small text-default-500">Create an account to get started</p>
+          <p className="text-xl font-medium">Welcome Back</p>
+          <p className="text-small text-default-500">Log in to your account to continue</p>
         </div>
         <Form className="flex flex-col gap-3" validationBehavior="native" onSubmit={handleSubmit}>
-          <Input
-            isRequired
-            label="Full Name"
-            name="name"
-            placeholder="Enter your full name"
-            type="text"
-            variant="bordered"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
           <Input
             isRequired
             label="Email Address"
@@ -95,7 +79,7 @@ export default function SignupPage() {
           </div>
           {error && <p className="text-tiny text-danger">{error}</p>}
           <Button className="w-full" color="primary" type="submit" isLoading={loading}>
-            Sign Up
+            Log In
           </Button>
         </Form>
         {/* <div className="flex items-center gap-4 py-2">
@@ -108,19 +92,19 @@ export default function SignupPage() {
             startContent={<Icon icon="flat-color-icons:google" width={24} />}
             variant="bordered"
           >
-            Sign Up with Google
+            Continue with Google
           </Button>
           <Button
             startContent={<Icon className="text-default-500" icon="fe:github" width={24} />}
             variant="bordered"
           >
-            Sign Up with Github
+            Continue with Github
           </Button>
         </div> */}
         <p className="text-center text-small">
-          Already have an account?&nbsp;
-          <Link href="/auth/login" size="sm">
-            Log In
+          Need to create an account?&nbsp;
+          <Link href={`/auth/${userRole}/signup`} size="sm">
+            Sign Up
           </Link>
         </p>
       </div>
