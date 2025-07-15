@@ -117,7 +117,7 @@ export default function ClassroomHomeMain({ id, userInfo }) {
 
 
   if (userInfo && classroom) {
-    user = classroom?.classroom_relation.find((r) => r.user._id === userInfo._id);
+    user = classroom?.classroom_relation.find((r) => r.user.id === userInfo._id);
   }
 
   // hooks

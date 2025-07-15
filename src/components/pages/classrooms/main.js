@@ -222,10 +222,10 @@ export default function MainClassroomsComponent({ user }) {
           onClick={handleShowAction}
           radius="large"
           variant="ghost"
-          className="hidden md:flex items-center bg-content2 text:content1"
+          className="hidden md:flex items-center bg-content2 text:content1 px-4 py-2 border-2 rounded-xl"
         >
           <Icon icon="akar-icons:plus" />
-          New Classroom
+          <span className="ml-1">New Classroom</span>
         </Button>
         <button
           onClick={handleShowAction}

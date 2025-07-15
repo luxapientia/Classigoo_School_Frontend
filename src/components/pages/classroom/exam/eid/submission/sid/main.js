@@ -154,7 +154,7 @@ export default function ExamSubmissionSeeMainComponent({ cid, eid, sid, userInfo
   }, [submission, exam]);
 
   // current user
-  const currentUser = classroom?.classroom_relation.find((cr) => cr.user._id === userInfo._id);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo._id);
 
   if (classroomLoading || submissionLoading || examLoading) return <Loading />;
   // not found page

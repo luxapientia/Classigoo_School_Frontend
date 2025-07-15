@@ -18,7 +18,7 @@ export default function ClassroomLayout({ id, children, classroom, loading }) {
   }
 
   // get current user role
-  const currentUser = classroom?.classroom_relation.find((cr) => cr.user._id === user._id);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === user._id);
 
   return (
     <>

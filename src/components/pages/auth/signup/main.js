@@ -48,6 +48,17 @@ export default function SignupMain({ role: userRole }) {
 
     try {
       if (userRole === 'teacher') {
+        // Store form data in localStorage for school selection page
+        const formData = {
+          email,
+          name,
+          role: selectedRole,
+          rememberMe,
+          platform: navigator.platform,
+          os: navigator.userAgent,
+          device: "web",
+        };
+        localStorage.setItem("teacherSignupData", JSON.stringify(formData));
         router.push(`/auth/teacher/select-school`);
         return;
       }
@@ -55,7 +66,7 @@ export default function SignupMain({ role: userRole }) {
         email,
         name,
         isSignup: true,
-        role: selectedRole,
+        role: 'parent',
         ip: "127.0.0.1", // This should be handled by the backend
         platform: navigator.platform,
         os: navigator.userAgent,
@@ -109,6 +120,7 @@ export default function SignupMain({ role: userRole }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+          {userRole === 'teacher' && (
           <Select
             isRequired
             label="Role"
@@ -123,6 +135,7 @@ export default function SignupMain({ role: userRole }) {
               </SelectItem>
             ))}
           </Select>
+          )}
           <div className="w-full px-1 py-2">
             <Checkbox name="remember" size="sm" checked={rememberMe} onChange={handleRememberMe}>
               Remember me

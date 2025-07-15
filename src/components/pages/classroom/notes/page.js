@@ -16,6 +16,7 @@ export default function ClassroomNotesMain({ id, userInfo }) {
   const [classroomLoading, setClassroomLoading] = React.useState(false);
   const [classroomNotes, setClassroomNotes] = React.useState([]);
   const [classroomNotesLoading, setClassroomNotesLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
   // const {
   //   data: sub_data,
@@ -76,6 +77,7 @@ export default function ClassroomNotesMain({ id, userInfo }) {
   return (
     <>
       <ClassroomLayout id={id} loading={classroomLoading || classroomNotesLoading} classroom={classroom}>
+        {error && <p className="text-danger bg-danger/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">{error}</p>}
         {classroomNotes.length > 0 ? (
           <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
             {classroomNotes.map((note) => (

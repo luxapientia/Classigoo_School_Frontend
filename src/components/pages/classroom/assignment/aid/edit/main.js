@@ -424,7 +424,7 @@ export default function AssignmentEditMainComponent({ cid, aid, userInfo }) {
   if (!assignmentLoading) {
     // current user
     const currentUser = classroom?.classroom_relation.find(
-      (cr) => cr.user._id === userInfo._id
+      (cr) => cr.user.id === userInfo._id
     );
     if (!assignment) return <NotFoundPage />;
     if (currentUser?.role !== "owner" && currentUser?.role !== "teacher")

@@ -183,7 +183,7 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
   });
 
   const currentUser = classroom?.classroom_relation.find(
-    (cr) => cr.user._id === userInfo._id
+    (cr) => cr.user.id === userInfo._id
   );
 
   const handleDeleteExam = async () => {

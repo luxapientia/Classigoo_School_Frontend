@@ -8,6 +8,15 @@ const nextConfig = {
     HASURA_GRAPHQL_ENDPOINT: process.env.HASURA_GRAPHQL_ENDPOINT,
     HASURA_GRAPHQL_WS_ENDPOINT: process.env.HASURA_GRAPHQL_WS_ENDPOINT,
   },
+  images: {
+    unoptimized: true, // This will help with local images
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

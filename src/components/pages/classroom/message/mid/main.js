@@ -549,7 +549,7 @@ export default function ClassroomMessageSingle({ cid, mid, userInfo }) {
   if (classroomLoading || messageRecipientsLoading) return <Loading />;
   if (classroom === null) return <NotFoundPage />;
 
-  const currentUser = classroom?.classroom_relation.find((cr) => cr.user._id === userInfo._id);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo._id);
 
   return (
     <section>

@@ -174,7 +174,7 @@ export default function ClassroomMembersMain({ id, userInfo }) {
   };
 
   // get the current user's role
-  const userRole = classroom?.classroom_relation.find((r) => r.user._id === userInfo._id);
+  const userRole = classroom?.classroom_relation.find((r) => r.user.id === userInfo._id);
 
   return (
     <>

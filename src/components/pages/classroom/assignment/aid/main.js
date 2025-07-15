@@ -116,7 +116,7 @@ export default function AssignmentPageMainComponent({ userInfo, cid, aid }) {
     }
   });
   const currentUser = classroom?.classroom_relation.find(
-    (cr) => cr.user._id === userInfo._id
+    (cr) => cr.user.id === userInfo._id
   );
 
   const handleDeleteAssignment = async () => {

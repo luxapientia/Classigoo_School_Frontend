@@ -180,7 +180,7 @@ export default function ClassroomCalendarMain({ id, userInfo }) {
 
   // Check if the current user is a member of the classroom
   const currentUser = classroom?.classroom_relation.find(
-    (cr) => cr.user._id === userInfo._id
+    (cr) => cr.user.id === userInfo._id
   );
 
   if (!classroomLoading && !classroom) return <NotFoundPage />;

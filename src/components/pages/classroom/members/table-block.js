@@ -29,7 +29,7 @@ export default function MembersTable({
   setRmMemberID,
 }) {
   // current user id is in user._id
-  const currentUserRelation = relations.find((r) => r.user._id === user._id);
+  const currentUserRelation = relations.find((r) => r.user.id === user._id);
 
   // sort relations like owner 1st then teacher then student
   const rltns = relations.sort((a, b) => {
@@ -134,18 +134,18 @@ export default function MembersTable({
                     ) : null}
                     {currentUserRelation.role === "owner" ||
                     currentUserRelation.role === "teacher" ||
-                    currentUserRelation.user._id === r.user._id ? (
+                    currentUserRelation.user._id === r.user.id ? (
                       r.role === "owner" ? null : (
                         <Tooltip
                           color="danger"
                           content={
-                            currentUserRelation.user._id === r.user._id
+                            currentUserRelation.user._id === r.user.id
                               ? "Leave"
                               : "Remove user"
                           }
                         >
                           <button
-                            onClick={() => setRemoveData(r._id, r.user._id)}
+                            onClick={() => setRemoveData(r._id, r.user.id)}
                           >
                             <span className="text-lg text-danger cursor-pointer active:opacity-50">
                               <Icon

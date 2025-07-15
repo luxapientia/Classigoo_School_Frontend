@@ -92,7 +92,7 @@ export default function ClassroomMessagesMain({ id, userInfo }) {
   });
 
   // Check if the current user is a member of the classroom
-  const currentUser = classroom?.classroom_relation.find((cr) => cr.user._id === userInfo._id);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo._id);
 
   React.useEffect(() => {
     if (classroom && messageRecipients) {
@@ -127,10 +127,10 @@ export default function ClassroomMessagesMain({ id, userInfo }) {
 
       // get the users who are not in the receipients list
       classroom.classroom_relation.forEach((cr) => {
-        if (cr.user._id !== userInfo._id) {
-          if (!r.find((rr) => rr.uid === cr.user._id)) {
+        if (cr.user.id !== userInfo._id) {
+          if (!r.find((rr) => rr.uid === cr.user.id)) {
             u.push({
-              id: cr.user._id,
+              id: cr.user.id,
               name: cr.user.name,
               image: cr.user.avatar.url,
               role: cr.role === "student" ? "Student" : "Teacher",

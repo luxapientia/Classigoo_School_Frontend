@@ -16,6 +16,7 @@ export default function SelectSchoolMain() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   // Fetch schools on component mount
   useEffect(() => {
@@ -44,17 +45,17 @@ export default function SelectSchoolMain() {
       const data = {
         schools: [
           {
-            _id: "1",
+            id: "1",
             name: "School 1",
             address: "123 Main St, Anytown, USA"
           },
           {
-            _id: "2",
+            id: "2",
             name: "School 2",
             address: "456 Elm St, Anytown, USA"
           },
           {
-            _id: "3",
+            id: "3",
             name: "School 3",
             address: "789 Oak St, Anytown, USA"
           }
@@ -75,14 +76,43 @@ export default function SelectSchoolMain() {
     setIsModalOpen(true);
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!selectedSchool) return;
     
-    // Store selected school in localStorage or state management
-    localStorage.setItem("selected_school", JSON.stringify(selectedSchool));
-    
-    // Navigate to the next step (signup)
-    router.push("/auth/teacher/signup");
+    try {
+      setConfirmLoading(true);
+      setError("");
+      
+      // Get stored signup data
+      const signupData = JSON.parse(localStorage.getItem("teacherSignupData"));
+      if (!signupData) {
+        throw new Error("Signup data not found. Please try again.");
+      }
+
+      const { data } = await axios.post("/v1/auth/otp/send", {
+        ...signupData,
+        isSignup: true,
+        school_id: selectedSchool.id,
+        ip: "127.0.0.1", // This should be handled by the backend
+      });
+
+      if (data.status === "success" && data.session_token) {
+        // Clean up stored data
+        localStorage.removeItem("teacherSignupData");
+        // Store session token and email for OTP verification
+        localStorage.setItem("session_token", data.session_token);
+        localStorage.setItem("email", signupData.email);
+        // Navigate to OTP verification page
+        router.push("/auth/teacher/verify-otp");
+      } else {
+        setError(data.message || "Failed to send OTP");
+      }
+    } catch (err) {
+      setError(err.message || err.response?.data?.message || "An error occurred. Please try again.");
+    } finally {
+      setConfirmLoading(false);
+      setIsModalOpen(false);
+    }
   };
 
   return (
@@ -113,7 +143,7 @@ export default function SelectSchoolMain() {
             ) : (
               filteredSchools.map((school) => (
                 <SchoolItem
-                  key={school._id}
+                  key={school.id}
                   school={school}
                   onSelect={handleSchoolSelect}
                 />
@@ -132,13 +162,15 @@ export default function SelectSchoolMain() {
               <h3 className="text-xl font-semibold">{selectedSchool?.name}</h3>
             </ModalHeader>
             <ModalBody>
-              <p className="text-base">Join your colleagues already on ClassDojo</p>
+              <p className="text-base">Join your colleagues already on Classigoo</p>
+              {error && <p className="mt-2 text-tiny text-danger">{error}</p>}
             </ModalBody>
             <ModalFooter>
               <Button
                 color="primary"
                 className="w-full"
                 onClick={handleContinue}
+                isLoading={confirmLoading}
               >
                 Continue
               </Button>
