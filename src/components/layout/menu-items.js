@@ -43,28 +43,28 @@ const menuItems = [
     href: "/learning",
     dropdown: [],
   },
-  {
-    name: "Study Helper",
-    icon: "solar:chat-round-like-bold-duotone",
-    href: "#",
-    dropdown: [
-      {
-        name: "Physics Buddy",
-        icon: "solar:ruler-pen-bold-duotone",
-        href: "/buddy/physics",
-      },
-      {
-        name: "Chemistry Buddy",
-        icon: "solar:test-tube-bold-duotone",
-        href: "/buddy/chemistry",
-      },
-      {
-        name: "Math Buddy",
-        icon: "solar:calculator-minimalistic-bold-duotone",
-        href: "/buddy/math",
-      },
-    ],
-  },
+  // {
+  //   name: "Study Helper",
+  //   icon: "solar:chat-round-like-bold-duotone",
+  //   href: "#",
+  //   dropdown: [
+  //     {
+  //       name: "Physics Buddy",
+  //       icon: "solar:ruler-pen-bold-duotone",
+  //       href: "/buddy/physics",
+  //     },
+  //     {
+  //       name: "Chemistry Buddy",
+  //       icon: "solar:test-tube-bold-duotone",
+  //       href: "/buddy/chemistry",
+  //     },
+  //     {
+  //       name: "Math Buddy",
+  //       icon: "solar:calculator-minimalistic-bold-duotone",
+  //       href: "/buddy/math",
+  //     },
+  //   ],
+  // },
   {
     name: "Labs & Tools",
     icon: "tabler:tools",

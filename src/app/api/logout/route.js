@@ -5,7 +5,7 @@ export async function GET(request) {
   const origin = request.nextUrl.origin;
 
   // Construct the absolute URL for redirect
-  const loginUrl = `${origin}/auth/login`;
+  const loginUrl = `${origin}/auth`;
 
   const response = NextResponse.redirect(loginUrl);
   response.cookies.delete("token");

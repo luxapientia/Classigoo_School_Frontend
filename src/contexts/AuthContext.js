@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
       const token = Cookies.get("token");
       if (!token) {
         setLoading(false);
-        // router.push("/auth/login");
+        // router.push("/auth");
         return;
       }
 

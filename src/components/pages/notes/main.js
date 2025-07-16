@@ -17,6 +17,7 @@ export default function NotesMainComponent({ userInfo }) {
 
   const [notes, setNotes] = React.useState([]);
   const [notesLoading, setNotesLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
   // fetch notes
   const fetchNotes = React.useCallback(async () => {
@@ -62,6 +63,8 @@ export default function NotesMainComponent({ userInfo }) {
           <Icon icon="akar-icons:plus" />
         </Link>
       </HeaderSlot>
+
+      {error && <p className="text-danger bg-danger/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">{error}</p>}
 
       {notes?.length > 0 ? (
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">

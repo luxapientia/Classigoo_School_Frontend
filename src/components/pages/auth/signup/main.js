@@ -39,9 +39,16 @@ export default function SignupMain({ role: userRole }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !name || !selectedRole) {
-      setError("Please fill in all fields");
-      return;
+    if (userRole === 'teacher') {
+      if (!email || !name || !selectedRole) {
+        setError("Please fill in all fields");
+        return;
+      }
+    } else {
+      if (!email || !name) {
+        setError("Please fill in all fields");
+        return;
+      }
     }
     setError("");
     setLoading(true);

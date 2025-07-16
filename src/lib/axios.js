@@ -46,7 +46,7 @@ axiosInstance.interceptors.response.use(
 
       // Clear token and redirect to login
       Cookies.remove('token');
-      window.location.href = '/auth/login';
+      window.location.href = '/auth';
       
       return Promise.reject(error);
     }

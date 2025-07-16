@@ -17,6 +17,7 @@ export default function ClassroomResultsMain({ id, userInfo }) {
   const [classroomLoading, setClassroomLoading] = React.useState(false);
   const [examGrades, setExamGrades] = React.useState([]);
   const [examGradesLoading, setExamGradesLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
   // const {
   //   data: sub_data,
@@ -85,6 +86,7 @@ export default function ClassroomResultsMain({ id, userInfo }) {
   return (
     <>
       <ClassroomLayout id={id} loading={classroomLoading || examGradesLoading} classroom={classroom}>
+        {error && <p className="text-danger bg-danger/10 text-xs px-4 py-2 mt-2 w-full rounded-lg">{error}</p>}
         {examGrades.length > 0 ? (
           <div className="grid gap-4 grid-cols-3">
             {examGrades.map((grade) => {

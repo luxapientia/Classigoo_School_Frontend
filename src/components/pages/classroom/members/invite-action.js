@@ -16,7 +16,7 @@ import {
 } from "@heroui/react";
 
 const ROLES = [
-  { key: "student", label: "Student" },
+  { key: "parent", label: "Parent" },
   { key: "teacher", label: "Teacher" },
 ];
 
