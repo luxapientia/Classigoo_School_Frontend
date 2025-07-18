@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+		"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.2" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid" fill-rule="evenodd" stroke-width="10"
+     stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+	<g>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,500 L 262,558 262,442 100,500 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,100 L 100,100 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,901 L 901,901 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 217,783 L 373,709 291,627 217,783 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,100 L 100,100 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,901 L 901,901 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 500,901 L 558,738 442,738 500,901 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,100 L 100,100 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,901 L 901,901 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 783,783 L 709,627 627,709 783,783 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,100 L 100,100 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,901 L 901,901 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,500 L 738,442 738,558 901,500 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,100 L 100,100 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,901 L 901,901 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 783,217 L 627,291 709,373 783,217 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,100 L 100,100 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,901 L 901,901 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 500,100 L 442,262 558,262 500,100 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,100 L 100,100 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,901 L 901,901 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 217,217 L 291,373 373,291 217,217 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,100 L 100,100 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,901 L 901,901 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)"
+		      d="M 498,299 C 611,299 698,385 698,498 698,611 611,698 498,698 385,698 299,611 299,498 299,385 385,299 498,299 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,100 L 100,100 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,901 L 901,901 Z"/>
+	</g>
+</svg>

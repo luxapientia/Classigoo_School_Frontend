@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+		"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.2" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid" fill-rule="evenodd" stroke-width="10"
+     stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+	<g>
+		<path fill="none" stroke="rgb(0,0,0)"
+		      d="M 171,399 C 156,324 226,254 295,254 317,254 339,261 358,272 376,238 409,218 446,218 470,219 497,229 515,247 529,217 557,200 587,200 613,200 636,212 651,232 668,212 694,200 720,200 764,200 800,231 808,275 850,287 880,327 880,373 880,386 878,400 872,413 890,435 901,462 901,491 901,554 853,608 791,617 791,678 744,726 684,726 664,726 645,720 628,709 612,763 563,801 507,801 466,801 427,778 404,742 382,756 394,764 331,764 279,764 232,736 207,690 148,689 117,653 117,607 117,586 125,567 139,551 114,538 100,511 100,481 100,439 131,403 171,399 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,200 L 100,200 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,801 L 901,801 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 171,399 C 172,406 175,413 177,420"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,200 L 100,200 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,801 L 901,801 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 358,272 C 367,277 377,284 384,292"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,200 L 100,200 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,801 L 901,801 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 515,247 C 512,253 510,260 509,266"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,200 L 100,200 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,801 L 901,801 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 651,232 C 645,238 642,247 639,255"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,200 L 100,200 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,801 L 901,801 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 808,275 C 809,280 813,291 811,294"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,200 L 100,200 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,801 L 901,801 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 872,413 C 866,427 857,439 845,450"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,200 L 100,200 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,801 L 901,801 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 791,617 C 794,595 777,539 730,518"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,200 L 100,200 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,801 L 901,801 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 628,709 C 631,700 632,691 632,683"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,200 L 100,200 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,801 L 901,801 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 404,742 C 398,735 395,727 391,718"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,200 L 100,200 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,801 L 901,801 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 207,690 C 214,689 221,688 228,685"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,200 L 100,200 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,801 L 901,801 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 139,551 C 151,558 166,565 186,562"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 100,200 L 100,200 Z"/>
+		<path fill="none" stroke="rgb(0,0,0)" d="M 901,801 L 901,801 Z"/>
+	</g>
+</svg>

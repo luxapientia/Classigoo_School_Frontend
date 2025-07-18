@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Ink Free";
+  src: url("/assets/fonts/Inkfree.ttf") format("truetype");
+}
+
 @layer components {
   .prose hr {
     margin-top: 0.5rem; /* or any value you want */

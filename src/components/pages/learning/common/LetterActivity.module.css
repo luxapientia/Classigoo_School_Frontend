@@ -1,0 +1,130 @@
+.letterContainer {
+  margin: 0 auto;
+  max-width: 664px;
+}
+
+.title {
+  text-align: center;
+  color: #13007c;
+  font-size: 30px;
+}
+
+.title span {
+  color: #ff3000;
+}
+
+.traceLetter {
+  margin-bottom: 1rem;
+}
+
+.traceLetter p {
+  font-weight: bold;
+  font-size: 16px;
+  color: black;
+}
+
+.traceLetterImageWrapper {
+  width: 119px;
+  height: 119px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.traceLetterImageWrapper img {
+  width: 89px;
+}
+
+.typicalLetterContent {
+  position: relative;
+}
+
+.typicalLetterContent img {
+  width: 295px;
+}
+
+.imageBtnWrapper {
+  position: absolute;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.imageBtnWrapper:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s;
+}
+
+.dottedBox {
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+  position: relative;
+  height: 74px;
+  margin-bottom: 30px;
+}
+
+.dottedBox::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  background-image: linear-gradient(to right, #ef1183 50%, white 50%);
+  background-position: top;
+  background-size: 20px 2px;
+}
+
+.smallLetter {
+  transform: translate(0, 100%);
+  margin-left: 15px;
+}
+
+.smallLetter img {
+  height: 35px;
+}
+
+.bigCanvas {
+  margin-left: 15px;
+}
+
+.bigLetter {
+  height: 74px;
+  margin-left: 15px;
+}
+
+.canvasWrapper {
+  position: absolute;
+  top: -2px;
+  z-index: 15;
+  width: 100%;
+}
+
+.handwritingCanvas {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.footer {
+  margin-top: 50px;
+}
+
+.footer img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .typicalLetterContent img {
+    width: 100%;
+    max-width: 295px;
+  }
+  
+  .dottedBox {
+    height: 60px;
+  }
+  
+  .bigLetter {
+    height: 60px;
+  }
+} 

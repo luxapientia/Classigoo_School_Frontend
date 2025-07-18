@@ -35,10 +35,10 @@ const cards = [
     name: "Number Games",
     link: "/learning/number-games",
   },
-  {
-    name: "Coloring animals and planets",
-    link: "/learning/coloring",
-  },
+  // {
+  //   name: "Coloring animals and planets",
+  //   link: "/learning/coloring",
+  // },
   {
     name: "Arithmetic",
     link: "/learning/arithmetic",
