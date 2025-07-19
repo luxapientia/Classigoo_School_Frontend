@@ -15,10 +15,10 @@ const cards = [
     name: "Creating Letters Word and Numbers",
     link: "/learning/creating-letters-numbers",
   },
-  {
-    name: "Learn to Read",
-    link: "/learning/learn-to-read",
-  },
+  // {
+  //   name: "Learn to Read",
+  //   link: "/learning/learn-to-read",
+  // },
   {
     name: "Filling Missing Letters",
     link: "/learning/filling-missing-letters",
