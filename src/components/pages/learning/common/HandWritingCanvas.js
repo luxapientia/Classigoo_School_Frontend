@@ -58,22 +58,22 @@ const HandWritingCanvas = React.memo(forwardRef((props, ref) => {
         if (props.onDrawStart) {
             props.onDrawStart();
         }
-        local.canvas.setPointerCapture(e.pointerId);
+        // REMOVE setPointerCapture
+        // local.canvas.setPointerCapture(e.pointerId);
         // new stroke
         local.cxt.lineWidth = local.lineWidth;
         local.handwritingX = [];
         local.handwritingY = [];
         local.drawing = true;
         local.cxt.beginPath();
-        local.canvas.addEventListener("pointermove", onMouseMove);
-        local.canvas.addEventListener("pointerup", onMouseUp);
+        local.canvas.addEventListener("mousemove", onMouseMove);
+        local.canvas.addEventListener("mouseup", onMouseUp);
         var rect = local.canvas.getBoundingClientRect();
         var x = e.clientX - rect.left;
         var y = e.clientY - rect.top;
         local.cxt.moveTo(x, y);
         local.handwritingX.push(x);
         local.handwritingY.push(y);
-        //
         hideControlBtn();
     }
     
@@ -255,20 +255,20 @@ const HandWritingCanvas = React.memo(forwardRef((props, ref) => {
     let height = 78;
     if (props.width) width = props.width;
     if (props.height) height = props.height;
-    
     return (
-        <React.Fragment>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <canvas 
                 ref={canvasRef} 
                 width={width} 
                 height={height} 
-                style={{ cursor: "crosshair" }}
+                style={{ cursor: "crosshair", display: 'block' }}
                 onPointerDown={onPointerDown}
                 onTouchStart={onTouchStart}
-            >
-            </canvas>
-            <ControlBtns ref={controlBtnsRef} erase={erase} check={check}></ControlBtns>
-        </React.Fragment>
+            />
+            <div style={{ height: 40, marginTop: 8, width: '100%', display: 'flex', justifyContent: 'center' }}>
+                <ControlBtns ref={controlBtnsRef} erase={erase} check={check} />
+            </div>
+        </div>
     );
 }));
 
