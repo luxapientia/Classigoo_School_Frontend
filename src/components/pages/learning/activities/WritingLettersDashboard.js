@@ -19,7 +19,7 @@ export default function WritingLettersDashboard({ user }) {
           <div className="bg-white rounded-lg p-6 shadow-sm">
             <div className="flex flex-wrap justify-center gap-4">
               {alphabet.map((letter, index) => (
-                <div key={index} className="mb-10">
+                <div key={index} className="mb-10 text-[25px]">
                   <LetterCard letter={letter} />
                 </div>
               ))}

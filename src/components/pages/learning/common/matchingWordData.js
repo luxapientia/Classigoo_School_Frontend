@@ -1,16 +1,22 @@
 const matchingWordData = [
   {
     sentence: "The cat is very agile",
-    underlineword: "agile",
-    answers: "quick,slow,heavy",
-    rightanswer: "quick",
+    target: "agile",
+    options: ["quick", "slow", "heavy"],
+    correctAnswer: "quick"
   },
   {
     sentence: "He is a diligent student",
-    underlineword: "diligent",
-    answers: "lazy,hardworking,playful",
-    rightanswer: "hardworking",
+    target: "diligent",
+    options: ["lazy", "hardworking", "playful"],
+    correctAnswer: "hardworking"
   },
+  {
+    sentence: "When Todd won, his face became radiant with joy",
+    target: "radiant",
+    options: ["tearful", "dull", "gleaming"],
+    correctAnswer: "gleaming"
+  }
   // Add more items as needed
 ];
 
