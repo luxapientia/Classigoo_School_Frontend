@@ -38,7 +38,7 @@ export default function Mathematics() {
   };
 
   return (
-    <LearningScreenActivityLayout title="Mathematics" currentIndex={2} backgroundIndex={2}>
+    <LearningScreenActivityLayout title="Mathematics" currentIndex={6} backgroundIndex={6}>
       {imageVisible && (
         <div className="flex w-full justify-center items-center absolute left-0 right-0 top-0 z-20">
           <Image

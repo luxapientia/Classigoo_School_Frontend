@@ -4,7 +4,7 @@ import LearningScreenActivityLayout from "@components/pages/learning/learning-sc
 import axios from "@lib/axios";
 import Image from "next/image";
 
-export default function MatchingWordSelect() {
+export default function MatchingWordSelect({ user, grade }) {
   const [question, setQuestion] = useState(null);
   const [imageVisible, setImageVisible] = useState(false);
   const [imageName, setImageName] = useState("yes");
@@ -42,7 +42,7 @@ export default function MatchingWordSelect() {
   };
 
   return (
-    <LearningScreenActivityLayout title="Matching Words" currentIndex={0} backgroundIndex={0}>
+    <LearningScreenActivityLayout title="Matching Words" currentIndex={0} backgroundIndex={0} grade={grade}>
       {imageVisible && (
         <div className="flex w-full justify-center items-center absolute left-0 right-0 top-0 z-20">
           <Image

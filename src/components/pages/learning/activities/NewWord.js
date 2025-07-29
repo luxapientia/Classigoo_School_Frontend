@@ -5,7 +5,7 @@ import newWordData from "@components/pages/learning/common/newWordData";
 import HandWritingCanvas from "@components/pages/learning/common/HandWritingCanvas";
 import WritingCanvas from "@components/pages/learning/common/WritingCanvas";
 
-export default function NewWord() {
+export default function NewWord({ user, grade }) {
   const wordsdata = newWordData;
   const [curIndex, setIndex] = useState(0);
   const [clickedLetterIndexes, setClickedLetterIndexes] = useState([]);
@@ -50,7 +50,7 @@ export default function NewWord() {
   };
 
   return (
-    <LearningScreenActivityLayout title="New Word" currentIndex={4} backgroundIndex={4}>
+    <LearningScreenActivityLayout title="New Word" currentIndex={7} backgroundIndex={7} grade={grade}>
       <div className="flex flex-col items-center justify-center min-h-screen w-full overflow-y-auto py-8">
         <button className="mb-4 px-4 py-2 bg-white border border-gray-400 text-gray-800 rounded shadow text-sm" onClick={changeWord}>
           New Word

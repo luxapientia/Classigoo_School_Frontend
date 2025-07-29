@@ -7,13 +7,14 @@ export const metadata = {
   description: "New Word activity in Learning Screen",
 };
 
-export default async function NewWordPage() {
+export default async function NewWordPage({ searchParams }) {
   try {
     const user = await getUser();
+    const { grade } = await searchParams;
     if (!user || (user.status === "error" && user.message === "Unauthorized")) {
       redirect("/api/logout");
     }
-    return <NewWord user={user} />;
+    return <NewWord user={user} grade={grade} />;
   } catch (error) {
     console.error(`Error in NewWordPage: ${error}`);
   }

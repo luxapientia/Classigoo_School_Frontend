@@ -4,7 +4,7 @@ import LearningScreenActivityLayout from "@components/pages/learning/learning-sc
 import matchingShapeData from "@components/pages/learning/common/matchingShapeData";
 import Image from "next/image";
 
-export default function MatchingShape() {
+export default function MatchingShape({ user, grade }) {
   const shapes = matchingShapeData;
   const [imageVisible, setImageVisible] = useState(false);
   const [imageName, setImageName] = useState("yes");
@@ -26,7 +26,7 @@ export default function MatchingShape() {
   };
 
   return (
-    <LearningScreenActivityLayout title="Matching Shape" currentIndex={3} backgroundIndex={3}>
+    <LearningScreenActivityLayout title="Matching Shape" currentIndex={6} backgroundIndex={6} grade={grade}>
       {imageVisible && (
         <div className="flex w-full justify-center items-center absolute left-0 right-0 top-0 z-20">
           <Image

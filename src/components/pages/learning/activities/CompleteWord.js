@@ -4,7 +4,7 @@ import LearningScreenActivityLayout from "@components/pages/learning/learning-sc
 import completeWordData from "@components/pages/learning/common/completeWordData";
 import Image from "next/image";
 
-export default function CompleteWord() {
+export default function CompleteWord({ user, grade }) {
   const data = completeWordData;
   const [imageVisible, setImageVisible] = useState(false);
   const [imageName, setImageName] = useState("yes");
@@ -61,7 +61,7 @@ export default function CompleteWord() {
   };
 
   return (
-    <LearningScreenActivityLayout title="Complete Word" currentIndex={1} backgroundIndex={1}>
+    <LearningScreenActivityLayout title="Complete Word" currentIndex={5} backgroundIndex={5} grade={grade}>
       {imageVisible && (
         <div className="flex w-full justify-center items-center absolute left-0 right-0 top-0 z-20">
           <Image

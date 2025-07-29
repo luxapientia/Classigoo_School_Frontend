@@ -7,13 +7,15 @@ export const metadata = {
   description: "Matching Words activity in Learning Screen",
 };
 
-export default async function MatchingWordsPage() {
+export default async function MatchingWordsPage({ searchParams }) {
   try {
     const user = await getUser();
+    const { grade } = await searchParams;
+    
     if (!user || (user.status === "error" && user.message === "Unauthorized")) {
       redirect("/api/logout");
     }
-    return <MatchingWordSelect user={user} />;
+    return <MatchingWordSelect user={user} grade={grade} />;
   } catch (error) {
     console.error(`Error in MatchingWordsPage: ${error}`);
   }

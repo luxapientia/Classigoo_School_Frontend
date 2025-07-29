@@ -7,13 +7,14 @@ export const metadata = {
   description: "Complete Word activity in Learning Screen",
 };
 
-export default async function CompleteWordPage() {
+export default async function CompleteWordPage({ searchParams }) {
   try {
     const user = await getUser();
+    const { grade } = await searchParams;
     if (!user || (user.status === "error" && user.message === "Unauthorized")) {
       redirect("/api/logout");
     }
-    return <CompleteWord user={user} />;
+    return <CompleteWord user={user} grade={grade} />;
   } catch (error) {
     console.error(`Error in CompleteWordPage: ${error}`);
   }

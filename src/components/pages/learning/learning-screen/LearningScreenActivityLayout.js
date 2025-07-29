@@ -2,26 +2,30 @@
 import { useRouter } from "next/navigation";
 
 // Pass backgroundIndex to select the background image (e.g., back0.jpg, back1.jpg, ...)
-export default function LearningScreenActivityLayout({ children, title, currentIndex, backgroundIndex = 0 }) {
+export default function LearningScreenActivityLayout({ children, title, currentIndex, backgroundIndex = 0, grade }) {
   const router = useRouter();
 
   const subactivityRoutes = [
     "/learning/learning-screen/matching-words",
+    "/learning/learning-screen/maths",
+    "/learning/learning-screen/physics",
+    "/learning/learning-screen/biology",
+    "/learning/learning-screen/chemistry",
     "/learning/learning-screen/complete-word",
-    "/learning/learning-screen/mathematics",
+    // "/learning/learning-screen/mathematics",
     "/learning/learning-screen/matching-shape",
     "/learning/learning-screen/new-word",
   ];
 
   const goPrev = () => {
     if (currentIndex > 0) {
-      router.push(subactivityRoutes[currentIndex - 1]);
+      router.push(`${subactivityRoutes[currentIndex - 1]}?grade=${grade}`);
     }
   };
 
   const goNext = () => {
     if (currentIndex < subactivityRoutes.length - 1) {
-      router.push(subactivityRoutes[currentIndex + 1]);
+      router.push(`${subactivityRoutes[currentIndex + 1]}?grade=${grade}`);
     }
   };
 
