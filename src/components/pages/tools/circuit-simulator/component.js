@@ -22,10 +22,10 @@ export default function CircuitSimulatorComponent() {
           onPress={handleFullScreen}
           radius="large"
           variant="ghost"
-          className="hidden md:flex items-center bg-content2 text:content1"
+          className="hidden md:flex items-center bg-content2 text:content1 px-4 py-2 border-2 rounded-xl"
         >
           <Icon icon="solar:full-screen-bold-duotone" />
-          Full Screen
+          <span className="ml-1">Full Screen</span>
         </Button>
         <button
           onClick={handleFullScreen}

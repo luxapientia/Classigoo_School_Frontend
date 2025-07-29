@@ -11,14 +11,10 @@ export default function LearningScreenActivityLayout({ children, title, currentI
     "/learning/learning-screen/mathematics",
     "/learning/learning-screen/matching-shape",
     "/learning/learning-screen/new-word",
-    "/learning/learning-screen/sight-words",
-    "/learning/learning-screen/word-search",
   ];
 
   const goPrev = () => {
-    if (currentIndex === 0) {
-      router.push("/learning/learning-screen");
-    } else {
+    if (currentIndex > 0) {
       router.push(subactivityRoutes[currentIndex - 1]);
     }
   };
@@ -29,8 +25,15 @@ export default function LearningScreenActivityLayout({ children, title, currentI
     }
   };
 
+  const goBack = () => {
+    router.push("/learning/learning-screen");
+  };
+
   // Compose the background image path
   const backgroundUrl = `/assets/img/screen/back${backgroundIndex}.jpg`;
+
+  const isFirstScreen = currentIndex === 0;
+  const isLastScreen = currentIndex === subactivityRoutes.length - 1;
 
   return (
     <div
@@ -42,23 +45,54 @@ export default function LearningScreenActivityLayout({ children, title, currentI
         maxHeight: "100vh"
       }}
     >
-      <div className="bg-white bg-opacity-80 shadow">
+      <div className="bg-white bg-opacity-90 shadow-lg border-b border-gray-200">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
+            {/* Back Button - Different style */}
             <button
-              onClick={goPrev}
-              className="text-sky-600 hover:text-sky-700 flex items-center space-x-2"
+              onClick={() => router.push("/learning/learning-screen")}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-orange-500 border border-gray-300 rounded-lg hover:bg-orange-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
             >
-              <span>⬅ Prev</span>
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Dashboard
             </button>
+
             <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
-            <button
-              onClick={goNext}
-              className={`text-sky-600 hover:text-sky-700 flex items-center space-x-2 ${currentIndex === subactivityRoutes.length - 1 ? "opacity-50 cursor-not-allowed" : ""}`}
-              disabled={currentIndex === subactivityRoutes.length - 1}
-            >
-              <span>Next ➡</span>
-            </button>
+
+            {/* Navigation Buttons */}
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={goPrev}
+                disabled={isFirstScreen}
+                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 shadow-sm ${
+                  isFirstScreen
+                    ? "text-gray-400 bg-gray-100 cursor-not-allowed"
+                    : "text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                }`}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Previous
+              </button>
+
+              <button
+                onClick={goNext}
+                disabled={isLastScreen}
+                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 shadow-sm ${
+                  isLastScreen
+                    ? "text-gray-400 bg-gray-100 cursor-not-allowed"
+                    : "text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                }`}
+              >
+                Next
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>

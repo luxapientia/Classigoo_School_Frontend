@@ -24,14 +24,14 @@ const screens = [
     name: "New Word",
     link: "/learning/learning-screen/new-word",
   },
-  {
-    name: "Sight Words",
-    link: "/learning/learning-screen/sight-words",
-  },
-  {
-    name: "Word Search",
-    link: "/learning/learning-screen/word-search",
-  },
+  // {
+  //   name: "Sight Words",
+  //   link: "/learning/learning-screen/sight-words",
+  // },
+  // {
+  //   name: "Word Search",
+  //   link: "/learning/learning-screen/word-search",
+  // },
 ];
 
 export default function LearningScreenDashboard({user}) {

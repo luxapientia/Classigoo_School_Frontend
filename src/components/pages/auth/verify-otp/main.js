@@ -12,7 +12,7 @@ import { useAuth } from "@contexts/AuthContext";
 export default function VerifyOtpMain({ role: userRole }) {
   const router = useRouter();
   const { login } = useAuth();
-  const [otp, setOtp] = useState(Array(9).fill(""));
+  const [otp, setOtp] = useState(Array(6).fill(""));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [timeLeft, setTimeLeft] = useState(60);
@@ -78,11 +78,11 @@ export default function VerifyOtpMain({ role: userRole }) {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").slice(0, 9).split("");
+    const pastedData = e.clipboardData.getData("text").slice(0, 6).split("");
     const newOtp = [...otp];
     
     pastedData.forEach((value, index) => {
-      if (index < 9) {
+      if (index < 6) {
         newOtp[index] = value;
         if (inputRefs.current[index]) {
           inputRefs.current[index].value = value;
@@ -99,8 +99,8 @@ export default function VerifyOtpMain({ role: userRole }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const otpValue = otp.join("");
-    if (otpValue.length !== 9) {
-      setError("Please enter all 9 digits");
+    if (otpValue.length !== 6) {
+      setError("Please enter all 6 digits");
       return;
     }
 
