@@ -14,7 +14,8 @@ export default function BiologySelect({ user, grade }) {
   const fetchRandomQuestion = async () => {
     setLoading(true);
     try {
-      const { data: res } = await axios.get(`/v1/learning/biology/random?grade=${grade}`);
+      const gradeNumber = Math.max(Number(grade), 3);
+      const { data: res } = await axios.get(`/v1/learning/biology/random?grade=${gradeNumber}`);
       if (res.status === "success") {
         setQuestion(res.data);
       } else {

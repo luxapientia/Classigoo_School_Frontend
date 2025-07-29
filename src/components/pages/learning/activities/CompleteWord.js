@@ -1,48 +1,72 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LearningScreenActivityLayout from "@components/pages/learning/learning-screen/LearningScreenActivityLayout";
-import completeWordData from "@components/pages/learning/common/completeWordData";
+import axios from "@lib/axios";
 import Image from "next/image";
 
 export default function CompleteWord({ user, grade }) {
-  const data = completeWordData;
+  const [question, setQuestion] = useState(null);
   const [imageVisible, setImageVisible] = useState(false);
   const [imageName, setImageName] = useState("yes");
-  const [currentindex, setcurrentindex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
 
-  const checkWord = (word) => {
-    if (word === data[currentindex].rightanswer) {
+  const fetchRandomQuestion = async () => {
+    setLoading(true);
+    try {
+      const { data: res } = await axios.get("/v1/learning/complete-word/random");
+      if (res.status === "success") {
+        setQuestion(res.data);
+      } else {
+        setQuestion(null);
+      }
+    } catch (err) {
+      console.error("Error fetching complete word question:", err);
+      setQuestion(null);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchRandomQuestion();
+  }, []);
+
+  const checkAnswer = (answer) => {
+    if (!question) return;
+    
+    setSelectedAnswer(answer);
+    
+    if (answer === question.correctAnswer) {
       setImageName("yes");
-    } else setImageName("no");
+    } else {
+      setImageName("no");
+    }
+    
     setImageVisible(true);
     setTimeout(() => {
       setImageVisible(false);
-      let randomIndex = -1;
-      do {
-        randomIndex = Math.floor(Math.random() * data.length);
-      } while (randomIndex === currentindex);
-      setcurrentindex(randomIndex);
+      setSelectedAnswer(null);
+      fetchRandomQuestion();
     }, 1000);
   };
 
   // Helper to render the sentence with the missing part styled
   const renderSentence = () => {
-    const { sentence, rightanswer } = data[currentindex];
-    // Find the word containing the rightanswer
+    if (!question) return null;
+    
+    const { sentence, correctAnswer } = question;
+    // Find the word containing the correctAnswer
     return (
       <span className="text-lg md:text-xl text-gray-900">
         {sentence.split(" ").map((word, index) => {
-          if (word.includes(rightanswer)) {
-            const parts = word.split(rightanswer);
+          if (word.includes(correctAnswer)) {
+            const parts = word.split(correctAnswer);
             return (
               <span key={index}>
                 {parts[0]}
                 <span className="underline decoration-dashed text-red-600 font-bold text-2xl md:text-3xl mx-1">
-                  {"_".repeat(rightanswer.length)}
+                  {"_".repeat(correctAnswer.length)}
                 </span>
-                {/* <span className="text-red-600 font-bold text-2xl md:text-3xl mx-1">
-                  {rightanswer}
-                </span> */}
                 {parts[1]}
                 {index !== sentence.split(" ").length - 1 && " "}
               </span>
@@ -78,21 +102,34 @@ export default function CompleteWord({ user, grade }) {
           Click the missing part of word to complete the sentence.
         </h1>
         <div className="bg-white rounded-xl shadow-lg px-6 py-8 max-w-2xl w-full flex flex-col items-center">
-          <div className="mb-6 text-center">
-            {renderSentence()}
-          </div>
-          <div className="flex flex-wrap justify-center items-center gap-4 mt-2">
-            {data[currentindex].answers.split(",").map((item, index) => (
-              <button
-                key={index}
-                onClick={() => checkWord(item)}
-                className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-8 rounded-lg shadow transition-colors text-lg min-w-[100px]"
-                style={{ height: 48 }}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
+          {loading || !question ? (
+            <div className="text-lg text-gray-500">Loading...</div>
+          ) : (
+            <>
+              <div className="mb-6 text-center">
+                {renderSentence()}
+              </div>
+              <div className="flex flex-wrap justify-center items-center gap-4 mt-2">
+                {question.options.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => checkAnswer(option)}
+                    disabled={selectedAnswer !== null}
+                    className={`font-bold py-2 px-8 rounded-lg shadow transition-colors text-lg min-w-[100px] ${
+                      selectedAnswer === option
+                        ? option === question.correctAnswer
+                          ? "bg-green-500 text-white"
+                          : "bg-red-500 text-white"
+                        : "bg-orange-500 hover:bg-orange-600 text-white"
+                    }`}
+                    style={{ height: 48 }}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </LearningScreenActivityLayout>
