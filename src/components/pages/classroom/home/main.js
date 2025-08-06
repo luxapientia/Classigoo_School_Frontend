@@ -117,7 +117,7 @@ export default function ClassroomHomeMain({ id, userInfo }) {
 
 
   if (userInfo && classroom) {
-    user = classroom?.classroom_relation.find((r) => r.user.id === userInfo._id);
+    user = classroom?.classroom_relation.find((r) => r.user.id === userInfo.id);
   }
 
   // hooks
@@ -377,13 +377,13 @@ export default function ClassroomHomeMain({ id, userInfo }) {
   };
 
   // can user post
-  const canPost = !classroom?.child_only || user?.role === "owner" || user?.role === "teacher";
+  const canPost = user?.role === "owner" || user?.role === "teacher";
 
   return (
     <ClassroomLayout id={id} loading={classroomLoading || postsLoading} classroom={classroom}>
       {openPicker && (
         <MemberSelector
-          my_id={userInfo._id}
+          my_id={userInfo.id}
           members={classroom?.classroom_relation}
           audience={audience}
           setAudience={setAudience}

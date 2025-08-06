@@ -20,8 +20,8 @@ export default function SignupMain({ role: userRole }) {
   const roleOptions = useMemo(() => {
     if (userRole === 'teacher') {
       return [
-        { value: 'principal', label: 'Principal' },
-        { value: 'assistant-principal', label: 'Assistant Principal' },
+        // { value: 'principal', label: 'Principal' },
+        // { value: 'assistant-principal', label: 'Assistant Principal' },
         { value: 'teacher', label: 'Teacher' },
         { value: 'staff', label: 'Staff' }
       ];

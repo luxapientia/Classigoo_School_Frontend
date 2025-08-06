@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 import { getUser } from "@lib/auth";
+import DashboardMain from "@components/pages/dashboard/main";
 
 export const metadata = {
-  title: "Home - Classigoo",
-  description: "Welcome to Classigoo",
+  title: "Dashboard - Classigoo",
+  description: "Welcome to Classigoo Dashboard",
 };
 
 export default async function Home() {
@@ -13,5 +14,5 @@ export default async function Home() {
     redirect("/api/logout");
   }
 
-  return <h1>Welcome, {user.name}!</h1>;
+  return <DashboardMain user={user} />;
 }

@@ -217,22 +217,26 @@ export default function MainClassroomsComponent({ user }) {
   return (
     <>
       <HeaderSlot>
-        <Button
-          size="small"
-          onClick={handleShowAction}
-          radius="large"
-          variant="ghost"
-          className="hidden md:flex items-center bg-content2 text:content1 px-4 py-2 border-2 rounded-xl"
-        >
-          <Icon icon="akar-icons:plus" />
-          <span className="ml-1">New Classroom</span>
-        </Button>
-        <button
-          onClick={handleShowAction}
-          className="grid md:hidden justify-center items-center h-[44px] w-[44px] rounded-full px-0 bg-blue-500 text-white shadow-[0px_0px_5px_1px_#3b82f6c7]"
-        >
-          <Icon icon="akar-icons:plus" />
-        </button>
+        { user.role === "teacher" && (
+          <>
+            <Button
+              size="small"
+              onClick={handleShowCreator}
+              radius="large"
+              variant="ghost"
+              className="hidden md:flex items-center bg-content2 text:content1 px-4 py-2 border-2 rounded-xl"
+            >
+              <Icon icon="akar-icons:plus" />
+              <span className="ml-1">New Classroom</span>
+            </Button>
+            <button
+              onClick={handleShowCreator}
+              className="grid md:hidden justify-center items-center h-[44px] w-[44px] rounded-full px-0 bg-blue-500 text-white shadow-[0px_0px_5px_1px_#3b82f6c7]"
+            >
+              <Icon icon="akar-icons:plus" />
+            </button>
+          </>
+        )}
       </HeaderSlot>
 
       {redirectError && (
@@ -277,12 +281,16 @@ export default function MainClassroomsComponent({ user }) {
             <div className="py-5 px-2 border-2 rounded-lg border-dashed w-[calc(100%-20px)] text-center">
               <p className="font-medium">No classrooms found!</p>
               <div className="flex flex-row gap-2 mt-5 p-3 justify-center">
-                <button className="bg-primary-500 text-white py-1.5 px-3 text-sm" onClick={handleShowCreator}>
-                  Create a classroom
-                </button>
-                <button className="bg-success-500 text-white py-1.5 px-3 text-sm" onClick={handleShowJoin}>
-                  Join a classroom
-                </button>
+                { user.role === "teacher" && (
+                  <button className="bg-primary-500 text-white py-1.5 px-3 text-sm" onClick={handleShowCreator}>
+                    Create a classroom
+                  </button>
+                )}
+                { user.role === "parent" && (
+                  <button className="bg-success-500 text-white py-1.5 px-3 text-sm" onClick={handleShowJoin}>
+                    Join a classroom
+                  </button>
+                )}
               </div>
             </div>
           </div>

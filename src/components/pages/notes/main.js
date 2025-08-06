@@ -23,7 +23,7 @@ export default function NotesMainComponent({ userInfo }) {
   const fetchNotes = React.useCallback(async () => {
     setNotesLoading(true);
     try {
-      const { data: res } = await axios.get(`/v1/note/list/${userInfo._id}`);
+      const { data: res } = await axios.get(`/v1/note/list/${userInfo.id}`);
       setNotes(res.data);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load notes");

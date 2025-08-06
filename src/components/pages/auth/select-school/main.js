@@ -112,6 +112,50 @@ export default function SelectSchoolMain() {
     } finally {
       setConfirmLoading(false);
       setIsModalOpen(false);
+      // navigate to teacher login page after 2 seconds
+      setTimeout(() => {
+        router.push("/auth/teacher/login");
+      }, 2000);
+    }
+  };
+
+  const handleSkip = async () => {
+    try {
+      setConfirmLoading(true);
+      setError("");
+      
+      // Get stored signup data
+      const signupData = JSON.parse(localStorage.getItem("teacherSignupData"));
+      if (!signupData) {
+        throw new Error("Signup data not found. Please try again.");
+      }
+
+      const { data } = await axios.post("/v1/auth/otp/send", {
+        ...signupData,
+        isSignup: true,
+        school_id: "", // Empty string for skip
+        ip: "127.0.0.1", // This should be handled by the backend
+      });
+
+      if (data.status === "success" && data.session_token) {
+        // Clean up stored data
+        localStorage.removeItem("teacherSignupData");
+        // Store session token and email for OTP verification
+        localStorage.setItem("session_token", data.session_token);
+        localStorage.setItem("email", signupData.email);
+        // Navigate to OTP verification page
+        router.push("/auth/teacher/verify-otp");
+      } else {
+        setError(data.message || "Failed to send OTP");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "An error occurred. Please try again.");
+    } finally {
+      setConfirmLoading(false);
+      // navigate to teacher login page after 2 seconds
+      setTimeout(() => {
+        router.push("/auth/teacher/login");
+      }, 2000);
     }
   };
 
@@ -149,6 +193,20 @@ export default function SelectSchoolMain() {
                 />
               ))
             )}
+          </div>
+
+          {/* Skip button */}
+          <div className="mt-4 text-center">
+            <p className="text-small text-default-500 mb-2">Can't find your school?</p>
+            <Button
+              variant="light"
+              color="default"
+              className="w-full"
+              onClick={handleSkip}
+              isLoading={confirmLoading}
+            >
+              Skip for now
+            </Button>
           </div>
         </div>
 

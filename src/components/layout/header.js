@@ -7,8 +7,9 @@ import { Icon } from "@iconify/react";
 // import { useUser } from "@auth0/nextjs-auth0";
 import { useAuth } from "@contexts/AuthContext";
 import { ThemeSwitcher } from "./theme-switcher";
-import { Avatar, Badge } from "@heroui/react";
+import { Avatar } from "@heroui/react";
 import { useContext, createContext, useState, useEffect, useMemo, useCallback } from "react";
+import { NotificationDropdown } from "./notification";
 
 // queries
 // import { GET_AVATAR } from "@graphql/queries";
@@ -102,11 +103,7 @@ export default function Header() {
           <div className="flex justify-end items-center h-full">
             {slots.specificHeader && <div className="md:hidden flex-initial pr-3">{slots.specificHeader}</div>}
             <div className="flex-initial">
-              <Badge color="danger" shape="circle" content="" size="sm">
-                <button className="flex w-11 h-11 bg-gray-100 dark:bg-white/10 rounded-full justify-center items-center">
-                  <Icon icon="solar:bell-bold" className="w-6 h-6 text-gray-900 dark:text-white" />
-                </button>
-              </Badge>
+              <NotificationDropdown />
             </div>
             <div className="flex-initial px-3">
               <ThemeSwitcher />

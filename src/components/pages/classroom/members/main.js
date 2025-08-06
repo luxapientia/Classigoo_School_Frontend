@@ -91,7 +91,7 @@ export default function ClassroomMembersMain({ id, userInfo }) {
         setError(response.message);
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.response.data.message);
     } finally {
       setLoading(false);
       setChangeID(null);
@@ -120,7 +120,7 @@ export default function ClassroomMembersMain({ id, userInfo }) {
         setError(response.message);
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.response.data.message);
     } finally {
       setLoading(false);
       setChangeID(null);
@@ -164,7 +164,7 @@ export default function ClassroomMembersMain({ id, userInfo }) {
         setError(response.message);
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.response.data.message);
     } finally {
       setLoading(false);
       setShowMailInvite(false);
@@ -174,7 +174,7 @@ export default function ClassroomMembersMain({ id, userInfo }) {
   };
 
   // get the current user's role
-  const userRole = classroom?.classroom_relation.find((r) => r.user.id === userInfo._id);
+  const userRole = classroom?.classroom_relation.find((r) => r.user.id === userInfo.id);
 
   return (
     <>
@@ -254,7 +254,7 @@ export default function ClassroomMembersMain({ id, userInfo }) {
           handleSubmit={handleRemove}
           error={error}
           loading={loading}
-          self={userInfo._id === rmMemberID}
+          self={userInfo.id === rmMemberID}
         />
       )}
 
