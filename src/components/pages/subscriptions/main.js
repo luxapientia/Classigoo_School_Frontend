@@ -33,14 +33,14 @@ export default function SubscriptionMainComponent({ userInfo }) {
   const fetchSubscriptions = React.useCallback(async () => {
     setSubscriptionLoading(true);
     try {
-      const { data } = await axios.get(`/v1/subscription/${userInfo._id}`);
+      const { data } = await axios.get(`/v1/subscription/${userInfo.id}`);
       setSubscription(data);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load subscriptions");
     } finally {
       setSubscriptionLoading(false);
     }
-  }, [userInfo._id]);
+  }, [userInfo.id]);
 
   React.useEffect(() => {
     fetchSubscriptions();
