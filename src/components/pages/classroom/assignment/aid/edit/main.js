@@ -346,7 +346,7 @@ export default function AssignmentEditMainComponent({ cid, aid, userInfo }) {
         // redirect the user to the note
         // window.location.href = `/classroom/${cid}/assignment/${data.update_assignments_by_pk.id}`;
         router.push(
-          `/classroom/${cid}/assignment/${response.data._id}`
+          `/classroom/${cid}/assignment/${response.data.id}`
         );
       } else {
         setError(response.message || "Something went wrong. Please try again.");
@@ -424,7 +424,7 @@ export default function AssignmentEditMainComponent({ cid, aid, userInfo }) {
   if (!assignmentLoading) {
     // current user
     const currentUser = classroom?.classroom_relation.find(
-      (cr) => cr.user.id === userInfo._id
+      (cr) => cr.user.id === userInfo.id
     );
     if (!assignment) return <NotFoundPage />;
     if (currentUser?.role !== "owner" && currentUser?.role !== "teacher")
@@ -456,7 +456,7 @@ export default function AssignmentEditMainComponent({ cid, aid, userInfo }) {
 
         {openPicker && (
           <MemberSelector
-            my_id={userInfo._id}
+            my_id={userInfo.id}
             members={classroom?.classroom_relation}
             audience={audience}
             setAudience={setAudience}

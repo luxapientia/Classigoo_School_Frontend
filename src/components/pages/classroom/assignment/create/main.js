@@ -305,7 +305,7 @@ export default function AssignmentCreateMainComponent({ classId, userInfo }) {
         // setClassrooms([]);
 
         // redirect the user to the note
-        window.location.href = `/classroom/${classId}/assignment/${response.data._id}`;
+        window.location.href = `/classroom/${classId}/assignment/${response.data.id}`;
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -381,7 +381,7 @@ export default function AssignmentCreateMainComponent({ classId, userInfo }) {
 
         {openPicker && (
           <MemberSelector
-            my_id={userInfo._id}
+            my_id={userInfo.id}
             members={classroom?.classroom_relation}
             audience={audience}
             setAudience={setAudience}

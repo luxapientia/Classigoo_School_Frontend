@@ -155,7 +155,7 @@ export default function NotePageMainComponent({ userInfo, id }) {
             </div>
 
             {/* if owner == current user */}
-            {userInfo._id === note?.owner_data.id && (
+            {userInfo.id === note?.owner_data.id && (
               <div className="p-5 bg-content2 w-full lg:w-72 rounded-xl mt-4">
                 <div className="w-full">
                   <Button

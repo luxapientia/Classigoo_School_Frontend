@@ -81,7 +81,7 @@ export default function ClassroomAssignmentsMain({ id, userInfo }) {
   });
 
   // Check if the current user is a member of the classroom
-  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo._id);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo.id); 
 
   return (
     <>
@@ -107,13 +107,13 @@ export default function ClassroomAssignmentsMain({ id, userInfo }) {
         {assignments.length > 0 ? (
           <div className="grid gap-4 grid-cols-1">
             {assignments.map((assignment) => {
-              // current user is student then don't show draft assignments
-              if (currentUser?.role === "student" && assignment.status === "draft") return null;
+              // current user is parent then don't show draft assignments
+              if (currentUser?.role === "parent" && assignment.status === "draft") return null;
               // if audience is not all and current user is not in the audience then don't show the assignment
               if (
-                currentUser?.role === "student" &&
+                currentUser?.role === "parent" &&
                 !assignment?.audience?.includes("*") &&
-                !assignment?.audience?.includes(currentUser?.user._id)
+                !assignment?.audience?.includes(currentUser?.user.id)
               )
                 return null;
               return (

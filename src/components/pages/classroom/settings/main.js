@@ -225,7 +225,7 @@ export default function ClassroomSettingsMain({ id, userInfo }) {
   }, [error]);
 
   // current user's role
-  const userRole = classroom?.classroom_relation.find((r) => r.user.id === userInfo._id);
+  const userRole = classroom?.classroom_relation.find((r) => r.user.id === userInfo.id);
   const canUserEdit = userRole?.role === "owner" || userRole?.role === "teacher";
 
   return (

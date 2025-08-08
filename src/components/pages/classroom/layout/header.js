@@ -77,7 +77,7 @@ export default function ClassroomHeader({ id, img, name, subject, section, room,
             <Tab key={`/classroom/${id}/home`} title="Home" />
             <Tab key={`/classroom/${id}/members`} title="Members" />
             <Tab key={`/classroom/${id}/exams`} title="Exams" />
-            {currentUser?.role === "student" && <Tab key={`/classroom/${id}/results`} title="Results" />}
+            {currentUser?.role === "parent" && <Tab key={`/classroom/${id}/results`} title="Results" />}
             <Tab key={`/classroom/${id}/notes`} title="Notes" />
             <Tab key={`/classroom/${id}/assignments`} title="Assignments" />
             <Tab key={`/classroom/${id}/calendar`} title="Calendar" />

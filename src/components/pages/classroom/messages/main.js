@@ -92,7 +92,7 @@ export default function ClassroomMessagesMain({ id, userInfo }) {
   });
 
   // Check if the current user is a member of the classroom
-  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo._id);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo.id);
 
   React.useEffect(() => {
     if (classroom && messageRecipients) {
@@ -114,12 +114,12 @@ export default function ClassroomMessagesMain({ id, userInfo }) {
           r.push({
             id: mr.id,
             type: mr?.type,
-            name: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.name,
-            image: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.avatar?.url,
-            uid: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.id,
+            name: mr?.users?.find((u) => u?.user?.id !== userInfo.id)?.user?.name,
+            image: mr?.users?.find((u) => u?.user?.id !== userInfo.id)?.user?.avatar?.url,
+            uid: mr?.users?.find((u) => u?.user?.id !== userInfo.id)?.user?.id,
             role:
-              mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.role === "student"
-                ? "Student"
+              mr?.users?.find((u) => u?.user?.id !== userInfo.id)?.user?.role === "parent"
+                ? "Parent"
                 : "Teacher",
           });
         }
@@ -127,13 +127,13 @@ export default function ClassroomMessagesMain({ id, userInfo }) {
 
       // get the users who are not in the receipients list
       classroom.classroom_relation.forEach((cr) => {
-        if (cr.user.id !== userInfo._id) {
+        if (cr.user.id !== userInfo.id) {
           if (!r.find((rr) => rr.uid === cr.user.id)) {
             u.push({
               id: cr.user.id,
               name: cr.user.name,
               image: cr.user.avatar.url,
-              role: cr.role === "student" ? "Student" : "Teacher",
+              role: cr.role === "parent" ? "Parent" : "Teacher",
             });
           }
         }

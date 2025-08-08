@@ -16,9 +16,9 @@ export default function LeaveClassRoomMain({ id, userInfo }) {
 
   React.useEffect(() => {
     const getAccess = async () => {
-      const { data: response } = await axios.get(`/v1/classroom/access/${id}/${userInfo._id}`);
+      const { data: response } = await axios.get(`/v1/classroom/access/${id}/${userInfo.id}`);
       if (response.status === "success") {
-        return response.data._id;
+        return response.data.id;
       } else {
         return null;
       }

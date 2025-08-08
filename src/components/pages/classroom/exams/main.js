@@ -81,7 +81,7 @@ export default function ClassroomExamsMain({ id, userInfo }) {
   });
 
   // Check if the current user is a member of the classroom
-  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo._id);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo.id);
 
   return (
     <>
@@ -111,7 +111,7 @@ export default function ClassroomExamsMain({ id, userInfo }) {
               if (
                 currentUser?.role === "student" &&
                 !exam?.audience?.includes("*") &&
-                !exam?.audience?.includes(currentUser?.user._id)
+                !exam?.audience?.includes(currentUser?.user.id)
               )
                 return null;
 

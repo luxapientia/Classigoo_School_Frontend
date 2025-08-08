@@ -374,7 +374,7 @@ export default function ExamEvaluaterMainComponent({
 
   // current user
   const currentUser = classroom?.classroom_relation.find(
-    (cr) => cr.user.id === userInfo._id
+    (cr) => cr.user.id === userInfo.id
   );
 
   if (classroomLoading || submissionLoading || examLoading) return <Loading />;

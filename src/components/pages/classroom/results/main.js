@@ -81,7 +81,7 @@ export default function ClassroomResultsMain({ id, userInfo }) {
   // });
 
   // Check if the current user is a member of the classroom
-  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo._id);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo.id);
 
   return (
     <>
@@ -93,7 +93,7 @@ export default function ClassroomResultsMain({ id, userInfo }) {
               const marksObtained = grade?.markings?.reduce((acc, curr) => acc + parseInt(curr.marking), 0);
               const totalMarks = grade?.exam?.questions.reduce((acc, curr) => acc + parseInt(curr.points), 0);
 
-              if (currentUser?.role === "student" && grade.status !== "published") return null;
+              if (currentUser?.role === "parent" && grade.status !== "published") return null;
 
               return (
                 <Link href={`/classroom/${id}/exam/${grade.exam.id}/submission/${grade.id}`} key={grade.id}>

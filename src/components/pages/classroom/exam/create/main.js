@@ -33,7 +33,7 @@ export default function ExamCreateMainComponent({ classId, userInfo }) {
   const [dStart, setDStart] = React.useState("no");
   const [startAt, setStartAt] = React.useState(now(getLocalTimeZone()));
   const [sDuration, setSDuration] = React.useState("no");
-  const [duration, setDuration] = React.useState(0);
+  const [duration, setDuration] = React.useState("0");
   // const [deadline, setDeadline] = React.useState(null);
 
   const [error, setError] = React.useState(null);
@@ -86,8 +86,8 @@ export default function ExamCreateMainComponent({ classId, userInfo }) {
   // }, [deadline]);
 
   // current user
-  const currentUser = userInfo._id;
-  const userRole = classroom?.classroom_relation.find((m) => m.user._id === currentUser)?.role;
+  const currentUser = userInfo.id;
+  const userRole = classroom?.classroom_relation.find((m) => m.user.id === currentUser)?.role;
 
   // check if user is a student
   if (userRole === "student") return <NotFoundPage />;
@@ -162,7 +162,7 @@ export default function ExamCreateMainComponent({ classId, userInfo }) {
         class_id: classId,
         status,
         audience: fixedAudience,
-        duration: sDuration === "yes" ? duration : 0,
+        duration: sDuration === "yes" ? duration : "0",
         start_once: dStart === "yes" ? fixedStartAt : null,
         questions,
       });
@@ -172,7 +172,7 @@ export default function ExamCreateMainComponent({ classId, userInfo }) {
         // console.log("data", response);
         // redirect(`/classroom/${classId}/exam/${data.insert_exams_one.id}/edit`);
         // window.location.href = `/classroom/${classId}/exam/${data.insert_exams_one.id}/edit`;
-        router.push(`/classroom/${classId}/exam/${response.data._id}`);
+        router.push(`/classroom/${classId}/exam/${response.data.id}`);
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -262,7 +262,7 @@ export default function ExamCreateMainComponent({ classId, userInfo }) {
 
         {openPicker && (
           <MemberSelector
-            my_id={userInfo._id}
+            my_id={userInfo.id}
             members={classroom?.classroom_relation}
             audience={audience}
             setAudience={setAudience}

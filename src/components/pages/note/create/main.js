@@ -37,13 +37,13 @@ export default function NoteCreateMainComponent({ userInfo }) {
   const fetchClassroomNames = React.useCallback(async () => {
     setClassroomNamesLoading(true);
     try {
-      const { data: res } = await axios.get(`/v1/classroom/names/${userInfo._id}`);
+      const { data: res } = await axios.get(`/v1/classroom/names/${userInfo.id}`);
       setClassroomNames(res.data);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load classroom names");
     }
     setClassroomNamesLoading(false);
-  }, [userInfo._id]);
+  }, [userInfo.id]);
 
   React.useEffect(() => {
     fetchClassroomNames();

@@ -180,7 +180,7 @@ export default function ClassroomCalendarMain({ id, userInfo }) {
 
   // Check if the current user is a member of the classroom
   const currentUser = classroom?.classroom_relation.find(
-    (cr) => cr.user.id === userInfo._id
+    (cr) => cr.user.id === userInfo.id
   );
 
   if (!classroomLoading && !classroom) return <NotFoundPage />;
@@ -295,7 +295,7 @@ export default function ClassroomCalendarMain({ id, userInfo }) {
                           />{" "}
                           View
                         </Button>
-                        {currentUser?.role !== "student" && (
+                        {currentUser?.role !== "parent" && (
                           <>
                             <Button
                               variant="text"
@@ -422,7 +422,7 @@ export default function ClassroomCalendarMain({ id, userInfo }) {
                           />{" "}
                           View
                         </Button>
-                        {currentUser?.role !== "student" && (
+                        {currentUser?.role !== "parent" && (
                           <>
                             <Button
                               variant="text"
@@ -549,7 +549,7 @@ export default function ClassroomCalendarMain({ id, userInfo }) {
                           />{" "}
                           View
                         </Button>
-                        {currentUser?.role !== "student" && (
+                        {currentUser?.role !== "parent" && (
                           <>
                             <Button
                               variant="text"

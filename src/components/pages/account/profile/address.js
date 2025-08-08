@@ -79,7 +79,6 @@ const AddressSetting = React.forwardRef(({ className, id, address, ...props }, r
       setTimeout(() => setError(false), 3000);
     }
 
-    console.log("ProfileSetting", data);
   }, [address1, address2, city, zip, country]);
 
   return (

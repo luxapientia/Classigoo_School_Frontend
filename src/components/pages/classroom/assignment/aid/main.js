@@ -116,7 +116,7 @@ export default function AssignmentPageMainComponent({ userInfo, cid, aid }) {
     }
   });
   const currentUser = classroom?.classroom_relation.find(
-    (cr) => cr.user.id === userInfo._id
+    (cr) => cr.user.id === userInfo.id
   );
 
   const handleDeleteAssignment = async () => {
@@ -287,7 +287,7 @@ export default function AssignmentPageMainComponent({ userInfo, cid, aid }) {
 
       const { data: response } = await axios.post("/v1/classroom/assignment/file/delete", {
         files: locations,
-        classroom_id: classId,
+        classroom_id: cid,
       });
 
       if (response.status === "success") {
@@ -435,7 +435,7 @@ export default function AssignmentPageMainComponent({ userInfo, cid, aid }) {
       // get my submissions
       const mySub =
         assignment.assignment_submissions.find(
-          (s) => s.submitter.id === userInfo._id
+          (s) => s.submitter.id === userInfo.id
         );
       setMySubmission(mySub);
       setAssignmentFiles(mySub?.files);
@@ -452,9 +452,9 @@ export default function AssignmentPageMainComponent({ userInfo, cid, aid }) {
     assignment?.deadline
   ).isBefore(moment());
 
-  // if student and status is draft then don't show the assignment
+  // if parent and status is draft then don't show the assignment
   if (
-    currentUser?.role === "student" &&
+    currentUser?.role === "parent" &&
     assignment?.status === "draft"
   ) {
     return <NotFoundPage />;
@@ -462,9 +462,9 @@ export default function AssignmentPageMainComponent({ userInfo, cid, aid }) {
 
   // if audience is not all and current user is not in the audience then don't show the assignment
   if (
-    currentUser?.role === "student" &&
+    currentUser?.role === "parent" &&
     !assignment?.audience.includes("*") &&
-    !assignment?.audience.includes(userInfo._id)
+    !assignment?.audience.includes(userInfo.id)
   ) {
     return <NotFoundPage />;
   }
@@ -613,8 +613,8 @@ export default function AssignmentPageMainComponent({ userInfo, cid, aid }) {
                   </span>
                 </h2>
               </div>
-              {/* if current user is the student */}
-              {currentUser?.role === "student" && (
+              {/* if current user is the parent */}
+              {currentUser?.role === "parent" && (
                 <div className="p-5 bg-content2 w-full xl:w-72 rounded-xl mt-4">
                   <h2 className="text-sm font-exo font-bold">
                     Submit Assignment
@@ -668,25 +668,27 @@ export default function AssignmentPageMainComponent({ userInfo, cid, aid }) {
                             </div>
                             {submissionStatus === "draft" &&
                               !isPastDeadline && (
-                                <Button
-                                  onClick={() =>
-                                    handleDeleteFile([file.bucketKey])
-                                  }
-                                  disabled={deleting}
-                                  className="bg-danger-500 h-8 w-8 rounded-md flex items-center justify-center"
-                                >
-                                  {deleting ? (
-                                    <Icon
-                                      icon="eos-icons:three-dots-loading"
-                                      className="h-5 w-5 text-white"
-                                    />
-                                  ) : (
-                                    <Icon
-                                      icon="solar:trash-bin-minimalistic-bold-duotone"
-                                      className="h-5 w-5 text-white"
-                                    />
-                                  )}
-                                </Button>
+                                <div className="flex-initial pr-2">
+                                  <Button
+                                    onClick={() =>
+                                      handleDeleteFile([file.bucketKey])
+                                    }
+                                    disabled={deleting}
+                                    className="bg-danger-500 h-8 w-8 rounded-md flex items-center justify-center"
+                                  >
+                                    {deleting ? (
+                                      <Icon
+                                        icon="eos-icons:three-dots-loading"
+                                        className="h-5 w-5 text-white"
+                                      />
+                                    ) : (
+                                      <Icon
+                                        icon="solar:trash-bin-minimalistic-bold-duotone"
+                                        className="h-5 w-5 text-white"
+                                      />
+                                    )}
+                                  </Button>
+                                </div>
                               )}
                           </div>
                         </div>
@@ -784,7 +786,7 @@ export default function AssignmentPageMainComponent({ userInfo, cid, aid }) {
             </div>
           </div>
 
-          {currentUser?.role !== "student" && (
+          {currentUser?.role !== "parent" && (
             <div className="mt-16 pt-10 border-t-2 border-gray-200 dark:border-gray-700 border-dotted">
               <h1 className="text-2xl font-bold font-exo  text-gray-700 dark:text-gray-200">
                 Student Submissions

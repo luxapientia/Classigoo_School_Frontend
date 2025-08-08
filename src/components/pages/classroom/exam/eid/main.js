@@ -134,7 +134,7 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
   const fetchMySubmissions = React.useCallback(async () => {
     setMySubmissionsLoading(true);
     try {
-      const { data: res } = await axios.get(`/v1/classroom/exam/${eid}/${userInfo._id}/submissions`);
+      const { data: res } = await axios.get(`/v1/classroom/exam/${eid}/${userInfo.id}/submissions`);
       setMySubmissions(res.data);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load my submissions");
@@ -167,7 +167,7 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
       const { data: res } = await axios.get(`/v1/classroom/exam/${eid}/submissions`);
       setListSubmissions(res.data);
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load list submissions");
+      // setError(err?.response?.data?.message || "Failed to load list submissions");
     }
     setListSubmissionsLoading(false);
   }, [eid]);
@@ -183,7 +183,7 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
   });
 
   const currentUser = classroom?.classroom_relation.find(
-    (cr) => cr.user.id === userInfo._id
+    (cr) => cr.user.id === userInfo.id
   );
 
   const handleDeleteExam = async () => {
@@ -194,8 +194,13 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
       //     eid: eid,
       //   },
       // });
-      await axios.delete(`/v1/classroom/exam/${eid}`);
-      router.push(`/classroom/${cid}/exams`);
+      const { data: res } = await axios.delete(`/v1/classroom/exam/${eid}`);
+      if (res.status === 'success') {
+        setSuccess(res.message);
+        router.push(`/classroom/${cid}/exams`);
+      } else {
+        setError(res.message);
+      }
     } catch (error) {
       setError(error);
       setDeleteLoading(false);
@@ -207,7 +212,7 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
   const handleStartExam = async () => {
     setStarting(true);
     try {
-      if (currentUser?.role === "student") {
+      if (currentUser?.role === "parent") {
         if (mySubmissions?.length !== 0) {
           router.push(
             `/classroom/${cid}/exam/${eid}/start/${mySubmissions[0].id}`
@@ -224,7 +229,7 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
             status: "draft",
           });
           router.push(
-            `/classroom/${cid}/exam/${eid}/start/${res.data._id}`
+            `/classroom/${cid}/exam/${eid}/start/${res.data.id}`
           );
         }
       }
@@ -238,7 +243,7 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
   // handle view submission
   const handleViewSubmission = async () => {
     setStarting(true);
-    if (currentUser?.role === "student") {
+    if (currentUser?.role === "parent") {
       router.push(
         `/classroom/${cid}/exam/${eid}/submission/${mySubmissions[0].id}`
       );
@@ -259,7 +264,7 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
         "minutes"
       );
 
-      if (currentUser?.role === "student") {
+      if (currentUser?.role === "parent") {
         if (mySubmissions?.length !== 0) {
           const duration_time = moment(
             mySubmissions[0].created_at
@@ -360,9 +365,9 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
 
     // if exam is not for everyone and current user is not in the audience
     if (
-      currentUser?.role === "student" &&
+      currentUser?.role === "parent" &&
       !exam?.audience.includes("*") &&
-      !exam?.audience.includes(currentUser?.user._id)
+      !exam?.audience.includes(currentUser?.user.id)
     ) {
       return <NotFoundPage />;
     }
@@ -370,7 +375,7 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
     // if draft
     if (
       exam?.status === "draft" &&
-      currentUser?.role === "student"
+      currentUser?.role === "parent"
     ) {
       return <NotFoundPage />;
     }
@@ -471,15 +476,15 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
                     </h2>
                   )}
 
-                {currentUser?.role === "student" && (
+                {currentUser?.role === "parent" && (
                   <h2 className="text-sm">
                     Submission Status:{" "}
                     <span className="font-semibold">{submissionStatus}</span>
                   </h2>
                 )}
               </div>
-              {/* if current user is the student */}
-              {currentUser?.role === "student" && (
+              {/* if current user is the parent */}
+              {currentUser?.role === "parent" && (
                 <div className="p-5 bg-content2 w-full xl:w-72 rounded-xl">
                   {/* if start at */}
                   {submissionStatus === "NOT STARTED" && (
@@ -575,7 +580,7 @@ export default function ExamPageMainComponent({ userInfo, cid, eid }) {
             </div>
           </div>
 
-          {currentUser?.role !== "student" && (
+          {currentUser?.role !== "parent" && (
             <div className="mt-16 pt-10 border-t-2 border-gray-200 dark:border-gray-700 border-dotted">
               <h1 className="text-2xl font-bold font-exo  text-gray-700 dark:text-gray-200">
                 Student Submissions

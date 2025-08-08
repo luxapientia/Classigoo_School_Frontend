@@ -217,20 +217,21 @@ export default function MainClassroomsComponent({ user }) {
   return (
     <>
       <HeaderSlot>
-        { user.role === "teacher" && (
+        {/* show 'create classroom' button if user is a teacher and 'join classroom' button if parent */}
+        { (user.role === "teacher" || user.role === "parent") && (
           <>
             <Button
               size="small"
-              onClick={handleShowCreator}
+              onClick={user.role === "teacher" ? handleShowCreator : handleShowJoin}
               radius="large"
               variant="ghost"
               className="hidden md:flex items-center bg-content2 text:content1 px-4 py-2 border-2 rounded-xl"
             >
               <Icon icon="akar-icons:plus" />
-              <span className="ml-1">New Classroom</span>
+              <span className="ml-1">{ user.role === "teacher" ? "Create Classroom" : "Join Classroom" }</span>
             </Button>
             <button
-              onClick={handleShowCreator}
+              onClick={user.role === "teacher" ? handleShowCreator : handleShowJoin}
               className="grid md:hidden justify-center items-center h-[44px] w-[44px] rounded-full px-0 bg-blue-500 text-white shadow-[0px_0px_5px_1px_#3b82f6c7]"
             >
               <Icon icon="akar-icons:plus" />
@@ -298,10 +299,10 @@ export default function MainClassroomsComponent({ user }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
             {classrooms.map((classroom) => (
               <div
-                key={classroom._id}
+                key={classroom.id}
                 className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg border-2 dark:border-gray-700 overflow-hidden relative"
               >
-                <Link key={classroom._id} href={`/classroom/${classroom._id}/home`}>
+                <Link key={classroom.id} href={`/classroom/${classroom.id}/home`}>
                   <div
                     className="bg-cover bg-center bg-no-repeat"
                     style={{
@@ -337,19 +338,19 @@ export default function MainClassroomsComponent({ user }) {
                 <div className="flex flex-row gap-2 px-2 py-2 border-t-2 dark:border-gray-700">
                   <div className="flex justify-end w-full">
                     <Link
-                      href={`/classroom/${classroom._id}/home`}
+                      href={`/classroom/${classroom.id}/home`}
                       className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
                     >
                       <Icon icon="line-md:home-md" className="h-4 w-4" />
                     </Link>
                     <Link
-                      href={`/classroom/${classroom._id}/assignments`}
+                      href={`/classroom/${classroom.id}/assignments`}
                       className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
                     >
                       <Icon icon="line-md:clipboard-list" className="h-4 w-4" />
                     </Link>
                     <Link
-                      href={`/classroom/${classroom._id}/exams`}
+                      href={`/classroom/${classroom.id}/exams`}
                       className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
                     >
                       <Icon icon="line-md:check-list-3-filled" className="h-4 w-4" />

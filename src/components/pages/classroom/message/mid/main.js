@@ -267,10 +267,10 @@ export default function ClassroomMessageSingle({ cid, mid, userInfo }) {
           r.push({
             id: mr.id,
             type: mr?.type,
-            name: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.name,
-            image: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.avatar?.url,
-            uid: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.id,
-            role: mr?.users?.find((u) => u?.user?.id !== userInfo._id)?.user?.role === "student" ? "student" : "teacher",
+            name: mr?.users?.find((u) => u?.user?.id !== userInfo.id)?.user?.name,
+            image: mr?.users?.find((u) => u?.user?.id !== userInfo.id)?.user?.avatar?.url,
+            uid: mr?.users?.find((u) => u?.user?.id !== userInfo.id)?.user?.id,
+            role: mr?.users?.find((u) => u?.user?.id !== userInfo.id)?.user?.role === "parent" ? "parent" : "teacher",
           });
         }
       });
@@ -549,7 +549,7 @@ export default function ClassroomMessageSingle({ cid, mid, userInfo }) {
   if (classroomLoading || messageRecipientsLoading) return <Loading />;
   if (classroom === null) return <NotFoundPage />;
 
-  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo._id);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo.id);
 
   return (
     <section>
@@ -691,8 +691,8 @@ export default function ClassroomMessageSingle({ cid, mid, userInfo }) {
                             )} */}
                             <div
                               className={cn("flex items-end gap-2 w-full", {
-                                "justify-start flex-row-reverse": message.user.id === userInfo._id,
-                                "justify-start flex-row": message.user.id !== userInfo._id,
+                                "justify-start flex-row-reverse": message.user.id === userInfo.id,
+                                "justify-start flex-row": message.user.id !== userInfo.id,
                               })}
                             >
                               <Avatar
@@ -706,33 +706,33 @@ export default function ClassroomMessageSingle({ cid, mid, userInfo }) {
                                 className={cn(
                                   "flex flex-col w-fit max-w-[80%] rounded-lg p-2 pb-0.5 text-sm group relative",
                                   {
-                                    "bg-blue-500 text-white": message.user.id === userInfo._id,
-                                    "bg-gray-200 dark:bg-neutral-700": message.user.id !== userInfo._id,
+                                    "bg-blue-500 text-white": message.user.id === userInfo.id,
+                                    "bg-gray-200 dark:bg-neutral-700": message.user.id !== userInfo.id,
                                   }
                                 )}
                               >
                                 {receipients.find((r) => r.id === mid)?.type === "all" &&
-                                  message.user.id !== userInfo._id && (
+                                  message.user.id !== userInfo.id && (
                                     <h3
                                       className={cn("text-xs font-semibold", {
-                                        "text-white": message.user.id === userInfo._id,
-                                        "text-gray-900 dark:text-white": message.user.id !== userInfo._id,
+                                        "text-white": message.user.id === userInfo.id,
+                                        "text-gray-900 dark:text-white": message.user.id !== userInfo.id,
                                       })}
                                     >
-                                      {message.user.id === userInfo._id ? "You" : message.user.name}
+                                      {message.user.id === userInfo.id ? "You" : message.user.name}
                                     </h3>
                                   )}
                                 <p>{message.content.text}</p>
                                 <p
                                   className={cn("text-[10px] whitespace-nowrap ", {
-                                    "text-white text-right": message.user.id === userInfo._id,
-                                    "text-gray-500 dark:text-gray-400 text-left": message.user.id !== userInfo._id,
+                                    "text-white text-right": message.user.id === userInfo.id,
+                                    "text-gray-500 dark:text-gray-400 text-left": message.user.id !== userInfo.id,
                                   })}
                                 >
                                   {moment(message.created_at).format("DD MMM, YYYY hh:mm A")}
                                 </p>
                                 {/* if sender is currnet user */}
-                                {message.user.id === userInfo._id && (
+                                {message.user.id === userInfo.id && (
                                   <div className="hidden group-hover:grid h-full items-center absolute -left-12 pr-4 top-0 bottom-0">
                                     <Button
                                       isIconOnly
@@ -768,8 +768,8 @@ export default function ClassroomMessageSingle({ cid, mid, userInfo }) {
                             )} */}
                             <div
                               className={cn("flex items-end gap-2 w-full", {
-                                "justify-start flex-row-reverse": message.user.id === userInfo._id,
-                                "justify-start flex-row": message.user.id !== userInfo._id,
+                                "justify-start flex-row-reverse": message.user.id === userInfo.id,
+                                "justify-start flex-row": message.user.id !== userInfo.id,
                               })}
                             >
                               <Avatar
@@ -783,20 +783,20 @@ export default function ClassroomMessageSingle({ cid, mid, userInfo }) {
                                 className={cn(
                                   "flex flex-col w-fit max-w-[80%] rounded-lg p-2 pb-0.5 text-sm group relative",
                                   {
-                                    "bg-blue-500 text-white": message.user.id === userInfo._id,
-                                    "bg-gray-200 dark:bg-neutral-700": message.user.id !== userInfo._id,
+                                    "bg-blue-500 text-white": message.user.id === userInfo.id,
+                                    "bg-gray-200 dark:bg-neutral-700": message.user.id !== userInfo.id,
                                   }
                                 )}
                               >
                                 {receipients.find((r) => r.id === mid)?.type === "all" &&
-                                  message.user.id !== userInfo._id && (
+                                  message.user.id !== userInfo.id && (
                                     <h3
                                       className={cn("text-xs font-semibold", {
-                                        "text-white": message.user.id === userInfo._id,
-                                        "text-gray-900 dark:text-white": message.user.id !== userInfo._id,
+                                        "text-white": message.user.id === userInfo.id,
+                                        "text-gray-900 dark:text-white": message.user.id !== userInfo.id,
                                       })}
                                     >
-                                      {message.user.id === userInfo._id ? "You" : message.user.name}
+                                      {message.user.id === userInfo.id ? "You" : message.user.name}
                                     </h3>
                                   )}
                                 <div className="">
@@ -822,17 +822,17 @@ export default function ClassroomMessageSingle({ cid, mid, userInfo }) {
                                         className={cn(
                                           "flex-initial h-10 w-10 rounded-xl flex items-center justify-center border-2 border-dotted",
                                           {
-                                            "bg-blue-500 text-white border-white": message.user.id === userInfo._id,
+                                            "bg-blue-500 text-white border-white": message.user.id === userInfo.id,
                                             "bg-gray-200 dark:bg-neutral-700 border-gray-500":
-                                              message.user.id !== userInfo._id,
+                                              message.user.id !== userInfo.id,
                                           }
                                         )}
                                       >
                                         <Icon
                                           icon="akar-icons:file"
                                           className={cn("w-5 h-5", {
-                                            "text-white": message.user.id === userInfo._id,
-                                            "text-gray-500 dark:text-gray-200": message.user.id !== userInfo._id,
+                                            "text-white": message.user.id === userInfo.id,
+                                            "text-gray-500 dark:text-gray-200": message.user.id !== userInfo.id,
                                           })}
                                         />
                                       </div>
@@ -846,8 +846,8 @@ export default function ClassroomMessageSingle({ cid, mid, userInfo }) {
                                       >
                                         <div
                                           className={cn("px-2  rounded-lg flex items-center justify-center", {
-                                            "bg-blue-500 text-white": message.user.id === userInfo._id,
-                                            "bg-gray-200 dark:bg-neutral-700": message.user.id !== userInfo._id,
+                                            "bg-blue-500 text-white": message.user.id === userInfo.id,
+                                            "bg-gray-200 dark:bg-neutral-700": message.user.id !== userInfo.id,
                                           })}
                                         >
                                           <Icon icon="akar-icons:download" className="w-4 h-4" />
@@ -858,15 +858,15 @@ export default function ClassroomMessageSingle({ cid, mid, userInfo }) {
                                 </div>
                                 <p
                                   className={cn("text-[10px] whitespace-nowrap ", {
-                                    "text-white text-right": message.user.id === userInfo._id,
-                                    "text-gray-500 dark:text-gray-400 text-left": message.user.id !== userInfo._id,
+                                    "text-white text-right": message.user.id === userInfo.id,
+                                    "text-gray-500 dark:text-gray-400 text-left": message.user.id !== userInfo.id,
                                   })}
                                 >
                                   {moment(message.created_at).format("DD MMM, YYYY hh:mm A")}
                                 </p>
 
                                 {/* if sender is currnet user */}
-                                {message.user.id === userInfo._id && (
+                                {message.user.id === userInfo.id && (
                                   <div className="hidden group-hover:grid h-full items-center absolute -left-12 pr-4 top-0 bottom-0">
                                     <Button
                                       isIconOnly

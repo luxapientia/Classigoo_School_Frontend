@@ -133,7 +133,7 @@ export default function PostsSingle({
               />
             </div>
             <div className="flex-initial">
-              {post.user.id === user.user._id ||
+              {post.user.id === user.user.id ||
               user.role === "owner" ||
               user.role === "teacher" ? (
                 <Dropdown>
@@ -156,7 +156,7 @@ export default function PostsSingle({
                             Edit
                           </p>
                         </DropdownItem> */}
-                    <DropdownItem>
+                    <DropdownItem textValue="Delete">
                       <button className="" onClick={() => setToDelete(post.id)}>
                         <p className="flex items-center text-danger-500">
                           <Icon icon="bi:trash" className="w-4 h-4 mr-2" />
@@ -263,7 +263,7 @@ export default function PostsSingle({
             </p>
           )}
         </div>
-        {post.type !== "announcement" && canPost && (
+        {post.type !== "announcement" && (
           <div className="p-5 bg-slate-100 dark:bg-slate-700">
             <div className="flex gap-4">
               <div className="flex-intial mt-1">
@@ -355,7 +355,7 @@ export default function PostsSingle({
                           </Button>
                         </DropdownTrigger>
                         <DropdownMenu>
-                          {/* {comment.user.id === user.user._id && (
+                          {/* {comment.user.id === user.user.id && (
                           <DropdownItem>
                             <p className="flex items-center">
                               <Icon
@@ -366,11 +366,11 @@ export default function PostsSingle({
                             </p>
                           </DropdownItem>
                         )} */}
-                          {comment.user.id === user.user._id ||
+                          {comment.user.id === user.user.id ||
                           user.role === "owner" ||
                           user.role === "teacher" ||
-                          post.user.id === user.user._id ? (
-                            <DropdownItem>
+                          post.user.id === user.user.id ? (
+                            <DropdownItem textValue="Delete">
                               <button
                                 className=""
                                 onClick={() => setToDeleteComment(comment.id)}

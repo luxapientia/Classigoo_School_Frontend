@@ -48,7 +48,7 @@ export default function ExamUpdateMainComponent({ eid, cid: classId, userInfo })
   const [dStart, setDStart] = React.useState("no");
   const [startAt, setStartAt] = React.useState(now(getLocalTimeZone()));
   const [sDuration, setSDuration] = React.useState("no");
-  const [duration, setDuration] = React.useState(0);
+  const [duration, setDuration] = React.useState("0");
   // const [deadline, setDeadline] = React.useState(null);
 
   const [error, setError] = React.useState(null);
@@ -133,9 +133,9 @@ export default function ExamUpdateMainComponent({ eid, cid: classId, userInfo })
   // }, [deadline]);
 
   // current user
-  const currentUser = userInfo._id;
+  const currentUser = userInfo.id;
   const userRole = classroom?.classroom_relation.find(
-    (m) => m.user._id === currentUser
+    (m) => m.user.id === currentUser
   )?.role;
 
   // check if user is a student
@@ -212,14 +212,14 @@ export default function ExamUpdateMainComponent({ eid, cid: classId, userInfo })
         content,
         status,
         audience: fixedAudience,
-        duration: sDuration === "yes" ? duration : 0,
+        duration: sDuration === "yes" ? duration : "0",
         start_once: dStart === "yes" ? fixedStartAt : null,
         questions,
       });
 
       if (response.status === "success") {
         setSuccess("Exam updated successfully.");
-        router.push(`/classroom/${classId}/exam/${response.data._id}`);
+        router.push(`/classroom/${classId}/exam/${response.data.id}`);
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -278,7 +278,7 @@ export default function ExamUpdateMainComponent({ eid, cid: classId, userInfo })
           : []
       );
       setDuration(
-        exam?.duration ? exam?.duration : 0
+        exam?.duration ? exam?.duration.toString() : "0"
       );
       setStartAt(
         exam?.start_once
@@ -351,7 +351,7 @@ export default function ExamUpdateMainComponent({ eid, cid: classId, userInfo })
 
         {openPicker && (
           <MemberSelector
-            my_id={userInfo._id}
+            my_id={userInfo.id}
             members={classroom?.classroom_relation}
             audience={audience}
             setAudience={setAudience}
@@ -610,7 +610,7 @@ export default function ExamUpdateMainComponent({ eid, cid: classId, userInfo })
                   if (e.target.value === "yes") {
                     setStartAt(now(getLocalTimeZone()));
                     setSDuration("yes");
-                    setDuration(0);
+                    setDuration("0");
                     setDStart(e.target.value);
                   } else {
                     setDStart(e.target.value);

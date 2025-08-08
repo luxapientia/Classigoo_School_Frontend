@@ -107,10 +107,10 @@ export default function ViewAllComments({
                       </p>{" "}
                     </div>
 
-                    {comment.user.id === user.user._id ||
+                    {comment.user.id === user.user.id ||
                     user.role === "owner" ||
                     user.role === "teacher" ||
-                    owner === user.user._id ? (
+                    owner === user.user.id ? (
                       <div className="flex-initial">
                         <button
                           className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded-full grid justify-center items-center h-full w-12 text-center"
@@ -136,7 +136,7 @@ export default function ViewAllComments({
                       </Button>
                     </DropdownTrigger>
                     <DropdownMenu>
-                      {/* {comment.user.id === user.user._id && (
+                      {/* {comment.user.id === user.user.id && (
                           <DropdownItem>
                             <p className="flex items-center">
                               <Icon
@@ -147,10 +147,10 @@ export default function ViewAllComments({
                             </p>
                           </DropdownItem>
                         )} */}
-                        {/* {comment.user.id === user.user._id ||
+                        {/* {comment.user.id === user.user.id ||
                       user.role === "owner" ||
                       user.role === "teacher" ||
-                      post.user.id === user.user._id ? ( */}
+                      post.user.id === user.user.id ? ( */}
                         {/* <DropdownItem>
                           <button
                             className=""

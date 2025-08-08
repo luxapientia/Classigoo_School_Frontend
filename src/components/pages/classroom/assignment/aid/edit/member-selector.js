@@ -18,7 +18,7 @@ export default function MemberSelector({ my_id, members, setOpenPicker, audience
         }));
 
       // remove me if I am in the list
-      const filtered = filteredOthers.filter((m) => m.user._id !== my_id);
+      const filtered = filteredOthers.filter((m) => m.user.id !== my_id);
 
       // remove me
       setFilteredMembers(filtered);
@@ -65,13 +65,13 @@ export default function MemberSelector({ my_id, members, setOpenPicker, audience
           {filteredMembers.map((m) => {
             return (
               <div
-                key={m._id}
+                key={m.id}
                 className="flex items-center w-full cursor-pointer"
-                onClick={() => handleSelect(m.user._id)}
+                onClick={() => handleSelect(m.user.id)}
               >
                 <div
                   className={`shadow-lg rounded-lg px-4 py-2 border-2 w-full h-full grid content-center ${
-                    selectedMembers.includes(m.user._id) || selectedMembers[0] == "*"
+                    selectedMembers.includes(m.user.id) || selectedMembers[0] == "*"
                       ? "border-success-500"
                       : "border-gray-200 dark:border-gray-700"
                   }`}

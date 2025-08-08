@@ -154,7 +154,7 @@ export default function ExamSubmissionSeeMainComponent({ cid, eid, sid, userInfo
   }, [submission, exam]);
 
   // current user
-  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo._id);
+  const currentUser = classroom?.classroom_relation.find((cr) => cr.user.id === userInfo.id);
 
   if (classroomLoading || submissionLoading || examLoading) return <Loading />;
   // not found page
@@ -163,8 +163,8 @@ export default function ExamSubmissionSeeMainComponent({ cid, eid, sid, userInfo
   if (submission === null) return <NotFoundPage />;
 
   const can_see =
-    (currentUser?.role === "student" && submission?.status === "published") ||
-    currentUser?.role !== "student";
+    (currentUser?.role === "parent" && submission?.status === "published") ||
+    currentUser?.role !== "parent";
 
   return (
     <>
