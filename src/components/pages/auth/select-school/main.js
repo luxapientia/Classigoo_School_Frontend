@@ -113,9 +113,9 @@ export default function SelectSchoolMain() {
       setConfirmLoading(false);
       setIsModalOpen(false);
       // navigate to teacher login page after 2 seconds
-      setTimeout(() => {
-        router.push("/auth/teacher/login");
-      }, 2000);
+      // setTimeout(() => {
+      //   router.push("/auth/teacher/login");
+      // }, 2000);
     }
   };
 
@@ -153,9 +153,9 @@ export default function SelectSchoolMain() {
     } finally {
       setConfirmLoading(false);
       // navigate to teacher login page after 2 seconds
-      setTimeout(() => {
-        router.push("/auth/teacher/login");
-      }, 2000);
+      // setTimeout(() => {
+      //   router.push("/auth/teacher/login");
+      // }, 2000);
     }
   };
 

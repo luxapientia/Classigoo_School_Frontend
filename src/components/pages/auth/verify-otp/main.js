@@ -64,7 +64,7 @@ export default function VerifyOtpMain({ role: userRole }) {
     setOtp(newOtp);
 
     // Move to next input if value is entered
-    if (element.value && index < 8) {
+    if (element.value && index < 6) {
       inputRefs.current[index + 1].focus();
     }
   };
