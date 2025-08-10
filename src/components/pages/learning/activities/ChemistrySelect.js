@@ -65,7 +65,7 @@ export default function ChemistrySelect({ user, grade }) {
         </div>
       )}
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <h1 className="text-2xl md:text-3xl font-semibold text-gray-700 text-center mb-8 mt-4 drop-shadow">
+        <h1 className="text-2xl md:text-3xl font-semibold text-pink-500 text-center mb-8 mt-4 drop-shadow">
           Solve the chemistry problem below.
         </h1>
         <div className="bg-white rounded-xl shadow-lg px-6 py-8 max-w-2xl w-full flex flex-col items-center">

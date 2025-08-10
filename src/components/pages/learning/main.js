@@ -56,6 +56,10 @@ const cards = [
     name: "Long Vowels",
     link: "/learning/long-vowels",
   },
+  {
+    name: "Regents Exam",
+    link: "/learning/regents-exam",
+  },
 ];
 
 export default function MainLearningComponent({ user }) {
