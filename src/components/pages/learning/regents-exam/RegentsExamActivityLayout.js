@@ -7,9 +7,9 @@ export default function RegentsExamActivityLayout({ children, title, currentInde
 
   const subactivityRoutes = [
     "/learning/regents-exam/life-science-biology",
-    "/learning/regents-exam/earth-space-sciences",
+    "/learning/regents-exam/earth-space-science",
     "/learning/regents-exam/living-environment",
-    "/learning/regents-exam/physical-setting-earth-science",
+    "/learning/regents-exam/physical-earth-science",
     "/learning/regents-exam/physical-setting-chemistry",
     "/learning/regents-exam/physical-setting-physics",
   ];
@@ -31,7 +31,7 @@ export default function RegentsExamActivityLayout({ children, title, currentInde
   };
 
   // Compose the background image path
-  const backgroundUrl = `/assets/img/screen/back${backgroundIndex}.jpg`;
+  const backgroundUrl = `/assets/img/screen/nys_regents_background_${backgroundIndex}.jpg`;
 
   const isFirstScreen = currentIndex === 0;
   const isLastScreen = currentIndex === subactivityRoutes.length - 1;

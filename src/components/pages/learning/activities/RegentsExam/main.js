@@ -21,7 +21,7 @@ const subjects = [
   },
   {
     name: "Earth and Space Sciences",
-    link: "/learning/regents-exam/earth-space-sciences",
+    link: "/learning/regents-exam/earth-space-science",
     description: "Earth and Space Sciences topics",
   },
   {
@@ -31,7 +31,7 @@ const subjects = [
   },
   {
     name: "Physical Setting Earth Science",
-    link: "/learning/regents-exam/physical-setting-earth-science",
+    link: "/learning/regents-exam/physical-earth-science",
     description: "Physical Setting Earth Science concepts",
   },
   {
