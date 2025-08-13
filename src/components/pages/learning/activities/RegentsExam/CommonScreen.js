@@ -263,7 +263,7 @@ export default function CommonScreen({
           {/* Main Content */}
           <div className="flex-1">
             <div className="flex flex-col items-center justify-center min-h-[50vh]">
-              <h1 className="text-2xl md:text-3xl font-semibold text-white text-center mb-8 mt-4 drop-shadow">
+              <h1 className="text-2xl md:text-3xl font-semibold text-pink-400 text-center mb-8 mt-4 drop-shadow">
                 Question {currentExamQuestion + 1} of {examQuestions.length}
               </h1>
               
@@ -332,9 +332,9 @@ export default function CommonScreen({
             )}
             
             {/* Progress */}
-            <div className="bg-white rounded-lg shadow-lg p-4">
-              <h3 className="text-lg font-bold text-gray-700 mb-3">Progress</h3>
-              <div className="space-y-2">
+            <div className="bg-pink-400 rounded-lg shadow-lg p-4">
+              <h3 className="text-lg font-bold text-white mb-3">Progress</h3>
+              <div className="space-y-2 text-white">
                 <div className="flex justify-between">
                   <span>Answered:</span>
                   <span className="font-bold">{userAnswers.filter(a => a !== null).length}/{examQuestions.length}</span>
@@ -415,7 +415,7 @@ export default function CommonScreen({
           </div>
         )}
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
-          <h1 className="text-2xl md:text-3xl font-semibold text-white text-center mb-8 mt-4 drop-shadow">
+          <h1 className="text-2xl md:text-3xl font-semibold text-pink-400 text-center mb-8 mt-4 drop-shadow">
             Practice Mode - Answer the {subjectName} question below.
           </h1>
           <div className="bg-white rounded-xl shadow-lg px-6 py-8 max-w-2xl w-full flex flex-col items-center">
@@ -468,7 +468,7 @@ export default function CommonScreen({
   return (
     <RegentsExamActivityLayout title={subjectTitle} currentIndex={currentIndex} backgroundIndex={backgroundIndex} grade={grade}>
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <h1 className="text-2xl md:text-3xl font-semibold text-white text-center mb-8 mt-4 drop-shadow">
+        <h1 className="text-2xl md:text-3xl font-semibold text-pink-400 text-center mb-8 mt-4 drop-shadow">
           Welcome to {subjectTitle}
         </h1>
         <div className="bg-white rounded-xl shadow-lg px-8 py-6 max-w-md w-full text-center">

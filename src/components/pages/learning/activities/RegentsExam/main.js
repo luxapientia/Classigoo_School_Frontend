@@ -44,6 +44,16 @@ const subjects = [
     link: "/learning/regents-exam/physical-setting-physics",
     description: "Physical Setting Physics fundamentals",
   },
+  {
+    name: "Algebra I",
+    link: "/learning/regents-exam/algebra-I",
+    description: "Algebra I concepts and principles",
+  },
+  {
+    name: "Algebra II",
+    link: "/learning/regents-exam/algebra-II",
+    description: "Algebra II concepts and principles",
+  },
 ];
 
 export default function RegentsExamDashboard({ user }) {

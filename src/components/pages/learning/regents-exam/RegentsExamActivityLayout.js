@@ -12,6 +12,8 @@ export default function RegentsExamActivityLayout({ children, title, currentInde
     "/learning/regents-exam/physical-earth-science",
     "/learning/regents-exam/physical-setting-chemistry",
     "/learning/regents-exam/physical-setting-physics",
+    "/learning/regents-exam/algebra-I",
+    "/learning/regents-exam/algebra-II",
   ];
 
   const goPrev = () => {
