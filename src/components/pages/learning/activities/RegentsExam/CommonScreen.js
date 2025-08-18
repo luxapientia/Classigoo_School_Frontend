@@ -169,9 +169,11 @@ export default function CommonScreen({
     setError(null);
   };
 
+  // Fetch new exam questions when retaking exam
   const handleRetakeExam = () => {
     setExamCompleted(false);
     setExamResults(null);
+    fetchExamQuestions(examConfig.questionCount);
     setShowExamConfig(true);
   };
 
