@@ -16,6 +16,8 @@ import { useSocket } from "@hooks/useSocket";
 import Loading from "@components/common/loading";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import ChildrenList from "@components/pages/dashboard/children-list";
+import ConnectVirtualStudent from "@components/pages/dashboard/connect-virtual-student";
 
 export default function MainClassroomsComponent({ user }) {
   // search params
@@ -36,6 +38,8 @@ export default function MainClassroomsComponent({ user }) {
   // -> data
   const [classrooms, setClassrooms] = React.useState([]);
   const [classroomsLoading, setClassroomsLoading] = React.useState(false);
+  const [virtualStudents, setVirtualStudents] = React.useState([]);
+  const [virtualStudentsLoading, setVirtualStudentsLoading] = React.useState(false);
   const [classTitle, setClassTitle] = React.useState("");
   const [classSection, setClassSection] = React.useState("");
   const [classSubject, setClassSubject] = React.useState("");
@@ -179,7 +183,7 @@ export default function MainClassroomsComponent({ user }) {
     onTriggered: () => setShowJoin(false),
   });
 
-  // fetch classrooms
+  // fetch classrooms and virtual students
 
   const fetchClassrooms = React.useCallback(async () => {
     setClassroomsLoading(true);
@@ -193,13 +197,39 @@ export default function MainClassroomsComponent({ user }) {
     setClassroomsLoading(false);
   }, []);
 
+  const fetchVirtualStudents = React.useCallback(async () => {
+    setVirtualStudentsLoading(true);
+    try {
+      const res = await axios.get(`/v1/classroom/member/virtual-student/parent/${user.id}`);
+      if (res.data.status === "success") {
+        setVirtualStudents(res.data.data || []);
+      } else {
+        setError(res.data.message || "Failed to load children");
+        setVirtualStudents([]);
+      }
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load children");
+      setVirtualStudents([]);
+    }
+
+    setVirtualStudentsLoading(false);
+  }, [user.id]);
+
   React.useEffect(() => {
-    fetchClassrooms();
-  }, [fetchClassrooms]);
+    if (user.role === "parent") {
+      fetchVirtualStudents();
+    } else {
+      fetchClassrooms();
+    }
+  }, [fetchClassrooms, fetchVirtualStudents, user.role]);
 
   useSocket("classroom.updated", (payload) => {
     if (payload.data) {
-      fetchClassrooms();
+      if (user.role === "parent") {
+        fetchVirtualStudents();
+      } else {
+        fetchClassrooms();
+      }
     }
   });
 
@@ -217,26 +247,34 @@ export default function MainClassroomsComponent({ user }) {
   return (
     <>
       <HeaderSlot>
-        {/* show 'create classroom' button if user is a teacher and 'join classroom' button if parent */}
-        { (user.role === "teacher" || user.role === "parent") && (
+        {/* show 'create classroom' button if user is a teacher and 'connect to child' button if parent */}
+        { user.role === "teacher" && (
           <>
             <Button
               size="small"
-              onClick={user.role === "teacher" ? handleShowCreator : handleShowJoin}
+              onClick={handleShowCreator}
               radius="large"
               variant="ghost"
               className="hidden md:flex items-center bg-content2 text:content1 px-4 py-2 border-2 rounded-xl"
             >
               <Icon icon="akar-icons:plus" />
-              <span className="ml-1">{ user.role === "teacher" ? "Create Classroom" : "Join Classroom" }</span>
+              <span className="ml-1">Create Classroom</span>
             </Button>
             <button
-              onClick={user.role === "teacher" ? handleShowCreator : handleShowJoin}
+              onClick={handleShowCreator}
               className="grid md:hidden justify-center items-center h-[44px] w-[44px] rounded-full px-0 bg-blue-500 text-white shadow-[0px_0px_5px_1px_#3b82f6c7]"
             >
               <Icon icon="akar-icons:plus" />
             </button>
           </>
+        )}
+        
+        { user.role === "parent" && (
+          <ConnectVirtualStudent 
+            onSuccess={() => {
+              fetchVirtualStudents(); // Refresh the children list
+            }}
+          />
         )}
       </HeaderSlot>
 
@@ -273,93 +311,106 @@ export default function MainClassroomsComponent({ user }) {
 
       {/* content */}
       <div>
-        {classroomsLoading ? (
-          <div className="">
-            <Loading />
-          </div>
-        ) : classrooms.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-[calc(100vh-100px)]">
-            <div className="py-5 px-2 border-2 rounded-lg border-dashed w-[calc(100%-20px)] text-center">
-              <p className="font-medium">No classrooms found!</p>
-              <div className="flex flex-row gap-2 mt-5 p-3 justify-center">
-                { user.role === "teacher" && (
-                  <button className="bg-primary-500 text-white py-1.5 px-3 text-sm" onClick={handleShowCreator}>
-                    Create a classroom
-                  </button>
-                )}
-                { user.role === "parent" && (
-                  <button className="bg-success-500 text-white py-1.5 px-3 text-sm" onClick={handleShowJoin}>
-                    Join a classroom
-                  </button>
-                )}
-              </div>
+        {user.role === "parent" ? (
+          // Show children list for parents
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">My Children</h1>
+              <p className="text-gray-600 dark:text-gray-400">Click on any child to access their classroom</p>
             </div>
+            <ChildrenList 
+              user={user}
+              virtualStudents={virtualStudents}
+              loading={virtualStudentsLoading}
+              onRefresh={fetchVirtualStudents}
+              showHeader={false}
+            />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
-            {classrooms.map((classroom) => (
-              <div
-                key={classroom.id}
-                className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg border-2 dark:border-gray-700 overflow-hidden relative"
-              >
-                <Link key={classroom.id} href={`/classroom/${classroom.id}/home`}>
-                  <div
-                    className="bg-cover bg-center bg-no-repeat"
-                    style={{
-                      backgroundImage: `url(${classroom.cover_img})`,
-                    }}
-                  >
-                    <div className="py-5 px-5 min-h-[150px] bg-gradient-to-r from-[#00000080] to-[#00000020] flex flex-col justify-end">
-                      <h2 className="text-white font-bold text-lg">{classroom.name}</h2>
-                      <p className="text-white text-sm">{classroom.subject}</p>
-                      <p className="text-white text-sm">
-                        {classroom.section}
-                        {classroom.section && classroom.room && " - "}
-                        {classroom.room}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="absolute right-[10px] top-[120px]">
-                    <Avatar
-                      src={classroom.ownerDetails.avatar.url}
-                      alt={classroom.ownerDetails.name}
-                      name={classroom.ownerDetails.name}
-                      size="lg"
-                      radius="full"
-                      isBordered
-                    />
-                  </div>
-                  <div className="min-h-[50px]">
-                    <p className="text-sm px-5 py-2 italic">
-                      By <span className="font-medium">{classroom.ownerDetails.name}</span>
-                    </p>
-                  </div>
-                </Link>
-                <div className="flex flex-row gap-2 px-2 py-2 border-t-2 dark:border-gray-700">
-                  <div className="flex justify-end w-full">
-                    <Link
-                      href={`/classroom/${classroom.id}/home`}
-                      className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
-                    >
-                      <Icon icon="line-md:home-md" className="h-4 w-4" />
-                    </Link>
-                    <Link
-                      href={`/classroom/${classroom.id}/assignments`}
-                      className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
-                    >
-                      <Icon icon="line-md:clipboard-list" className="h-4 w-4" />
-                    </Link>
-                    <Link
-                      href={`/classroom/${classroom.id}/exams`}
-                      className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
-                    >
-                      <Icon icon="line-md:check-list-3-filled" className="h-4 w-4" />
-                    </Link>
+          // Show classrooms for teachers
+          <>
+            {classroomsLoading ? (
+              <div className="">
+                <Loading />
+              </div>
+            ) : classrooms.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-[calc(100vh-100px)]">
+                <div className="py-5 px-2 border-2 rounded-lg border-dashed w-[calc(100%-20px)] text-center">
+                  <p className="font-medium">No classrooms found!</p>
+                  <div className="flex flex-row gap-2 mt-5 p-3 justify-center">
+                    <button className="bg-primary-500 text-white py-1.5 px-3 text-sm" onClick={handleShowCreator}>
+                      Create a classroom
+                    </button>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+                {classrooms.map((classroom) => (
+                  <div
+                    key={classroom.id}
+                    className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg border-2 dark:border-gray-700 overflow-hidden relative"
+                  >
+                    <Link key={classroom.id} href={`/classroom/${classroom.id}/home`}>
+                      <div
+                        className="bg-cover bg-center bg-no-repeat"
+                        style={{
+                          backgroundImage: `url(${classroom.cover_img})`,
+                        }}
+                      >
+                        <div className="py-5 px-5 min-h-[150px] bg-gradient-to-r from-[#00000080] to-[#00000020] flex flex-col justify-end">
+                          <h2 className="text-white font-bold text-lg">{classroom.name}</h2>
+                          <p className="text-white text-sm">{classroom.subject}</p>
+                          <p className="text-white text-sm">
+                            {classroom.section}
+                            {classroom.section && classroom.room && " - "}
+                            {classroom.room}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="absolute right-[10px] top-[120px]">
+                        <Avatar
+                          src={classroom.ownerDetails.avatar.url}
+                          alt={classroom.ownerDetails.name}
+                          name={classroom.ownerDetails.name}
+                          size="lg"
+                          radius="full"
+                          isBordered
+                        />
+                      </div>
+                      <div className="min-h-[50px]">
+                        <p className="text-sm px-5 py-2 italic">
+                          By <span className="font-medium">{classroom.ownerDetails.name}</span>
+                        </p>
+                      </div>
+                    </Link>
+                    <div className="flex flex-row gap-2 px-2 py-2 border-t-2 dark:border-gray-700">
+                      <div className="flex justify-end w-full">
+                        <Link
+                          href={`/classroom/${classroom.id}/home`}
+                          className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
+                        >
+                          <Icon icon="line-md:home-md" className="h-4 w-4" />
+                        </Link>
+                        <Link
+                          href={`/classroom/${classroom.id}/assignments`}
+                          className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
+                        >
+                          <Icon icon="line-md:clipboard-list" className="h-4 w-4" />
+                        </Link>
+                        <Link
+                          href={`/classroom/${classroom.id}/exams`}
+                          className="mx-1 w-7 h-7 bg-gray-700 dark:bg-white/80 text-white dark:text-gray-700 rounded-lg flex items-center justify-center"
+                        >
+                          <Icon icon="line-md:check-list-3-filled" className="h-4 w-4" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 

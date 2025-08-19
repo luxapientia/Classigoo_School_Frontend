@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { Card, CardBody, CardHeader, Progress, Button, Chip, Avatar } from "@heroui/react";
 import { HeaderSlot } from "@components/layout/header";
 import Link from "next/link";
+import ChildrenList from "./children-list";
 
 export default function DashboardMain({ user }) {
   const [stats, setStats] = useState({
@@ -308,59 +309,67 @@ export default function DashboardMain({ user }) {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Icon icon="solar:flash-bold-duotone" className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold">Quick Actions</h3>
-          </div>
-        </CardHeader>
-        <CardBody>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Button
-              as={Link}
-              href="/classrooms"
-              variant="bordered"
-              color="primary"
-              startContent={<Icon icon="solar:book-2-bold-duotone" />}
-              className="h-16"
-            >
-              Create Classroom
-            </Button>
-            <Button
-              as={Link}
-              href="/notes"
-              variant="bordered"
-              color="success"
-              startContent={<Icon icon="solar:notebook-minimalistic-bold-duotone" />}
-              className="h-16"
-            >
-              Add Notes
-            </Button>
-            <Button
-              as={Link}
-              href="/learning"
-              variant="bordered"
-              color="warning"
-              startContent={<Icon icon="solar:lightbulb-bold-duotone" />}
-              className="h-16"
-            >
-              Learning Tools
-            </Button>
-            <Button
-              as={Link}
-              href="/settings"
-              variant="bordered"
-              color="default"
-              startContent={<Icon icon="solar:settings-bold-duotone" />}
-              className="h-16"
-            >
-              Settings
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
+      {/* Role-based Content */}
+      {user.role === "parent" ? (
+        // Parent Dashboard - Show Children List
+        <div className="mt-8">
+          <ChildrenList user={user} />
+        </div>
+      ) : (
+        // Teacher/Other Dashboard - Show Quick Actions
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Icon icon="solar:flash-bold-duotone" className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-semibold">Quick Actions</h3>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Button
+                as={Link}
+                href="/classrooms"
+                variant="bordered"
+                color="primary"
+                startContent={<Icon icon="solar:book-2-bold-duotone" />}
+                className="h-16"
+              >
+                Create Classroom
+              </Button>
+              <Button
+                as={Link}
+                href="/notes"
+                variant="bordered"
+                color="success"
+                startContent={<Icon icon="solar:notebook-minimalistic-bold-duotone" />}
+                className="h-16"
+              >
+                Add Notes
+              </Button>
+              <Button
+                as={Link}
+                href="/learning"
+                variant="bordered"
+                color="warning"
+                startContent={<Icon icon="solar:lightbulb-bold-duotone" />}
+                className="h-16"
+              >
+                Learning Tools
+              </Button>
+              <Button
+                as={Link}
+                href="/settings"
+                variant="bordered"
+                color="default"
+                startContent={<Icon icon="solar:settings-bold-duotone" />}
+                className="h-16"
+              >
+                Settings
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
+      )}
     </div>
   );
 } 

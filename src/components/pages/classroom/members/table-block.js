@@ -30,15 +30,12 @@ export default function MembersTable({
 }) {
   // current user id is in user.id
   const currentUserRelation = relations.find((r) => r.user.id === user.id);
-
   // sort relations like owner 1st then teacher then student
-  const rltns = relations.sort((a, b) => {
+  const rltns = relations.filter((r) => r.role !== "parent").sort((a, b) => {
     if (a.role === "owner") return -1;
     if (b.role === "owner") return 1;
     if (a.role === "teacher") return -1;
     if (b.role === "teacher") return 1;
-    if (a.role === "parent") return -1;
-    if (b.role === "parent") return 1;
     return 0;
   });
 

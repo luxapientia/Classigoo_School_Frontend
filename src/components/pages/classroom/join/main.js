@@ -5,9 +5,6 @@ import React from "react";
 import { redirect, useSearchParams } from "next/navigation";
 import Loading from "@components/common/loading";
 
-// import { useMutation } from "@apollo/client";
-// import { JOIN_CLASSROOM } from "@graphql/mutations";
-
 export default function JoinClassRoomMain({ id, userInfo }) {
   const searchParams = useSearchParams();
 
@@ -15,17 +12,9 @@ export default function JoinClassRoomMain({ id, userInfo }) {
     redirect(`/classrooms`);
   }
 
-  // const [joinClassroom] = useMutation(JOIN_CLASSROOM);
-
   React.useEffect(() => {
     const join = async () => {
       try {
-        // await joinClassroom({
-        //   variables: {
-        //     id,
-        //     code: searchParams.get("code"),
-        //   },
-        // });
         const { data: response } = await axios.post(`/v1/classroom/join`, {
           class_id: id,
           join_code: searchParams.get("code"),
@@ -41,7 +30,25 @@ export default function JoinClassRoomMain({ id, userInfo }) {
         window.location.href = `/classrooms`;
       }
     };
-    join();
+
+    const acceptInvitation = async () => {
+      try {
+        const { data: response } = await axios.post(`/v1/classroom/member/accept-invitation`, {
+          class_id: id,
+          student_id: searchParams.get("student"),
+        });
+
+        window.location.href = `/classrooms`
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (searchParams.get("student")) {
+      acceptInvitation();
+    } else {
+      join();
+    }
   }, []);
 
   return (
