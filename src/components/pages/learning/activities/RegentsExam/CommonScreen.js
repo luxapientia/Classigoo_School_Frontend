@@ -5,6 +5,7 @@ import ModeSelectionModal from "@components/pages/learning/regents-exam/ModeSele
 import ExamConfigModal from "@components/pages/learning/regents-exam/ExamConfigModal";
 import CountdownTimer from "@components/pages/learning/regents-exam/CountdownTimer";
 import ExamResults from "@components/pages/learning/regents-exam/ExamResults";
+import EditQuestionsMode from "@components/pages/learning/regents-exam/EditQuestionsMode";
 import Image from "next/image";
 import axios from "@lib/axios";
 
@@ -99,6 +100,7 @@ export default function CommonScreen({
     if (selectedMode === "exam") {
       setShowExamConfig(true);
     }
+    // Note: Edit mode doesn't need additional configuration
   };
 
   const handleExamConfig = (config) => {
@@ -206,6 +208,21 @@ export default function CommonScreen({
     setSelectedAnswer(null);
     setShowExplanation(false);
   };
+
+  // Show edit questions mode
+  if (mode === "edit") {
+    return (
+      <EditQuestionsMode
+        grade={grade}
+        subjectName={subjectName}
+        subjectTitle={subjectTitle}
+        apiEndpoint={apiEndpoint}
+        currentIndex={currentIndex}
+        backgroundIndex={backgroundIndex}
+        onBackToDashboard={handleBackToDashboard}
+      />
+    );
+  }
 
   // Show exam results
   if (examCompleted && examResults) {
@@ -485,6 +502,7 @@ export default function CommonScreen({
       </div>
 
       <ModeSelectionModal
+        user={user}
         isOpen={showModeModal}
         onClose={() => setShowModeModal(false)}
         onModeSelect={handleModeSelect}

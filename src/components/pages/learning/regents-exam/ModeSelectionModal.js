@@ -1,6 +1,6 @@
 "use client";
 
-export default function ModeSelectionModal({ isOpen, onClose, onModeSelect }) {
+export default function ModeSelectionModal({ user, isOpen, onClose, onModeSelect }) {
   if (!isOpen) return null;
 
   return (
@@ -30,6 +30,20 @@ export default function ModeSelectionModal({ isOpen, onClose, onModeSelect }) {
               <p className="text-green-100 text-sm">Take a timed exam with specific questions</p>
             </div>
           </button>
+          
+          {
+            user.role !== "parent" && (
+            <button
+              onClick={() => onModeSelect('edit')}
+              className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
+            >
+              <div className="text-center">
+                <h3 className="text-xl font-bold mb-2">Edit Questions</h3>
+                <p className="text-orange-100 text-sm">Review and approve questions in the database</p>
+              </div>
+            </button>
+            )
+          }
         </div>
         
         <button
