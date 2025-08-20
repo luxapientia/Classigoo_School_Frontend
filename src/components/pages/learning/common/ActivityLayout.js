@@ -8,6 +8,7 @@ export default function ActivityLayout({ children, title, showBackButton = true 
   // if the page is learning screen, then the back button should navigate to the learning screen dashboard
   const isLearningScreen = title === "Learning Activities";
   const isLearningScreenSubjectSelectScreen  = title.includes("Select Subject");
+  const isLearningScreenGradeSelectScreen = title.includes("Select Grade");
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -16,7 +17,7 @@ export default function ActivityLayout({ children, title, showBackButton = true 
           <div className="flex items-center justify-between h-16">
             {showBackButton && (
               <button
-                onClick={() => isLearningScreenSubjectSelectScreen ? router.push("/learning/learning-screen") : isLearningScreen ? router.push("/") : router.push("/learning")}
+                onClick={() => isLearningScreenSubjectSelectScreen ? router.push("/learning/learning-screen") : isLearningScreenGradeSelectScreen ? router.push("/learning") : isLearningScreen ? router.push("/") : router.back()}
                 className="text-sky-600 hover:text-sky-700 flex items-center space-x-2"
               >
                 <span>←</span>
