@@ -203,6 +203,7 @@ export default function MainClassroomsComponent({ user }) {
       const res = await axios.get(`/v1/classroom/member/virtual-student/parent/${user.id}`);
       if (res.data.status === "success") {
         setVirtualStudents(res.data.data || []);
+        setError(""); // Clear any previous errors on success
       } else {
         setError(res.data.message || "Failed to load children");
         setVirtualStudents([]);
@@ -216,6 +217,9 @@ export default function MainClassroomsComponent({ user }) {
   }, [user.id]);
 
   React.useEffect(() => {
+    // Clear any previous errors when switching roles
+    setError("");
+    
     if (user.role === "parent") {
       fetchVirtualStudents();
     } else {
@@ -272,7 +276,10 @@ export default function MainClassroomsComponent({ user }) {
         { user.role === "parent" && (
           <ConnectVirtualStudent 
             onSuccess={() => {
+              setError(""); // Clear any previous errors
               fetchVirtualStudents(); // Refresh the children list
+              setSuccess("Child connected successfully! You can now access their classroom.");
+              setTimeout(() => setSuccess(""), 3000);
             }}
           />
         )}
@@ -318,13 +325,63 @@ export default function MainClassroomsComponent({ user }) {
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">My Children</h1>
               <p className="text-gray-600 dark:text-gray-400">Click on any child to access their classroom</p>
             </div>
-            <ChildrenList 
-              user={user}
-              virtualStudents={virtualStudents}
-              loading={virtualStudentsLoading}
-              onRefresh={fetchVirtualStudents}
-              showHeader={false}
-            />
+            
+            {/* Success message for parents */}
+            {success && (
+              <div className="mb-6">
+                <Alert
+                  hideIconWrapper
+                  color="success"
+                  title="Success!"
+                  description={success}
+                  variant="bordered"
+                  isClosable={true}
+                  onClose={() => setSuccess("")}
+                  classNames={{
+                    base: "mb-4",
+                  }}
+                />
+              </div>
+            )}
+            
+            {virtualStudentsLoading ? (
+              <div className="flex justify-center py-12">
+                <Loading />
+              </div>
+            ) : error ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <Icon icon="solar:close-circle-line-duotone" className="w-16 h-16 text-red-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Error Loading Children</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-4 text-center">{error}</p>
+                <Button color="primary" variant="flat" onPress={fetchVirtualStudents}>
+                  Try Again
+                </Button>
+              </div>
+            ) : virtualStudents.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl">
+                <Icon icon="solar:users-group-line-duotone" className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">No Children Connected Yet</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto text-center">
+                  You haven't connected to any virtual students yet. Ask your child's teacher for an invitation code to get started.
+                </p>
+                <ConnectVirtualStudent 
+                  onSuccess={() => {
+                    setError(""); // Clear any previous errors
+                    fetchVirtualStudents(); // Refresh the children list
+                    setSuccess("Child connected successfully! You can now access their classroom.");
+                    setTimeout(() => setSuccess(""), 3000);
+                  }}
+                />
+              </div>
+            ) : (
+              <ChildrenList 
+                user={user}
+                virtualStudents={virtualStudents}
+                loading={virtualStudentsLoading}
+                onRefresh={fetchVirtualStudents}
+                showHeader={false}
+              />
+            )}
           </div>
         ) : (
           // Show classrooms for teachers
