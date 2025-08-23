@@ -253,10 +253,10 @@ export default function CommonScreen({
           </div>
         )}
         
-        {/* Question Navigation */}
-        <div className="bg-white rounded-lg shadow-lg p-4 mb-6">
-          <h3 className="text-lg font-bold text-gray-700 mb-3">Question Navigation</h3>
-          <div className="flex flex-wrap gap-2">
+        {/* Question Navigation - Improved responsive design */}
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-700 mb-4 text-center sm:text-left">Question Navigation</h3>
+          <div className="flex flex-wrap gap-2 sm:gap-3 justify-center sm:justify-start">
             {examQuestions.map((_, index) => {
               // During exam, only show answered vs unanswered
               const isAnswered = userAnswers[index] !== null;
@@ -267,7 +267,7 @@ export default function CommonScreen({
                 <button
                   key={index}
                   onClick={() => goToQuestion(index)}
-                  className={`w-10 h-10 rounded-lg font-bold text-white transition-all hover:scale-110 ${
+                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg font-bold text-white transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-300 ${
                     statusColor
                   } ${isCurrent ? "ring-4 ring-blue-300" : ""}`}
                 >
@@ -278,17 +278,17 @@ export default function CommonScreen({
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Main Content */}
+        <div className="flex flex-col xl:flex-row gap-6">
+          {/* Main Content - Better responsive layout */}
           <div className="flex-1">
             <div className="flex flex-col items-center justify-center min-h-[50vh]">
-              <h1 className="text-2xl md:text-3xl font-semibold text-pink-400 text-center mb-8 mt-4 drop-shadow">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-pink-400 text-center mb-6 sm:mb-8 mt-4 drop-shadow">
                 Question {currentExamQuestion + 1} of {examQuestions.length}
               </h1>
               
-              <div className="bg-white rounded-xl shadow-lg px-6 py-8 max-w-2xl w-full flex flex-col items-center">
-                <div className="mb-6 text-center">
-                  <span className="text-lg md:text-xl text-gray-900 font-medium">
+              <div className="bg-white rounded-xl shadow-lg px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-2xl w-full flex flex-col items-center">
+                <div className="mb-6 text-center w-full">
+                  <span className="text-base sm:text-lg md:text-xl text-gray-900 font-medium leading-relaxed">
                     {currentQuestion.problem}
                   </span>
                 </div>
@@ -298,9 +298,9 @@ export default function CommonScreen({
                     <button
                       key={key}
                       onClick={() => handleExamAnswer(key)}
-                      className={`font-bold py-3 px-6 rounded-lg shadow transition-colors text-lg w-full text-left ${
+                      className={`font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg shadow transition-all duration-200 text-base sm:text-lg w-full text-left hover:shadow-md ${
                         userAnswers[currentExamQuestion] === key
-                          ? "bg-blue-500 text-white"
+                          ? "bg-blue-500 text-white shadow-lg"
                           : "bg-orange-500 hover:bg-orange-600 text-white"
                       }`}
                     >
@@ -310,12 +310,12 @@ export default function CommonScreen({
                   ))}
                 </div>
 
-                {/* Navigation Buttons */}
-                <div className="flex gap-3 w-full">
+                {/* Navigation Buttons - Better responsive design */}
+                <div className="flex flex-col sm:flex-row gap-3 w-full">
                   <button
                     onClick={goToPrevQuestion}
                     disabled={currentExamQuestion === 0}
-                    className={`flex-1 py-2 px-4 rounded-lg font-bold transition-colors ${
+                    className={`flex-1 py-3 px-4 rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow-md ${
                       currentExamQuestion === 0
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-blue-500 hover:bg-blue-600 text-white"
@@ -327,7 +327,7 @@ export default function CommonScreen({
                   <button
                     onClick={goToNextQuestion}
                     disabled={currentExamQuestion === examQuestions.length - 1}
-                    className={`flex-1 py-2 px-4 rounded-lg font-bold transition-colors ${
+                    className={`flex-1 py-3 px-4 rounded-lg font-bold transition-all duration-200 shadow-sm hover:shadow-md ${
                       currentExamQuestion === examQuestions.length - 1
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-green-500 hover:bg-green-600 text-white"
@@ -340,8 +340,8 @@ export default function CommonScreen({
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="lg:w-80 space-y-4">
+          {/* Sidebar - Better responsive layout */}
+          <div className="xl:w-80 space-y-4">
             {/* Timer */}
             {examConfig?.timerEnabled && (
               <CountdownTimer
@@ -350,29 +350,29 @@ export default function CommonScreen({
               />
             )}
             
-            {/* Progress */}
-            <div className="bg-pink-400 rounded-lg shadow-lg p-4">
-              <h3 className="text-lg font-bold text-white mb-3">Progress</h3>
-              <div className="space-y-2 text-white">
-                <div className="flex justify-between">
-                  <span>Answered:</span>
-                  <span className="font-bold">{userAnswers.filter(a => a !== null).length}/{examQuestions.length}</span>
+            {/* Progress - Improved responsive design */}
+            <div className="bg-pink-400 rounded-xl shadow-lg p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-4 text-center">Progress</h3>
+              <div className="space-y-3 text-white">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm sm:text-base">Answered:</span>
+                  <span className="font-bold text-lg">{userAnswers.filter(a => a !== null).length}/{examQuestions.length}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Remaining:</span>
-                  <span className="font-bold">{examQuestions.length - userAnswers.filter(a => a !== null).length}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm sm:text-base">Remaining:</span>
+                  <span className="font-bold text-lg">{examQuestions.length - userAnswers.filter(a => a !== null).length}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Current:</span>
-                  <span className="font-bold">{currentExamQuestion + 1}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm sm:text-base">Current:</span>
+                  <span className="font-bold text-lg">{currentExamQuestion + 1}</span>
                 </div>
               </div>
             </div>
 
-            {/* End Exam Button */}
+            {/* End Exam Button - Better responsive design */}
             <button
               onClick={finishExam}
-              className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-lg"
+              className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 sm:py-4 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-base sm:text-lg"
             >
               End Exam
             </button>
@@ -388,7 +388,7 @@ export default function CommonScreen({
       return (
         <RegentsExamActivityLayout title={subjectTitle} currentIndex={currentIndex} backgroundIndex={backgroundIndex} grade={grade}>
           <div className="flex flex-col items-center justify-center min-h-[60vh]">
-            <div className="text-lg text-gray-500">Loading question...</div>
+            <div className="text-lg sm:text-xl text-gray-500">Loading question...</div>
           </div>
         </RegentsExamActivityLayout>
       );
@@ -398,10 +398,10 @@ export default function CommonScreen({
       return (
         <RegentsExamActivityLayout title={subjectTitle} currentIndex={currentIndex} backgroundIndex={backgroundIndex} grade={grade}>
           <div className="flex flex-col items-center justify-center min-h-[60vh]">
-            <div className="text-lg text-red-500 mb-4">Error: {error}</div>
+            <div className="text-lg sm:text-xl text-red-500 mb-4 text-center">Error: {error}</div>
             <button
               onClick={fetchRandomQuestion}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
             >
               Retry
             </button>
@@ -414,7 +414,7 @@ export default function CommonScreen({
       return (
         <RegentsExamActivityLayout title={subjectTitle} currentIndex={currentIndex} backgroundIndex={backgroundIndex} grade={grade}>
           <div className="flex flex-col items-center justify-center min-h-[60vh]">
-            <div className="text-lg text-gray-500">No questions available</div>
+            <div className="text-lg sm:text-xl text-gray-500">No questions available</div>
           </div>
         </RegentsExamActivityLayout>
       );
@@ -434,12 +434,12 @@ export default function CommonScreen({
           </div>
         )}
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
-          <h1 className="text-2xl md:text-3xl font-semibold text-pink-400 text-center mb-8 mt-4 drop-shadow">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-pink-400 text-center mb-6 sm:mb-8 mt-4 drop-shadow px-4">
             Practice Mode - Answer the {subjectName} question below.
           </h1>
-          <div className="bg-white rounded-xl shadow-lg px-6 py-8 max-w-2xl w-full flex flex-col items-center">
-            <div className="mb-6 text-center">
-              <span className="text-lg md:text-xl text-gray-900 font-medium">
+          <div className="bg-white rounded-xl shadow-lg px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-2xl w-full flex flex-col items-center">
+            <div className="mb-6 text-center w-full">
+              <span className="text-base sm:text-lg md:text-xl text-gray-900 font-medium leading-relaxed">
                 {currentQuestion.problem}
               </span>
             </div>
@@ -450,11 +450,11 @@ export default function CommonScreen({
                   key={key}
                   onClick={() => checkAnswer(key)}
                   disabled={selectedAnswer !== null}
-                  className={`font-bold py-3 px-6 rounded-lg shadow transition-colors text-lg w-full text-left ${
+                  className={`font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-lg shadow transition-all duration-200 text-base sm:text-lg w-full text-left hover:shadow-md ${
                     selectedAnswer === key
                       ? key === currentQuestion.correctAnswer
-                        ? "bg-green-500 text-white"
-                        : "bg-red-500 text-white"
+                        ? "bg-green-500 text-white shadow-lg"
+                        : "bg-red-500 text-white shadow-lg"
                       : "bg-orange-500 hover:bg-orange-600 text-white"
                   }`}
                 >
@@ -465,15 +465,15 @@ export default function CommonScreen({
             </div>
 
             {showExplanation && (
-              <div className="w-full bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                <h3 className="font-bold text-blue-800 mb-2">Explanation:</h3>
-                <p className="text-blue-700">{currentQuestion.explanation}</p>
+              <div className="w-full bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <h3 className="font-bold text-blue-800 mb-2 text-center sm:text-left">Explanation:</h3>
+                <p className="text-blue-700 text-center sm:text-left">{currentQuestion.explanation}</p>
               </div>
             )}
 
             <button
               onClick={getNextQuestion}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md w-full sm:w-auto"
             >
               Next Question
             </button>
@@ -487,14 +487,14 @@ export default function CommonScreen({
   return (
     <RegentsExamActivityLayout title={subjectTitle} currentIndex={currentIndex} backgroundIndex={backgroundIndex} grade={grade}>
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <h1 className="text-2xl md:text-3xl font-semibold text-pink-400 text-center mb-8 mt-4 drop-shadow">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-pink-400 text-center mb-6 sm:mb-8 mt-4 drop-shadow px-4">
           Welcome to {subjectTitle}
         </h1>
-        <div className="bg-white rounded-xl shadow-lg px-8 py-6 max-w-md w-full text-center">
-          <p className="text-gray-600 mb-4">{subjectDescription}</p>
+        <div className="bg-white rounded-xl shadow-lg px-6 sm:px-8 py-6 sm:py-8 max-w-md w-full text-center">
+          <p className="text-gray-600 mb-6 text-sm sm:text-base leading-relaxed">{subjectDescription}</p>
           <button
             onClick={() => setShowModeModal(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md w-full sm:w-auto"
           >
             Select Mode
           </button>
