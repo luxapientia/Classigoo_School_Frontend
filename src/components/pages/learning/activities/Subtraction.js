@@ -4,101 +4,97 @@ import { useState, useEffect } from 'react';
 import ActivityLayout from '../common/ActivityLayout';
 import ArithmeticInput from '../common/ArithmeticInput';
 
-// Static data matching the subtraction problems from the UI
-const subtractionData = [
-  {
-    op1: "15",
-    op2: "_", 
-    result: "6",
-    answer: "9",
-    operator: "-"
-  },
-  {
-    op1: "10",
-    op2: "_",
-    result: "6", 
-    answer: "4",
-    operator: "-"
-  },
-  {
-    op1: "9",
-    op2: "_",
-    result: "6",
-    answer: "3",
-    operator: "-"
-  },
-  {
-    op1: "9",
-    op2: "_",
-    result: "6", 
-    answer: "3",
-    operator: "-"
-  },
-  {
-    op1: "6",
-    op2: "_", 
-    result: "1",
-    answer: "5",
-    operator: "-"
-  },
-  {
-    op1: "5",
-    op2: "_",
-    result: "1",
-    answer: "4",
-    operator: "-"
-  },
-  {
-    op1: "6",
-    op2: "_",
-    result: "3",
-    answer: "3",
-    operator: "-"
-  },
-  {
-    op1: "3",
-    op2: "_",
-    result: "1",
-    answer: "2",
-    operator: "-"
-  },
-  {
-    op1: "10",
-    op2: "_", 
-    result: "1",
-    answer: "9",
-    operator: "-"
+// Dynamic problem generator for subtraction (1, 2, and 3 digits)
+const generateSubtractionProblem = () => {
+  // Generate random operands with different digit lengths
+  let op1, op2;
+  
+  // 40% chance for 2-digit numbers, 40% chance for 1-digit numbers, 20% chance for 3-digit numbers
+  const random = Math.random();
+  
+  if (random < 0.4) {
+    // 1-digit numbers (1-9) - ensure op1 > op2 for positive result
+    op1 = Math.floor(Math.random() * 9) + 1;
+    op2 = Math.floor(Math.random() * op1) + 1;
+  } else if (random < 0.8) {
+    // 2-digit numbers (10-99) - ensure op1 > op2 for positive result
+    op1 = Math.floor(Math.random() * 90) + 10;
+    op2 = Math.floor(Math.random() * (op1 - 10)) + 10;
+  } else {
+    // 3-digit numbers (100-999) - ensure op1 > op2 for positive result
+    op1 = Math.floor(Math.random() * 900) + 100;
+    op2 = Math.floor(Math.random() * (op1 - 100)) + 100;
   }
-];
+  
+  const result = op1 - op2;
+  
+  return {
+    op1: op1.toString(),
+    op2: op2.toString(),
+    result: "_", // Always missing result
+    answer: result.toString(),
+    operator: "-"
+  };
+};
 
 export default function SubtractionActivity({ user }) {
-  const [calcData, setCalcData] = useState([]);
+  const [currentProblem, setCurrentProblem] = useState(null);
 
   useEffect(() => {
-    setCalcData(subtractionData);
+    // Generate initial problem
+    setCurrentProblem(generateSubtractionProblem());
   }, []);
+
+  const generateNewProblem = () => {
+    setCurrentProblem(generateSubtractionProblem());
+  };
+
+  if (!currentProblem) {
+    return (
+      <ActivityLayout title="Subtraction">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-lg text-gray-500">Loading problem...</div>
+        </div>
+      </ActivityLayout>
+    );
+  }
 
   return (
     <ActivityLayout title="Subtraction">
       <div className="h-[calc(100vh-4rem)] overflow-y-auto">
         <div className="container mx-auto px-4 py-6">
+          {/* Header */}
           <div className="flex justify-center mb-6">
             <div className="bg-purple-500 text-white px-6 py-4 rounded-2xl shadow-lg">
               <h1 className="text-4xl font-bold text-center">Subtraction</h1>
             </div>
           </div>
           
-          <div className="bg-white rounded-lg p-6 shadow-sm">
-            <div className="flex flex-wrap justify-center">
-              {calcData.map((item, i) => (
-                <ArithmeticInput data={item} key={i} />
-              ))}
+          {/* Current Problem */}
+          <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
+            <div className="flex justify-center">
+              <ArithmeticInput 
+                data={currentProblem} 
+                onProblemComplete={generateNewProblem}
+              />
+            </div>
+          </div>
+
+          {/* Next Button */}
+          <div className="bg-white rounded-lg p-4 shadow-sm mb-6">
+            <div className="flex justify-center">
+              <button
+                onClick={generateNewProblem}
+                className="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all text-lg"
+              >
+                Next Problem →
+              </button>
             </div>
           </div>
 
           <div className="mt-8 text-center pb-6">
             <p className="text-gray-600">
-              Solve the subtraction problems. Fill in the missing numbers!
+              Solve the subtraction problem and click Next for a new one!
             </p>
           </div>
         </div>

@@ -20,26 +20,26 @@ const cards = [
     name: "Division",
     link: "/learning/arithmetic/division",
   },
-  {
-    name: "Two-digit Addition",
-    link: "/learning/arithmetic/addition2",
-  },
-  {
-    name: "Two-digit Subtraction",
-    link: "/learning/arithmetic/subtraction2",
-  },
-  {
-    name: "Two-digit Multiplication",
-    link: "/learning/arithmetic/multiplication2",
-  },
-  {
-    name: "Two-digit Division",
-    link: "/learning/arithmetic/division2",
-  },
-  {
-    name: "Long Division",
-    link: "/learning/arithmetic/long-division",
-  },
+  // {
+  //   name: "Two-digit Addition",
+  //   link: "/learning/arithmetic/addition2",
+  // },
+  // {
+  //   name: "Two-digit Subtraction",
+  //   link: "/learning/arithmetic/subtraction2",
+  // },
+  // {
+  //   name: "Two-digit Multiplication",
+  //   link: "/learning/arithmetic/multiplication2",
+  // },
+  // {
+  //   name: "Two-digit Division",
+  //   link: "/learning/arithmetic/division2",
+  // },
+  // {
+  //   name: "Long Division",
+  //   link: "/learning/arithmetic/long-division",
+  // },
 ];
 
 export default function MainArithmeticComponent({ user }) {
