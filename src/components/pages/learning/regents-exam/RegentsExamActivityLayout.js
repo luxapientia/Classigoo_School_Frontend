@@ -45,7 +45,8 @@ export default function RegentsExamActivityLayout({ children, title, currentInde
         backgroundImage: `url(${backgroundUrl})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundAttachment: "fixed"
+        backgroundAttachment: "fixed",
+        maxHeight: "100vh"
       }}
     >
       {/* Header - Improved responsive design */}
