@@ -80,6 +80,14 @@ export default function EditQuestionsMode({
     }
   };
 
+  // Add this new function after the existing navigation functions
+  const jumpToQuestion = (questionNumber) => {
+    if (questionNumber >= 0 && questionNumber < questions.length) {
+      setCurrentQuestionIndex(questionNumber);
+      setEditedQuestion({ ...questions[questionNumber] });
+    }
+  };
+
   // Handle question updates
   const handleQuestionChange = (field, value) => {
     setEditedQuestion(prev => ({
@@ -250,6 +258,7 @@ export default function EditQuestionsMode({
           onNext={goToNextQuestion}
           canGoPrevious={currentQuestionIndex > 0}
           canGoNext={currentQuestionIndex < questions.length - 1}
+          onJumpToQuestion={jumpToQuestion} // Add this new prop
         />
 
         {/* Statistics */}

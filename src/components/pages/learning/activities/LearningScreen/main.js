@@ -116,13 +116,20 @@ export default function LearningScreenDashboard({ user }) {
             </div>
             
             <div className="flex flex-wrap -mx-3">
-              {subjects.map((subject, i) => (
-                <SubjectCard 
-                  key={i}
-                  {...subject}
-                  onClick={handleSubjectSelect}
-                />
-              ))}
+              {subjects.map((subject, i) => {
+                if (["6", "7", "8"].includes(selectedGrade)) {
+                  if (subject.name === "New Word" || subject.name === "Matching Shape" || subject.name === "Complete Word") {
+                    return null;
+                  }
+                }
+                return (
+                  <SubjectCard 
+                    key={i}
+                    {...subject}
+                    onClick={handleSubjectSelect}
+                  />
+                )
+              })}
             </div>
           </div>
         </div>
